@@ -1,6 +1,7 @@
 # Populate JSON file with antibody annotation data
 import json
 import os
+import re
 
 
 class AntibodyToJSON:
@@ -98,7 +99,7 @@ class AntibodyToJSON:
         for record in self.current_records:
             print("RAW RECORD:", record)
 
-            key = record.split(":")[0]
+            key = record.split(":", 1)[0]
             key = key[:key.index("[")] if "[" in key else key
 
             for k_part in key_parts:
@@ -593,6 +594,10 @@ class AntibodyToJSON:
                                            [{"Type": m_type, "Position": position, "Frequency": frequency}]}]
 
     def disulfides_inter(self, record): # DisulfidesInterH1H2[2,5]: 222-230 225-233 350-353;
+        colon_count = record.count(':')
+        if colon_count>1:
+            record = record.replace(':', ',', 1)
+            print(record)
         key, value = record.split(":", 1)
 
         if "[" not in key:
@@ -605,12 +610,18 @@ class AntibodyToJSON:
             connections = [{"A": int(c.split("-")[0]), "B": int(c.split("-")[1])} for c in value]
             self.antibody_ann_dict[key] = [{"Bonds": connections}]
             return None
-
-        dis_record = key.split("[")[1][:-1].split(",")
+        print(f'key: {key}')
+        dis_record = key.split("[")[1][:-1]
+        print(f'dis_record: {dis_record}')
+        if ":" in dis_record:
+            dis_instances = list(map(int, dis_record.split(":")))
+        elif "," in dis_record:
+            dis_instances = list(map(int, dis_record.split(",")))
         if not dis_record[0].isnumeric():
             dis_instances = ["NONE", "NONE"]
         else:
             dis_instances = list(map(int, key.split("[")[1][:-1].split(",")))
+
 
         if len(dis_instances) == 1:
             value = value.strip().split(" ")
