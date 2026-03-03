@@ -9,8 +9,18 @@ class AntibodyToJSON:
         if not os.path.exists('json_files'):
             os.makedirs('json_files')
         for file in self.files:
-            joined_path = os.path.join(self.path, file)
-            self.single_file_transfer(joined_path)
+            try:
+                self.file = file
+                joined_path = os.path.join(self.path, file)
+                self.single_file_transfer(joined_path)
+
+            except Exception as e:
+                print(f"Error in file: {self.file}")
+                print(f"Error message: {e}")
+                self.antibody_ann_dict = {}
+                self.old_key = None
+                continue
+
 
     def __init__(self, path):
         """
@@ -97,7 +107,7 @@ class AntibodyToJSON:
         # Produce JSON file from .txt annotation file
         self.current_records = self.read_divide_records(filename)
         for record in self.current_records:
-            print("RAW RECORD:", record)
+            
 
             key = record.split(":", 1)[0]
             key = key[:key.index("[")] if "[" in key else key
@@ -125,8 +135,9 @@ class AntibodyToJSON:
                 self.normal_record(record)
             self.old_key = key
 
-        filename = filename.split("/")[1]
-        with open(f"json_files/{filename.split('.')[0]}.json", "w") as jf:
+        basename = os.path.basename(filename)
+        json_name = os.path.splitext(basename)[0] + ".json"
+        with open(os.path.join("json_files", json_name), "w") as jf:
             json.dump(self.antibody_ann_dict, jf, indent=4)
 
         # Empty the data dictionary and the old key for the next document
@@ -597,7 +608,6 @@ class AntibodyToJSON:
         colon_count = record.count(':')
         if colon_count>1:
             record = record.replace(':', ',', 1)
-            print(record)
         key, value = record.split(":", 1)
 
         if "[" not in key:
@@ -610,7 +620,6 @@ class AntibodyToJSON:
             connections = [{"A": int(c.split("-")[0]), "B": int(c.split("-")[1])} for c in value]
             self.antibody_ann_dict[key] = [{"Bonds": connections}]
             return None
-        print(f'key: {key}')
         dis_record = key.split("[")[1][:-1]
         print(f'dis_record: {dis_record}')
         if ":" in dis_record:
@@ -739,12 +748,17 @@ class AntibodyToJSON:
             self.antibody_ann_dict[name_key].append(data)
 
     def normal_record(self, record):
-        key, value = record.split(":", 1)
-        if "[" in key:
-            self.any_instance_record(record)
+        if ":" in record:
+            key, value = record.split(":", 1)
+            if "[" in key:
+                self.any_instance_record(record)
+            else:
+                value = value.strip()
+                self.antibody_ann_dict[key] = value
         else:
-            value = value.strip()
-            self.antibody_ann_dict[key] = value
+            value, key = record.split("in", 1)
+
+
 
 if __name__ == "__main__":
     folder_path = "/Users/emmawrenn/Downloads/sinan"
