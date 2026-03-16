@@ -11,7 +11,23 @@ for entry in os.scandir(directory):
             data = json.load(f)
             new_json = data
             for key, value in list(new_json.items()):
+                replace_lh = {}
                 change = False
+
+                if 'L1H1' in key:
+                    new_key = key.replace('L1H1', 'LH')
+                    replace_lh[new_key] = value
+                    new_json.update(replace_lh)
+                    del new_json[key]
+                    key = new_key
+                if 'L2H2' in key:
+                    new_key = key.replace('L2H2', 'LH')
+                    replace_lh[new_key] = value
+                    new_json.update(replace_lh)
+                    del new_json[key]
+                    key = new_key
+
+
                 if isinstance(value, list):
                     replacement_dic = {}
                     for item in value:
@@ -31,14 +47,14 @@ for entry in os.scandir(directory):
                                     else:
                                         for thing in name:
                                             new_key = f"{key}[0]"
-                                            new_val = new_val = {k: v for k, v in item.items()}
+                                            new_val = {k: v for k, v in item.items()}
                                             replacement_dic[new_key] = new_val
                                             new_json.update(replacement_dic)
                                             change = True
 
+
                                 if name=='Modifications':
                                     for mod_item in item[name]: #going through items in the nested dictionary in 'Modifications'
-                                        print(mod_item)
                                         if mod_item['Frequency']=="":
                                             mod_item['Frequency'] = ['Total']
 
@@ -51,7 +67,8 @@ for entry in os.scandir(directory):
                                         change = True
 
                     if change==True:
-                        del new_json[key]
+                        new_json.pop(key, None)
+
             output_path = os.path.join(new_folder, "new"+entry.name)
             with open(output_path, 'w') as f:
                 json.dump(new_json, f, indent=4)
