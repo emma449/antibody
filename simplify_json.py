@@ -29,6 +29,7 @@ for entry in os.scandir(directory):
 
 
                 if isinstance(value, list):
+
                     replacement_dic = {}
                     for item in value:
                         if isinstance(item, dict):
@@ -40,17 +41,20 @@ for entry in os.scandir(directory):
                                     if "NONE" not in instances and 'None' not in instances:
                                         for instance in instances:
                                             new_key = f"{key}[{instance}]"
-                                            new_val = {k: v for k, v in item.items() if k != "Instance"}
+                                            if 'Length' in key:
+                                                new_val = item['Values'][0]
+                                            else:
+                                                new_val = {k: v for k, v in item.items() if k != "Instance"}
                                             replacement_dic[new_key] = new_val
+                                            new_json.pop(key, None)
                                             new_json.update(replacement_dic)
-                                            change = True
                                     else:
                                         for thing in name:
                                             new_key = f"{key}[0]"
                                             new_val = {k: v for k, v in item.items()}
                                             replacement_dic[new_key] = new_val
+                                            new_json.pop(key, None)
                                             new_json.update(replacement_dic)
-                                            change = True
 
 
                                 if name=='Modifications':
@@ -63,11 +67,11 @@ for entry in os.scandir(directory):
                                         new_key = f"{key}[0]"
                                         new_val = new_val = {k: v for k, v in item.items()}
                                         replacement_dic[new_key] = new_val
+                                        new_json.pop(key, None)
                                         new_json.update(replacement_dic)
-                                        change = True
 
-                    if change==True:
-                        new_json.pop(key, None)
+
+
 
             output_path = os.path.join(new_folder, "new"+entry.name)
             with open(output_path, 'w') as f:
