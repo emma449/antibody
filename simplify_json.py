@@ -16,13 +16,22 @@ for entry in os.scandir(directory):
                     replacement_dic = {}
                     for item in value:
                         if isinstance(item, dict):
+                            instance_present = False
                             for name in item:
                                 if name=='Instance':
+                                    instance_present = True
                                     instances = item['Instance']
                                     if "NONE" not in instances and 'None' not in instances:
                                         for instance in instances:
                                             new_key = f"{key}[{instance}]"
                                             new_val = {k: v for k, v in item.items() if k != "Instance"}
+                                            replacement_dic[new_key] = new_val
+                                            new_json.update(replacement_dic)
+                                            change = True
+                                    else:
+                                        for thing in name:
+                                            new_key = f"{key}[0]"
+                                            new_val = new_val = {k: v for k, v in item.items()}
                                             replacement_dic[new_key] = new_val
                                             new_json.update(replacement_dic)
                                             change = True
@@ -32,6 +41,15 @@ for entry in os.scandir(directory):
                                         print(mod_item)
                                         if mod_item['Frequency']=="":
                                             mod_item['Frequency'] = ['Total']
+
+                                if instance_present == False:
+                                    for thing in name:
+                                        new_key = f"{key}[0]"
+                                        new_val = new_val = {k: v for k, v in item.items()}
+                                        replacement_dic[new_key] = new_val
+                                        new_json.update(replacement_dic)
+                                        change = True
+
                     if change==True:
                         del new_json[key]
             output_path = os.path.join(new_folder, "new"+entry.name)
