@@ -49,13 +49,20 @@ for entry in os.scandir(directory):
                                             replacement_dic[new_key] = new_val
 
                                             if 'Potential' in item:
-                                                replacement_dic[f'{new_key}Potential'] = item['Potential']
-                                                replacement_dic.pop(new_key, None)
-                                            if 'Confirmed' in item:
-                                                replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
+                                                if item['Potential'] == ["None"] or item['Potential']==['NONE']:
+                                                    print(item)
+                                                    replacement_dic[f'{new_key}Potential'] = [0]
+                                                else:
+                                                    replacement_dic[f'{new_key}Potential'] = item['Potential']
                                                 replacement_dic.pop(new_key, None)
 
-                                            print(replacement_dic)
+                                            if 'Confirmed' in item:
+                                                if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
+                                                    replacement_dic[f'{new_key}Confirmed'] = [0]
+                                                else:
+                                                    replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
+                                                replacement_dic.pop(new_key, None)
+
                                             new_json.pop(key, None)
                                             new_json.update(replacement_dic)
                                     else:
