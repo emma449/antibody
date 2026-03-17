@@ -12,7 +12,6 @@ for entry in os.scandir(directory):
             new_json = data
             for key, value in list(new_json.items()):
                 replace_lh = {}
-                change = False
 
                 if 'L1H1' in key:
                     new_key = key.replace('L1H1', 'LH')
@@ -41,20 +40,30 @@ for entry in os.scandir(directory):
                                     if "NONE" not in instances and 'None' not in instances:
                                         for instance in instances:
                                             new_key = f"{key}[{instance}]"
+
                                             if 'Length' in key:
-                                                new_val = item['Values'][0]
+                                                new_val = [item['Values'][0]] #change the nested dictionary into single dictionary
                                             else:
                                                 new_val = {k: v for k, v in item.items() if k != "Instance"}
+
                                             replacement_dic[new_key] = new_val
+
+                                            if 'Potential' in item:
+                                                replacement_dic[f'{new_key}Potential'] = item['Potential']
+                                                replacement_dic.pop(new_key, None)
+                                            if 'Confirmed' in item:
+                                                replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
+                                                replacement_dic.pop(new_key, None)
+
+                                            print(replacement_dic)
                                             new_json.pop(key, None)
                                             new_json.update(replacement_dic)
                                     else:
-                                        for thing in name:
-                                            new_key = f"{key}[0]"
-                                            new_val = {k: v for k, v in item.items()}
-                                            replacement_dic[new_key] = new_val
-                                            new_json.pop(key, None)
-                                            new_json.update(replacement_dic)
+                                        new_key = f"{key}[0]"
+                                        new_val = {k: v for k, v in item.items()}
+                                        replacement_dic[new_key] = new_val
+                                        new_json.pop(key, None)
+                                        new_json.update(replacement_dic)
 
 
                                 if name=='Modifications':
@@ -62,13 +71,16 @@ for entry in os.scandir(directory):
                                         if mod_item['Frequency']=="":
                                             mod_item['Frequency'] = ['Total']
 
+
+
+
                                 if instance_present == False:
-                                    for thing in name:
-                                        new_key = f"{key}[0]"
-                                        new_val = new_val = {k: v for k, v in item.items()}
-                                        replacement_dic[new_key] = new_val
-                                        new_json.pop(key, None)
-                                        new_json.update(replacement_dic)
+                                    new_key = f"{key}[0]"
+                                    new_val = new_val = {k: v for k, v in item.items()}
+                                    replacement_dic[new_key] = new_val
+                                    new_json.pop(key, None)
+                                    new_json.update(replacement_dic)
+
 
 
 
