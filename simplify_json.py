@@ -50,7 +50,6 @@ for entry in os.scandir(directory):
 
                                             if 'Potential' in item:
                                                 if item['Potential'] == ["None"] or item['Potential']==['NONE']:
-                                                    print(item)
                                                     replacement_dic[f'{new_key}Potential'] = [0]
                                                 else:
                                                     replacement_dic[f'{new_key}Potential'] = item['Potential']
@@ -63,20 +62,43 @@ for entry in os.scandir(directory):
                                                     replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
                                                 replacement_dic.pop(new_key, None)
 
+                                            if 'Modifications' in item:
+                                                for mod_item in item['Modifications']:
+                                                    mod_key = mod_item['Type']
+
+                                                    if mod_item['Frequency'] == '':
+                                                        mod_item['Frequency'] = ['Total']
+
+                                                    mod_val = {k: v for k, v in mod_item.items() if k != 'Type'}
+                                                    replacement_dic.pop(new_key, None)
+                                                    replacement_dic[mod_key] = mod_val
+
+
                                             new_json.pop(key, None)
                                             new_json.update(replacement_dic)
                                     else:
                                         new_key = f"{key}[0]"
                                         new_val = {k: v for k, v in item.items()}
                                         replacement_dic[new_key] = new_val
+                                        if 'Modifications' in item:
+                                            for mod_item in item['Modifications']:
+                                                mod_key = mod_item['Type']
+
+                                                if mod_item['Frequency'] == '':
+                                                    mod_item['Frequency'] = ['Total']
+
+                                                mod_val = {k: v for k, v in mod_item.items() if k != 'Type'}
+                                                replacement_dic.pop(new_key, None)
+                                                replacement_dic[mod_key] = mod_val
+
                                         new_json.pop(key, None)
                                         new_json.update(replacement_dic)
 
 
-                                if name=='Modifications':
-                                    for mod_item in item[name]: #going through items in the nested dictionary in 'Modifications'
-                                        if mod_item['Frequency']=="":
-                                            mod_item['Frequency'] = ['Total']
+
+
+                                    if name=='Modifications':
+                                            item[name]['Frequency'] = ['Total']
 
 
 
