@@ -99,6 +99,11 @@ for entry in os.scandir(directory):
                                                         replacement_dic.pop(new_key, None)
                                                         replacement_dic[mod_key] = mod_val
 
+                                                if 'Values' in item:
+                                                    value_vals = item['Values']
+                                                    replacement_dic[new_key] = value_vals
+
+
 
                                                 new_json.pop(key, None)
                                                 new_json.update(replacement_dic)
