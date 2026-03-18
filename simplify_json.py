@@ -34,48 +34,74 @@ for entry in os.scandir(directory):
                         if isinstance(item, dict):
                             instance_present = False
                             for name in item:
-                                if name=='Instance':
+
+                                if 'Instance' in name:
                                     instance_present = True
-                                    instances = item['Instance']
-                                    if "NONE" not in instances and 'None' not in instances:
-                                        for instance in instances:
-                                            new_key = f"{key}[{instance}]"
-
-                                            if 'Length' in key:
-                                                new_val = [item['Values'][0]] #change the nested dictionary into single dictionary
-                                            else:
-                                                new_val = {k: v for k, v in item.items() if k != "Instance"}
-
+                                    if name=='InstanceA':
+                                        instances = [item['InstanceA']]
+                                        for instance_a in instances:
+                                            new_key = f'{key}[{instance_a}]'
+                                            bonds = item['Bonds'][0]['A']
+                                            print(bonds)
+                                            partner = item['InstanceB']
+                                            new_val = [{'Residue': bonds, 'Partner': partner}]
                                             replacement_dic[new_key] = new_val
-
-                                            if 'Potential' in item:
-                                                if item['Potential'] == ["None"] or item['Potential']==['NONE']:
-                                                    replacement_dic[f'{new_key}Potential'] = [0]
-                                                else:
-                                                    replacement_dic[f'{new_key}Potential'] = item['Potential']
-                                                replacement_dic.pop(new_key, None)
-
-                                            if 'Confirmed' in item:
-                                                if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
-                                                    replacement_dic[f'{new_key}Confirmed'] = [0]
-                                                else:
-                                                    replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
-                                                replacement_dic.pop(new_key, None)
-
-                                            if 'Modifications' in item:
-                                                for mod_item in item['Modifications']:
-                                                    mod_key = mod_item['Type']
-
-                                                    if mod_item['Frequency'] == '':
-                                                        mod_item['Frequency'] = ['Total']
-
-                                                    mod_val = {k: v for k, v in mod_item.items() if k != 'Type'}
-                                                    replacement_dic.pop(new_key, None)
-                                                    replacement_dic[mod_key] = mod_val
-
-
+                                            new_json.update(replacement_dic)
+                                    elif name=='InstanceB':
+                                        instances = [item['InstanceB']]
+                                        for instance_b in instances:
+                                            new_key = f'{key}[{instance_b}]'
+                                            bonds = item['Bonds'][0]['B']
+                                            partner = item['InstanceA']
+                                            new_val = [{'Residue': bonds, 'Partner': partner}]
+                                            replacement_dic[new_key] = new_val
                                             new_json.pop(key, None)
                                             new_json.update(replacement_dic)
+
+
+
+                                    elif name=='Instance':
+
+                                        instances = item['Instance']
+                                        if "NONE" not in instances and 'None' not in instances:
+                                            for instance in instances:
+                                                new_key = f"{key}[{instance}]"
+
+                                                if 'Length' in key:
+                                                    new_val = [item['Values'][0]] #change the nested dictionary into single dictionary
+                                                else:
+                                                    new_val = {k: v for k, v in item.items() if k != "Instance"}
+
+                                                replacement_dic[new_key] = new_val
+
+                                                if 'Potential' in item:
+                                                    if item['Potential'] == ["None"] or item['Potential']==['NONE']:
+                                                        replacement_dic[f'{new_key}Potential'] = [0]
+                                                    else:
+                                                        replacement_dic[f'{new_key}Potential'] = item['Potential']
+                                                    replacement_dic.pop(new_key, None)
+
+                                                if 'Confirmed' in item:
+                                                    if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
+                                                        replacement_dic[f'{new_key}Confirmed'] = [0]
+                                                    else:
+                                                        replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
+                                                    replacement_dic.pop(new_key, None)
+
+                                                if 'Modifications' in item:
+                                                    for mod_item in item['Modifications']:
+                                                        mod_key = mod_item['Type']
+
+                                                        if mod_item['Frequency'] == '':
+                                                            mod_item['Frequency'] = ['Total']
+
+                                                        mod_val = {k: v for k, v in mod_item.items() if k != 'Type'}
+                                                        replacement_dic.pop(new_key, None)
+                                                        replacement_dic[mod_key] = mod_val
+
+
+                                                new_json.pop(key, None)
+                                                new_json.update(replacement_dic)
                                     else:
                                         new_key = f"{key}[0]"
                                         new_val = {k: v for k, v in item.items()}
