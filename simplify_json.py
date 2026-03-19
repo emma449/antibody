@@ -42,7 +42,6 @@ for entry in os.scandir(directory):
                                         for instance_a in instances:
                                             new_key = f'{key}[{instance_a}]'
                                             bonds = item['Bonds'][0]['A']
-                                            print(bonds)
                                             partner = item['InstanceB']
                                             new_val = [{'Residue': bonds, 'Partner': partner}]
                                             replacement_dic[new_key] = new_val
@@ -90,17 +89,20 @@ for entry in os.scandir(directory):
 
                                                 if 'Modifications' in item:
                                                     for mod_item in item['Modifications']:
-                                                        mod_key = mod_item['Type']
 
                                                         if mod_item['Frequency'] == '':
                                                             mod_item['Frequency'] = ['Total']
 
-                                                        mod_val = {k: v for k, v in mod_item.items() if k != 'Type'}
-                                                        replacement_dic.pop(new_key, None)
-                                                        replacement_dic[mod_key] = mod_val
 
                                                 if 'Values' in item:
                                                     value_vals = item['Values']
+                                                    replacement_dic[new_key] = value_vals
+                                                if 'Value' in item:
+                                                    value_vals = item['Value']
+                                                    replacement_dic[new_key] = value_vals
+                                                if 'value' in item:
+                                                    print(item['value'])
+                                                    value_vals = item['value'].split() #making multiple values that are currently all in one string into an array
                                                     replacement_dic[new_key] = value_vals
 
 
