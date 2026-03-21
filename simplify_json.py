@@ -26,6 +26,13 @@ for entry in os.scandir(directory):
                     del new_json[key]
                     key = new_key
 
+                if 'DisulfidesIntra' in key and 'Note' not in key:
+                    new_value = value if isinstance(value, list) else value.split()
+                    replace_lh[key] = new_value
+                    new_json.update(replace_lh)
+                    print(key)
+
+
 
                 if isinstance(value, list):
 
@@ -93,7 +100,6 @@ for entry in os.scandir(directory):
                                                         if mod_item['Frequency'] == '':
                                                             mod_item['Frequency'] = ['Total']
 
-
                                                 if 'Values' in item:
                                                     value_vals = item['Values']
                                                     replacement_dic[new_key] = value_vals
@@ -124,6 +130,7 @@ for entry in os.scandir(directory):
                                                 replacement_dic.pop(new_key, None)
                                                 replacement_dic[mod_key] = mod_val
 
+
                                         new_json.pop(key, None)
                                         new_json.update(replacement_dic)
 
@@ -145,7 +152,9 @@ for entry in os.scandir(directory):
 
 
 
-
+            for k, v in new_json.items():
+                if 'DisulfidesIntra' in k and isinstance(v, str):
+                    new_json[k] = v.split()
 
             output_path = os.path.join(new_folder, "new"+entry.name)
             with open(output_path, 'w') as f:
