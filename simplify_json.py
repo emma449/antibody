@@ -30,7 +30,6 @@ for entry in os.scandir(directory):
                     new_value = value if isinstance(value, list) else value.split()
                     replace_lh[key] = new_value
                     new_json.update(replace_lh)
-                    print(key)
 
 
 
@@ -47,19 +46,45 @@ for entry in os.scandir(directory):
                                     if name=='InstanceA':
                                         instances = [item['InstanceA']]
                                         for instance_a in instances:
+                                            if str(instance_a).upper() =='NONE':
+                                                instance_a = 0
                                             new_key = f'{key}[{instance_a}]'
                                             bonds = item['Bonds'][0]['A']
                                             partner = item['InstanceB']
-                                            new_val = [{'Residue': bonds, 'Partner': partner}]
+                                            if partner == 'NONE':
+                                                partner = 0
+                                            print(partner, bonds)
+                                            print(new_json['Request'])
+                                            if 'LH' in key:
+                                                if bonds>item['Bonds'][0]['B']:
+                                                    ThisChain = 'H'
+                                                else:
+                                                    ThisChain= 'L'
+                                                new_val = [{'Residue': bonds, 'Partner': partner, 'ThisChain': ThisChain}]
+                                            else:
+                                                new_val = [{'Residue': bonds, 'Partner': partner}]
                                             replacement_dic[new_key] = new_val
                                             new_json.update(replacement_dic)
                                     elif name=='InstanceB':
                                         instances = [item['InstanceB']]
                                         for instance_b in instances:
+                                            if str(instance_b).upper() == 'NONE':
+                                                instance_b = 0
                                             new_key = f'{key}[{instance_b}]'
                                             bonds = item['Bonds'][0]['B']
                                             partner = item['InstanceA']
-                                            new_val = [{'Residue': bonds, 'Partner': partner}]
+                                            if partner == 'NONE':
+                                                partner = 0
+                                            print(partner, bonds)
+                                            print(new_json['Request'])
+                                            if 'LH' in key:
+                                                if bonds>item['Bonds'][0]['A']:
+                                                    ThisChain = 'H'
+                                                else:
+                                                    ThisChain= 'L'
+                                                new_val = [{'Residue': bonds, 'Partner': partner, 'ThisChain': ThisChain}]
+                                            else:
+                                                new_val = [{'Residue': bonds, 'Partner': partner}]
                                             replacement_dic[new_key] = new_val
                                             new_json.pop(key, None)
                                             new_json.update(replacement_dic)
@@ -68,53 +93,66 @@ for entry in os.scandir(directory):
 
                                     elif name=='Instance':
 
-                                        instances = item['Instance']
-                                        if "NONE" not in instances and 'None' not in instances:
-                                            for instance in instances:
-                                                new_key = f"{key}[{instance}]"
+                                        instances = item.get('Instance', [0])
+                                        if isinstance(instances, str):
+                                            if instances.upper() == 'NONE':
+                                                instances = [0]
+                                            else:
+                                                instances = [instances]
+                                        elif isinstance(instances, list):
+                                            if all(str(x).upper() == "NONE" for x in instances):
+                                                instances = [0]
+                                        for instance in instances:
+                                            if isinstance(instance, str):
+                                                instance = int(instance) if instance.isnumeric() else instance
+                                            new_key = f"{key}{[instance]}"
 
-                                                if 'Length' in key:
-                                                    new_val = [item['Values'][0]] #change the nested dictionary into single dictionary
+                                            if 'Length' in key:
+                                                new_val = [item['Values'][0]] #change the nested dictionary into single dictionary
+                                            else:
+                                                new_val = {k: v for k, v in item.items() if k != "Instance"}
+
+                                            replacement_dic[new_key] = new_val
+
+                                            if 'Potential' in item:
+                                                if new_json['Request'] == "12775":
+                                                    continue
+                                                if item['Potential'] == ["None"] or item['Potential']==['NONE']:
+                                                    replacement_dic[f'{new_key}Potential'] = [0]
                                                 else:
-                                                    new_val = {k: v for k, v in item.items() if k != "Instance"}
+                                                    replacement_dic[f'{new_key}Potential'] = [int(res.replace(" ", "")) for res in item['Potential']]
+                                                replacement_dic.pop(new_key, None)
 
-                                                replacement_dic[new_key] = new_val
+                                            if 'Confirmed' in item:
+                                                if new_json['Request'] == "12775":
+                                                    continue
+                                                if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
+                                                    replacement_dic[f'{new_key}Confirmed'] = [0]
+                                                else:
+                                                    print(new_json['Request'])
+                                                    replacement_dic[f'{new_key}Confirmed'] = [int(res.replace(" ", "")) for res in item['Confirmed']]
+                                                replacement_dic.pop(new_key, None)
 
-                                                if 'Potential' in item:
-                                                    if item['Potential'] == ["None"] or item['Potential']==['NONE']:
-                                                        replacement_dic[f'{new_key}Potential'] = [0]
-                                                    else:
-                                                        replacement_dic[f'{new_key}Potential'] = item['Potential']
-                                                    replacement_dic.pop(new_key, None)
+                                            if 'Modifications' in item:
+                                                for mod_item in item['Modifications']:
 
-                                                if 'Confirmed' in item:
-                                                    if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
-                                                        replacement_dic[f'{new_key}Confirmed'] = [0]
-                                                    else:
-                                                        replacement_dic[f'{new_key}Confirmed'] = item['Confirmed']
-                                                    replacement_dic.pop(new_key, None)
+                                                    if mod_item['Frequency'] == '':
+                                                        mod_item['Frequency'] = ['Total']
 
-                                                if 'Modifications' in item:
-                                                    for mod_item in item['Modifications']:
-
-                                                        if mod_item['Frequency'] == '':
-                                                            mod_item['Frequency'] = ['Total']
-
-                                                if 'Values' in item:
-                                                    value_vals = item['Values']
-                                                    replacement_dic[new_key] = value_vals
-                                                if 'Value' in item:
-                                                    value_vals = item['Value']
-                                                    replacement_dic[new_key] = value_vals
-                                                if 'value' in item:
-                                                    print(item['value'])
-                                                    value_vals = item['value'].split() #making multiple values that are currently all in one string into an array
-                                                    replacement_dic[new_key] = value_vals
+                                            if 'Values' in item:
+                                                value_vals = item['Values']
+                                                replacement_dic[new_key] = value_vals
+                                            if 'Value' in item:
+                                                value_vals = item['Value']
+                                                replacement_dic[new_key] = value_vals
+                                            if 'value' in item:
+                                                value_vals = item['value'].split() #making multiple values that are currently all in one string into an array
+                                                replacement_dic[new_key] = value_vals
 
 
 
-                                                new_json.pop(key, None)
-                                                new_json.update(replacement_dic)
+                                            new_json.pop(key, None)
+                                            new_json.update(replacement_dic)
                                     else:
                                         new_key = f"{key}[0]"
                                         new_val = {k: v for k, v in item.items()}
@@ -145,7 +183,7 @@ for entry in os.scandir(directory):
 
                                 if instance_present == False:
                                     new_key = f"{key}[0]"
-                                    new_val = new_val = {k: v for k, v in item.items()}
+                                    new_val = {k: v for k, v in item.items() if k != "Instance"}
                                     replacement_dic[new_key] = new_val
                                     new_json.pop(key, None)
                                     new_json.update(replacement_dic)

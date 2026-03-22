@@ -205,7 +205,7 @@ class AntibodyToJSON:
             data = {"Instance": [instance], "Start": "NONE", "End": "NONE", "Mutations": mutations}
         else:
             start, end = value.strip().split(" ", 1)[0].split("-")
-            mutations = value.split("(", 1)[1][:-2].split(" ") if "(" in value else "NONE"
+            mutations = value.split("(", 1)[1][:-1].split(" ") if "(" in value else "NONE"
             data = {"Instance": [instance], "Start": int(start), "End": int(end), "Mutations": mutations}
 
         if key in self.antibody_ann_dict:
