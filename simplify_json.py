@@ -27,33 +27,46 @@ for entry in os.scandir(directory):
                     key = new_key
 
                 if 'DisulfidesIntra' in key and 'Note' not in key:
-                    if isinstance(value, str):
+                    chain = 'L' if 'Light' in key else 'H'
 
-                        new_value = {'Instance': [0], 'Values': value.split()}
-                        replace_lh[key] = new_value
-                        value = new_value
+                    if not isinstance(value, list):
+                        value = [value]
 
-                                                
-                    else:
-                        new_value = value if isinstance(value, list) else value.split()
-                        replace_lh[key] = new_value
-                        new_json.update(replace_lh)
-                    disulfides_list = []
+                    instance_dic = {}
                     for bond_item in value:
-                        if isinstance(bond_item, dict) and isinstance(bond_item['Values'], str):
-                            bonds = bond_item['Values'].replace("-", " ").split()
+                        if isinstance(bond_item, str):
+                            instance = 0
+                            bonds = bond_item
                         elif isinstance(bond_item, dict):
-                            print(f'list bond_item: {bond_item}')
-                            bonds = bond_item['Values']
+                            instance = bond_item.get('Instance', [0])
+                            if isinstance(instance, list):
+                                instance = instance[0] if instance else [0]
+                            if str(instance).upper() == 'NONE':
+                                instance = [0]
+                            bonds = bond_item.get('Values', "")
                         else:
-                            print(bond_item)
-                            bonds = bond_item.replace("-", " ").split()
-                        for i in range(len(bonds)-1):
-                            residue = bonds[i]
-                            partner = bonds[i+1]
-                            disulfides_list.append({'Residue': [residue], 'PartnerResidue': [partner], 'PartnerInstance': instances})
-                    value = disulfides_list
-                    new_json.update({key: disulfides_list})
+                            continue
+                        if isinstance(bonds, list):
+                            bonds = " ".join(str(bonds))
+                        if '-' in bonds:
+                            bonds_pairs = bonds.replace("-", " ").split()
+
+                        if instance not in instance_dic:
+                            instance_dic[instance] = []
+
+                        for i in range(0, len(bonds), 2):
+                            try:
+                                residue = int(bonds[i])
+                                partner = int(bonds[i + 1])
+                            except (IndexError, ValueError):
+                                continue
+                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': [residue], 'PartnerResidue': [partner], 'PartnerInstance': instance})
+                    
+                    new_json.pop(key, None)
+                    for inst, bonds_list in instance_dic.items():
+                        new_key = f"{key}[{inst}]"
+                        new_json[new_key] = bonds_list
+                    continue
 
                 if 'Positions' in key:
                     new_value = value if isinstance(value, list) else value.split()
@@ -61,6 +74,8 @@ for entry in os.scandir(directory):
                     new_json.update(replace_lh)
 
 
+                if 'Linker' in key:
+                    print(new_json['Request'])
 
                 if isinstance(value, list):
 
@@ -86,13 +101,15 @@ for entry in os.scandir(directory):
                                                 if 'LH' in key:
                                                     if bonds>item['Bonds'][0]['B']:
                                                         ThisChain = 'H'
+                                                        partnerchain = 'L'
                                                         HResidue = bonds
                                                         LResidue = item['Bonds'][0]['B']
                                                     else:
                                                         ThisChain= 'L'
+                                                        partnerchain = 'H'
                                                         LResidue = bonds
                                                         HResidue = item['Bonds'][0]['B']
-                                                    new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain}]
+                                                    new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
                                                 else:
                                                     new_val = [{'Residue': bonds, 'Partner': partner}]
                                                 replacement_dic[new_key] = new_val
@@ -117,13 +134,15 @@ for entry in os.scandir(directory):
                                             if 'LH' in key:
                                                 if bonds>item['Bonds'][0]['A']:
                                                     ThisChain = 'H'
+                                                    partnerchain = 'L'
                                                     HResidue = bonds
                                                     LResidue = item['Bonds'][0]['A']
                                                 else:
                                                     ThisChain= 'L'
+                                                    partnerchain = 'H'
                                                     LResidue = bonds
                                                     HResidue = item['Bonds'][0]['A']
-                                                new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain}]
+                                                new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
                                             else:
                                                 new_val = [{'Residue': bonds, 'Partner': partner}]
                                             replacement_dic[new_key] = new_val
