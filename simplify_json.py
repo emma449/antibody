@@ -26,6 +26,13 @@ for entry in os.scandir(directory):
                     del new_json[key]
                     key = new_key
 
+                if key == 'Format_Instances_Note':
+                    new_key = 'Format_Note'
+                    replace_lh[new_key] = value
+                    new_json.update(replace_lh)
+                    del new_json[key]
+                    key = new_key
+
                 if 'DisulfidesIntra' in key and 'Note' not in key:
                     chain = 'L' if 'Light' in key else 'H'
 
@@ -76,6 +83,7 @@ for entry in os.scandir(directory):
 
                 if 'Linker' in key:
                     print(new_json['Request'])
+
 
                 if isinstance(value, list):
 
@@ -183,18 +191,22 @@ for entry in os.scandir(directory):
                                                 if new_json['Request'] == "12775":
                                                     continue
                                                 if item['Potential'] == ["None"] or item['Potential']==['NONE']:
-                                                    replacement_dic[f'{new_key}Potential'] = [0]
+                                                    hold_key = f'{key}Potential[{instance}]'
+                                                    replacement_dic[hold_key] = [0]
                                                 else:
-                                                    replacement_dic[f'{new_key}Potential'] = [int(res.replace(" ", "")) for res in item['Potential']]
+                                                    hold_key = f'{key}Potential[{instance}]'
+                                                    replacement_dic[f'{hold_key}Potential'] = [int(res.replace(" ", "")) for res in item['Potential']]
                                                 replacement_dic.pop(new_key, None)
 
                                             if 'Confirmed' in item:
                                                 if new_json['Request'] == "12775":
                                                     continue
                                                 if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
-                                                    replacement_dic[f'{new_key}Confirmed'] = [0]
+                                                    hold_key = f'{key}Confirmed[{instance}]'
+                                                    replacement_dic[hold_key] = [0]
                                                 else:
-                                                    replacement_dic[f'{new_key}Confirmed'] = [int(res.replace(" ", "")) for res in item['Confirmed']]
+                                                    hold_key = f'{key}Confirmed[{instance}]'
+                                                    replacement_dic[hold_key] = [int(res.replace(" ", "")) for res in item['Confirmed']]
                                                 replacement_dic.pop(new_key, None)
 
                                             if 'Modifications' in item:
@@ -204,8 +216,20 @@ for entry in os.scandir(directory):
                                                         mod_item['Frequency'] = ['Total']
 
                                             if 'Values' in item:
-                                                value_vals = item['Values']
-                                                replacement_dic[new_key] = value_vals
+                                                if 'Germline' in key:
+                                                    species_gene = item['Values']
+                                                    species_gene = species_gene.split()
+                                                    GeneID = species_gene[-1]
+                                                    Species = species_gene[:len(species_gene)-1]
+                                                    #make species array into normal string
+                                                    joined_species = " ".join(Species)
+                                                    value_vals = {'Species': joined_species, 'GeneID': GeneID}
+                                                    print(value_vals)
+                                                    replacement_dic[new_key] = value_vals
+
+                                                else:
+                                                    value_vals = item['Values']
+                                                    replacement_dic[new_key] = value_vals
                                             if 'Value' in item:
                                                 value_vals = item['Value']
                                                 replacement_dic[new_key] = value_vals
