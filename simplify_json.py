@@ -13,6 +13,18 @@ for entry in os.scandir(directory):
             for key, value in list(new_json.items()):
                 replace_lh = {}
 
+                if key=='Fusion':
+                    fusion_val = value.split()
+                    new_key = f'{key}[{fusion_val[0]}]' #get first instance
+                    del fusion_val[0]
+                    print(new_key, fusion_val)
+                    new_json[new_key] = {'WithInstances': fusion_val}
+                    del new_json[key]
+
+                    continue
+
+
+
                 if 'L1H1' in key:
                     new_key = key.replace('L1H1', 'LH')
                     replace_lh[new_key] = value
@@ -81,8 +93,6 @@ for entry in os.scandir(directory):
                     new_json.update(replace_lh)
 
 
-                if 'Linker' in key:
-                    print(new_json['Request'])
 
 
                 if isinstance(value, list):
@@ -224,7 +234,6 @@ for entry in os.scandir(directory):
                                                     #make species array into normal string
                                                     joined_species = " ".join(Species)
                                                     value_vals = {'Species': joined_species, 'GeneID': GeneID}
-                                                    print(value_vals)
                                                     replacement_dic[new_key] = value_vals
 
                                                 else:
