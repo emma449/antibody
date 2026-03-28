@@ -51,6 +51,20 @@ for entry in os.scandir(directory):
                     del new_json['Type']
                     continue
 
+                if key=='Antigen':
+                    antigen_items = new_json[key]
+                    for item in antigen_items:
+                        if 'Instance' in item:
+                            antigen_instances = item['Instance']
+
+                            antigen_key = f'Antigen[{antigen_instances[0]}]'
+                            del antigen_instances[0]
+                            new_values = {k: v for k, v in item.items() if k != "Instance"}
+                            new_values['WithInstances']= antigen_instances
+                            new_json[antigen_key] = new_values
+                    del new_json['Antigen']
+                    continue
+
 
                 if 'L1H1' in key:
                     new_key = key.replace('L1H1', 'LH')
