@@ -46,7 +46,8 @@ for entry in os.scandir(directory):
                             type_key = f'Type[{type_instances[0]}]'
                             del type_instances[0]
                             new_values = {'Values': item['Values']}
-                            new_values['WithInstances']= type_instances
+                            if type_instances!=[]:
+                                new_values['WithInstances']= type_instances
                             new_json[type_key] = new_values
                     del new_json['Type']
                     continue
@@ -72,9 +73,7 @@ for entry in os.scandir(directory):
                     for item in chain_items:
                         new_values = {}
                         if 'Instance' in item:
-                            print(new_json['Request'])
                             chain_instances = item['Instance']
-                            print(chain_items)
                             chain_key = f'ChainLength[{chain_instances[0]}]'
                             del chain_instances[0]
                             new_values = {'Values': int(item['Values'][0])}
@@ -98,6 +97,8 @@ for entry in os.scandir(directory):
                     new_json.update(replace_lh)
                     del new_json[key]
                     key = new_key
+
+
 
 
                 if 'DisulfidesIntra' in key and 'Note' not in key:
@@ -244,18 +245,18 @@ for entry in os.scandir(directory):
                                             if 'Potential' in item:
                                                 if new_json['Request'] == "12775":
                                                     continue
-                                                if item['Potential'] == ["None"] or item['Potential']==['NONE']:
+                                                if item['Potential'] == ["None"] or item['Potential']==['NONE'] or item['Potential']=='NONE' or item['Potential']=='None':
                                                     hold_key = f'{key}Potential[{instance}]'
                                                     replacement_dic[hold_key] = [0]
                                                 else:
                                                     hold_key = f'{key}Potential[{instance}]'
-                                                    replacement_dic[f'{hold_key}Potential'] = [int(res.replace(" ", "")) for res in item['Potential']]
+                                                    replacement_dic[f'{hold_key}'] = [int(res.replace(" ", "")) for res in item['Potential']]
                                                 replacement_dic.pop(new_key, None)
 
                                             if 'Confirmed' in item:
                                                 if new_json['Request'] == "12775":
                                                     continue
-                                                if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE']:
+                                                if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE'] or item['Confirmed']=='NONE' or item['Confirmed']=='None':
                                                     hold_key = f'{key}Confirmed[{instance}]'
                                                     replacement_dic[hold_key] = [0]
                                                 else:
@@ -279,9 +280,23 @@ for entry in os.scandir(directory):
                                                     joined_species = " ".join(Species)
                                                     value_vals = {'Species': joined_species, 'GeneID': GeneID}
                                                     replacement_dic[new_key] = value_vals
-                                                if 'ChainLength' in key and isinstance(item['Values'], list): #making values in heavychainlength and lightchainlength ints not arrays
+                                                elif 'ChainLength' in key and isinstance(item['Values'], list): #making values in heavychainlength and lightchainlength ints not arrays
                                                     value_vals = int(item['Values'][0])
                                                     replacement_dic[new_key] = value_vals
+
+                                                elif 'Potential' in key:
+                                                    if item['Values'] == 'NONE':
+                                                        value_vals = [0]
+                                                    else:
+                                                        value_vals = item['Values']
+                                                    replacement_dic[new_key] = value_vals
+                                                elif 'Confirmed' in key:
+                                                    if item['Values'] == 'NONE':
+                                                        value_vals = [0]
+                                                    else:
+                                                        value_vals = item['Values']   
+                                                    replacement_dic[new_key] = value_vals                                          
+
 
                                                 else:
                                                     value_vals = item['Values']
@@ -292,6 +307,9 @@ for entry in os.scandir(directory):
                                             if 'value' in item:
                                                 value_vals = item['value'].split() #making multiple values that are currently all in one string into an array
                                                 replacement_dic[new_key] = value_vals
+
+
+
 
 
 
@@ -321,6 +339,7 @@ for entry in os.scandir(directory):
 
                                     if name=='Modifications':
                                             item[name]['Frequency'] = ['Total']
+
 
 
 
