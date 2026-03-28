@@ -17,13 +17,27 @@ for entry in os.scandir(directory):
                     fusion_val = value.split()
                     new_key = f'{key}[{fusion_val[0]}]' #get first instance
                     del fusion_val[0]
-                    print(new_key, fusion_val)
                     new_json[new_key] = {'WithInstances': fusion_val}
                     del new_json[key]
 
                     continue
 
 
+                if key == 'Format_Instances_Note':
+                    print(new_json['Request'])
+                    format_items = new_json[key]
+                    for item in format_items:
+                        print(item)
+                        if 'Instance' in item:
+                            format_instances = item['Instance']
+
+                            format_key = f'Format_Note[{format_instances[0]}]'
+                            del format_instances[0]
+                            new_values = {'Note': item['Note']}
+                            new_values['WithInstances']= format_instances
+                            new_json[format_key] = new_values
+                    del new_json['Format_Instances_Note']
+                    continue
 
                 if 'L1H1' in key:
                     new_key = key.replace('L1H1', 'LH')
@@ -38,12 +52,6 @@ for entry in os.scandir(directory):
                     del new_json[key]
                     key = new_key
 
-                if key == 'Format_Instances_Note':
-                    new_key = 'Format_Note'
-                    replace_lh[new_key] = value
-                    new_json.update(replace_lh)
-                    del new_json[key]
-                    key = new_key
 
                 if 'DisulfidesIntra' in key and 'Note' not in key:
                     chain = 'L' if 'Light' in key else 'H'
@@ -117,16 +125,10 @@ for entry in os.scandir(directory):
                                                 if partner == 'NONE':
                                                     partner = 0
                                                 if 'LH' in key:
-                                                    if bonds>item['Bonds'][0]['B']:
-                                                        ThisChain = 'H'
-                                                        partnerchain = 'L'
-                                                        HResidue = bonds
-                                                        LResidue = item['Bonds'][0]['B']
-                                                    else:
-                                                        ThisChain= 'L'
-                                                        partnerchain = 'H'
-                                                        LResidue = bonds
-                                                        HResidue = item['Bonds'][0]['B']
+                                                    ThisChain = 'L'
+                                                    partnerchain = 'H'
+                                                    LResidue = bonds
+                                                    HResidue = item['Bonds'][0]['B']
                                                     new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
                                                 else:
                                                     new_val = [{'Residue': bonds, 'Partner': partner}]
@@ -150,16 +152,10 @@ for entry in os.scandir(directory):
                                             if partner == 'NONE':
                                                 partner = 0
                                             if 'LH' in key:
-                                                if bonds>item['Bonds'][0]['A']:
-                                                    ThisChain = 'H'
-                                                    partnerchain = 'L'
-                                                    HResidue = bonds
-                                                    LResidue = item['Bonds'][0]['A']
-                                                else:
-                                                    ThisChain= 'L'
-                                                    partnerchain = 'H'
-                                                    LResidue = bonds
-                                                    HResidue = item['Bonds'][0]['A']
+                                                ThisChain = 'H'
+                                                partnerchain = 'L'
+                                                HResidue = bonds
+                                                LResidue = item['Bonds'][0]['A']
                                                 new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
                                             else:
                                                 new_val = [{'Residue': bonds, 'Partner': partner}]
