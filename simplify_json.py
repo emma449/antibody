@@ -60,10 +60,30 @@ for entry in os.scandir(directory):
                             antigen_key = f'Antigen[{antigen_instances[0]}]'
                             del antigen_instances[0]
                             new_values = {k: v for k, v in item.items() if k != "Instance"}
-                            new_values['WithInstances']= antigen_instances
+                            if antigen_instances != []:
+                                new_values['WithInstances']= antigen_instances
                             new_json[antigen_key] = new_values
                     del new_json['Antigen']
                     continue
+
+
+                if key=='ChainLength': 
+                    chain_items = new_json[key]
+                    for item in chain_items:
+                        new_values = {}
+                        if 'Instance' in item:
+                            print(new_json['Request'])
+                            chain_instances = item['Instance']
+                            print(chain_items)
+                            chain_key = f'ChainLength[{chain_instances[0]}]'
+                            del chain_instances[0]
+                            new_values = {'Values': int(item['Values'][0])}
+                            if chain_instances!=[]:
+                                new_values['WithInstances']= chain_instances
+                            new_json[chain_key] = new_values
+
+                    del new_json['ChainLength']
+                    continue                  
 
 
                 if 'L1H1' in key:
@@ -126,6 +146,7 @@ for entry in os.scandir(directory):
                     new_value = value if isinstance(value, list) else value.split()
                     replace_lh[key] = new_value
                     new_json.update(replace_lh)
+
 
 
 
@@ -213,7 +234,7 @@ for entry in os.scandir(directory):
                                                 instance = int(instance) if instance.isnumeric() else instance
                                             new_key = f"{key}{[instance]}"
 
-                                            if 'Length' in key:
+                                            if 'Length' in key and isinstance(item['Values'], list):
                                                 new_val = [item['Values'][0]] #change the nested dictionary into single dictionary
                                             else:
                                                 new_val = {k: v for k, v in item.items() if k != "Instance"}
@@ -257,6 +278,9 @@ for entry in os.scandir(directory):
                                                     #make species array into normal string
                                                     joined_species = " ".join(Species)
                                                     value_vals = {'Species': joined_species, 'GeneID': GeneID}
+                                                    replacement_dic[new_key] = value_vals
+                                                if 'ChainLength' in key and isinstance(item['Values'], list): #making values in heavychainlength and lightchainlength ints not arrays
+                                                    value_vals = int(item['Values'][0])
                                                     replacement_dic[new_key] = value_vals
 
                                                 else:
