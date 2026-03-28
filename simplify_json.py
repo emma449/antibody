@@ -24,10 +24,8 @@ for entry in os.scandir(directory):
 
 
                 if key == 'Format_Instances_Note':
-                    print(new_json['Request'])
                     format_items = new_json[key]
                     for item in format_items:
-                        print(item)
                         if 'Instance' in item:
                             format_instances = item['Instance']
 
@@ -38,6 +36,21 @@ for entry in os.scandir(directory):
                             new_json[format_key] = new_values
                     del new_json['Format_Instances_Note']
                     continue
+
+                if key=='Type':
+                    type_items = new_json[key]
+                    for item in type_items:
+                        if 'Instance' in item:
+                            type_instances = item['Instance']
+
+                            type_key = f'Type[{type_instances[0]}]'
+                            del type_instances[0]
+                            new_values = {'Values': item['Values']}
+                            new_values['WithInstances']= type_instances
+                            new_json[type_key] = new_values
+                    del new_json['Type']
+                    continue
+
 
                 if 'L1H1' in key:
                     new_key = key.replace('L1H1', 'LH')
