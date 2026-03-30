@@ -37,6 +37,20 @@ for entry in os.scandir(directory):
                     del new_json['Format_Instances_Note']
                     continue
 
+                if key == 'Chain':
+                    chain_items = new_json[key][0]
+                    if 'Instance' in chain_items:
+                        new_val = {'Sequence': chain_items['Sequence']}
+                        chain_instances = chain_items['Instance']
+                        new_key = f'{key}[{chain_instances[0]}]'
+                        del chain_instances[0]
+                        if chain_instances != []:
+                            new_val['WithInstances'] = chain_instances
+                        new_json[new_key] = new_val
+                        del new_json[key]
+                        continue
+
+
                 if key=='Type':
                     type_items = new_json[key]
                     for item in type_items:
@@ -82,21 +96,26 @@ for entry in os.scandir(directory):
                             new_json[chain_key] = new_values
 
                     del new_json['ChainLength']
-                    continue                  
+                    continue   
+
+                if 'Mutation' in key:
+                    mutation_items = new_json[key]
+                    for item in mutation_items:
+                        if 'Instance' in item:
+                            mutation_key = f'{key}{item['Instance']}'
+                        else:
+                            mutation_key = f'{key}[0]'
+                        print(key, item)
+                        print(new_json['Request'])
+                        if 'Mutations' in item:
+                            mutation_val = item['Mutations']
+                        else:
+                            mutation_val = item
+                        new_json[mutation_key] = mutation_val
+                    del new_json[key]
+                    continue
 
 
-                if 'L1H1' in key:
-                    new_key = key.replace('L1H1', 'LH')
-                    replace_lh[new_key] = value
-                    new_json.update(replace_lh)
-                    del new_json[key]
-                    key = new_key
-                if 'L2H2' in key:
-                    new_key = key.replace('L2H2', 'LH')
-                    replace_lh[new_key] = value
-                    new_json.update(replace_lh)
-                    del new_json[key]
-                    key = new_key
 
 
 
@@ -173,7 +192,7 @@ for entry in os.scandir(directory):
                                                 partner = item['InstanceB']
                                                 if partner == 'NONE':
                                                     partner = 0
-                                                if 'LH' in key:
+                                                if 'L1H1' in key or 'L2H2' in key:
                                                     ThisChain = 'L'
                                                     partnerchain = 'H'
                                                     LResidue = bonds
@@ -200,7 +219,7 @@ for entry in os.scandir(directory):
                                             partner = item['InstanceA']
                                             if partner == 'NONE':
                                                 partner = 0
-                                            if 'LH' in key:
+                                            if 'L1H1' in key or 'L2H2' in key:
                                                 ThisChain = 'H'
                                                 partnerchain = 'L'
                                                 HResidue = bonds
@@ -269,6 +288,16 @@ for entry in os.scandir(directory):
 
                                                     if mod_item['Frequency'] == '':
                                                         mod_item['Frequency'] = ['Total']
+                                                    if isinstance(mod_item['Type'], list)==False:
+                                                        mod_item['Type'] = [mod_item['Type']]
+
+
+                                            if 'Mutations' in item:
+                                                if item['Mutations'] == 'NONE':
+                                                    new_val = {k: v for k, v in item.items() if k != "Mutations"}
+                                                    new_val['Mutations'] = ['NONE']
+                                                    replacement_dic[new_key] = new_val
+
 
                                             if 'Values' in item:
                                                 if 'Germline' in key:
@@ -312,7 +341,6 @@ for entry in os.scandir(directory):
 
 
 
-
                                             new_json.pop(key, None)
                                             new_json.update(replacement_dic)
                                     else:
@@ -331,14 +359,11 @@ for entry in os.scandir(directory):
                                                 replacement_dic[mod_key] = mod_val
 
 
+
                                         new_json.pop(key, None)
                                         new_json.update(replacement_dic)
 
 
-
-
-                                    if name=='Modifications':
-                                            item[name]['Frequency'] = ['Total']
 
 
 
@@ -350,6 +375,8 @@ for entry in os.scandir(directory):
                                     replacement_dic[new_key] = new_val
                                     new_json.pop(key, None)
                                     new_json.update(replacement_dic)
+
+
 
 
 
