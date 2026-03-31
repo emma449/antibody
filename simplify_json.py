@@ -23,6 +23,9 @@ for entry in os.scandir(directory):
                     else:
                         continue
 
+                if 'Linker' in key:
+                    continue
+
 
                 if key == 'Format_Instances_Note':
                     format_items = new_json[key]
@@ -141,6 +144,53 @@ for entry in os.scandir(directory):
                         new_json[new_key] = bonds_list
                     continue
 
+                if ('DisulfidesInterH1H2' in key or 'DisulfidesInterL1L2' in key) and 'Note' not in key:
+                    chain = 'L' if 'L1L2' in key else 'H'
+
+                    if not isinstance(value, list):
+                        value = [value]
+
+                    instance_dic = {}
+                    for bond_item in value:
+                        print(f'bond item: {bond_item}')
+                        if isinstance(bond_item, str):
+                            instance = 0
+                            bonds = bond_item
+                        elif isinstance(bond_item, dict):
+                            instance = bond_item.get('Instance', [0])
+                            if isinstance(instance, list):
+                                instance = instance[0] if instance else [0]
+                            if str(instance).upper() == 'NONE':
+                                instance = [0]
+                            bonds = bond_item.get('Values', "")
+                        else:
+                            continue
+                        if isinstance(bonds, list):
+                            bonds = " ".join(str(bonds))
+                        if '-' in bonds:
+                            bonds_pairs = bonds.replace("-", " ").split()
+                            print(f'bonds pairs: {bonds_pairs}')
+
+                        if instance not in instance_dic:
+                            instance_dic[instance] = []
+
+                        for i in range(0, len(bonds_pairs), 2):
+                            try:
+                                residue = int(bonds_pairs[i])
+                                partner = int(bonds_pairs[i + 1])
+                                print(residue, partner)
+                            except (IndexError, ValueError):
+                                continue
+                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': residue, 'PartnerResidue': partner, 'PartnerInstance': instance})
+                    
+                    new_json.pop(key, None)
+                    for inst, bonds_list in instance_dic.items():
+                        new_key = f"{key}[{inst}]"
+                        new_json[new_key] = bonds_list
+                    continue
+
+
+
                 if 'Positions' in key:
                     new_value = value if isinstance(value, list) else value.split()
                     replace_lh[key] = new_value
@@ -166,27 +216,22 @@ for entry in os.scandir(directory):
                                             if str(instance_a).upper() =='NONE':
                                                 instance_a = 0
                                             new_key = f'{key}[{instance_a}]'
-                                            if len(item['Bonds'])==0:
-                                                bonds = item['Bonds'][0]['A']
-                                                partner = item['InstanceB']
-                                                if partner == 'NONE':
-                                                    partner = 0
-                                                if 'L1H1' in key or 'L2H2' in key:
-                                                    ThisChain = 'L'
-                                                    partnerchain = 'H'
-                                                    LResidue = bonds
-                                                    HResidue = item['Bonds'][0]['B']
-                                                    new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
-                                                else:
-                                                    new_val = [{'Residue': bonds, 'Partner': partner}]
-                                                replacement_dic[new_key] = new_val
-                                                new_json.update(replacement_dic)
+                                            bonds = item['Bonds'][0]['A']
+                                            partner = item['InstanceB']
+                                            if partner == 'NONE':
+                                                partner = 0
+                                            if 'L1H1' in key or 'L2H2' in key:
+                                                ThisChain = 'L'
+                                                partnerchain = 'H'
+                                                LResidue = bonds
+                                                HResidue = item['Bonds'][0]['B']
+                                                new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
                                             else:
-                                                a_bonds = []
-                                                b_bonds = []
-                                                for bond in item['Bonds']:
-                                                    a_bonds.append(bond['A'])
-                                                    b_bonds.append(bond['B'])
+                                                new_val = [{'Residue': bonds, 'Partner': partner}]
+                                            replacement_dic[new_key] = new_val
+                                            new_json.update(replacement_dic)
+
+
 
                                     elif name=='InstanceB':
                                         instances = [item['InstanceB']]

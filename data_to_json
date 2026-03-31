@@ -691,9 +691,9 @@ class AntibodyToJSON:
             return None
 
         if "Linker" in self.antibody_ann_dict:
-            self.antibody_ann_dict["Linker"].append({"From": l_from, "To": l_to, "Start": start, "End": end})
+            self.antibody_ann_dict[f"Linker[{l_from}]"].append({"NextInstance": l_to, "Start": start, "End": end})
         else:
-            self.antibody_ann_dict["Linker"] = [{"From": l_from, "To": l_to, "Start": start, "End": end}]
+            self.antibody_ann_dict[f"Linker[{l_from}]"] = [{"NextInstance": l_to, "Start": start, "End": end}]
 
     def heavy_chain_record(self, record):
         capital_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
