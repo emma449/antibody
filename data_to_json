@@ -41,6 +41,7 @@ class AntibodyToJSON:
         self.old_key = None
         self.methods = {
             "Antigen": self.antigen_record,
+            "Fusion": self.fusion_record,
             "Note": self.note_record,
             "Antigen-Note": self.antigen_note,
             "Instance_Note": self.instance_note,
@@ -49,6 +50,7 @@ class AntibodyToJSON:
             "Heavy Chain": self.heavy_chain_record,
             "Light Chain": self.light_chain_record,
             "Chain": self.chain_record,
+            "ChainLength": self.chain_length,
             "Domains": self.domains_record,
             "Range": self.range_record,
             "MutationH": self.mutation_h_record,
@@ -143,6 +145,18 @@ class AntibodyToJSON:
         # Empty the data dictionary and the old key for the next document
         self.antibody_ann_dict = {}
         self.old_key = None
+
+
+    def fusion_record(self, record):
+        key, value = record.split(":", 1)
+        if ' ' in value:
+            instances = value.split()
+            fusion_name = f'{key}[{instances[0]}]'
+            del instances[0]
+            instance_vals = [int(val) for val in instances]
+            fusion_val = {'WithInstances': instance_vals}
+            self.antibody_ann_dict[fusion_name] = fusion_val
+
 
     def antigen_record(self, record):
         key, value = record.split(":", 1)
@@ -390,6 +404,26 @@ class AntibodyToJSON:
             self.antibody_ann_dict["MutationH"] = [{"Instance": "None",
                                                     "Mutations": mutations_reasons}]
 
+
+    def chain_length(self, record):
+        key, value = record.split(":", 1)
+        if "[" in key:
+            instances = key.split("[")[1][:-1]
+            new_key = key.split("[")[0]
+            instance_list = instances.replace(',', ' ').split()
+            print(f'instances: {instances}')
+            length_name = f'{new_key}[{instance_list[0]}]'
+            if len(instance_list)>1:
+                del instance_list[0]
+                instance_list = [int(val) for val in instance_list]
+                length_val = [{'Values': int(value.strip())}, {'WithInstances': instance_list}]
+                self.antibody_ann_dict[length_name] = length_val
+            else:
+                self.antibody_ann_dict[length_name] = value
+
+
+
+
     def mutation_l_record(self, record):
         key, value = record.split(":", 1)
 
@@ -621,7 +655,6 @@ class AntibodyToJSON:
             self.antibody_ann_dict[key] = [{"Bonds": connections}]
             return None
         dis_record = key.split("[")[1][:-1]
-        print(f'dis_record: {dis_record}')
         if ":" in dis_record:
             dis_instances = list(map(int, dis_record.split(":")))
         elif "," in dis_record:
@@ -715,10 +748,12 @@ class AntibodyToJSON:
                 chain_instances = [int(instance) for instance in chain_instances.split("-")]
             else:
                 chain_instances = [int(instance) for instance in chain_instances.split(",")]
-            self.antibody_ann_dict["Chain"] = [{"Instance": chain_instances,
+            chain_instance = chain_instances[0]
+            del chain_instances[0]
+            self.antibody_ann_dict[f"Chain[{chain_instance}]"] = [{"WithInstances": chain_instances,
                                                 "Sequence": chain_sequence}]
         else:
-            self.antibody_ann_dict["Chain"] = chain_sequence
+            self.antibody_ann_dict["Chain[0]"] = chain_sequence
 
     def any_instance_record(self, record):
         key, value = record.split(":", 1)

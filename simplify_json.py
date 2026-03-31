@@ -13,14 +13,15 @@ for entry in os.scandir(directory):
             for key, value in list(new_json.items()):
                 replace_lh = {}
 
-                if key=='Fusion':
-                    fusion_val = value.split()
-                    new_key = f'{key}[{fusion_val[0]}]' #get first instance
-                    del fusion_val[0]
-                    new_json[new_key] = {'WithInstances': fusion_val}
-                    del new_json[key]
-
-                    continue
+                if 'Fusion[' in key:
+                    item = new_json[key]
+                    if 'WithInstances' in item:
+                        instances = item['WithInstances']
+                        instance_vals = [int(val) for val in instances]
+                        new_json[key] = {'WithInstances': instance_vals}
+                        continue
+                    else:
+                        continue
 
 
                 if key == 'Format_Instances_Note':
@@ -37,18 +38,8 @@ for entry in os.scandir(directory):
                     del new_json['Format_Instances_Note']
                     continue
 
-                if key == 'Chain':
-                    chain_items = new_json[key][0]
-                    if 'Instance' in chain_items:
-                        new_val = {'Sequence': chain_items['Sequence']}
-                        chain_instances = chain_items['Instance']
-                        new_key = f'{key}[{chain_instances[0]}]'
-                        del chain_instances[0]
-                        if chain_instances != []:
-                            new_val['WithInstances'] = chain_instances
-                        new_json[new_key] = new_val
-                        del new_json[key]
-                        continue
+                if 'ChainLength[' in key:
+                    continue
 
 
                 if key=='Type':
@@ -82,21 +73,6 @@ for entry in os.scandir(directory):
                     continue
 
 
-                if key=='ChainLength': 
-                    chain_items = new_json[key]
-                    for item in chain_items:
-                        new_values = {}
-                        if 'Instance' in item:
-                            chain_instances = item['Instance']
-                            chain_key = f'ChainLength[{chain_instances[0]}]'
-                            del chain_instances[0]
-                            new_values = {'Values': int(item['Values'][0])}
-                            if chain_instances!=[]:
-                                new_values['WithInstances']= chain_instances
-                            new_json[chain_key] = new_values
-
-                    del new_json['ChainLength']
-                    continue   
 
                 if 'Mutation' in key:
                     mutation_items = new_json[key]
@@ -128,6 +104,7 @@ for entry in os.scandir(directory):
 
                     instance_dic = {}
                     for bond_item in value:
+                        print(f'bond item: {bond_item}')
                         if isinstance(bond_item, str):
                             instance = 0
                             bonds = bond_item
@@ -144,17 +121,19 @@ for entry in os.scandir(directory):
                             bonds = " ".join(str(bonds))
                         if '-' in bonds:
                             bonds_pairs = bonds.replace("-", " ").split()
+                            print(f'bonds pairs: {bonds_pairs}')
 
                         if instance not in instance_dic:
                             instance_dic[instance] = []
 
-                        for i in range(0, len(bonds), 2):
+                        for i in range(0, len(bonds_pairs), 2):
                             try:
-                                residue = int(bonds[i])
-                                partner = int(bonds[i + 1])
+                                residue = int(bonds_pairs[i])
+                                partner = int(bonds_pairs[i + 1])
+                                print(residue, partner)
                             except (IndexError, ValueError):
                                 continue
-                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': [residue], 'PartnerResidue': [partner], 'PartnerInstance': instance})
+                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': residue, 'PartnerResidue': partner, 'PartnerInstance': instance})
                     
                     new_json.pop(key, None)
                     for inst, bonds_list in instance_dic.items():
