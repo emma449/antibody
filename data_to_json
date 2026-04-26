@@ -1,7 +1,8 @@
 # Populate JSON file with antibody annotation data
 import json
-import os
+import os, sys
 import re
+import traceback
 
 
 class AntibodyToJSON:
@@ -15,8 +16,10 @@ class AntibodyToJSON:
                 self.single_file_transfer(joined_path)
 
             except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
                 print(f"Error in file: {self.file}")
                 print(f"Error message: {e}")
+                print(f'Error line: {traceback.print_exc()}')
                 self.antibody_ann_dict = {}
                 self.old_key = None
                 continue
@@ -51,18 +54,37 @@ class AntibodyToJSON:
             "Light Chain": self.light_chain_record,
             "Chain": self.chain_record,
             "ChainLength": self.chain_length,
+            "HeavyChainLength": self.chain_length,
+            "LightChainLength": self.chain_length,
             "Domains": self.domains_record,
             "Range": self.range_record,
             "MutationH": self.mutation_h_record,
             "MutationL": self.mutation_l_record,
+            "Mutation":  self.mutation_l_record,
+            "Mutations" : self.mutation_l_record,
+            'MutationJ' : self.mutation_l_record,
             "HeavyPotentialNGlycos": self.heavy_potential_n_glycos_record,
             "HeavyConfirmedNGlycos": self.heavy_confirmed_n_glycos_record,
             "LightPotentialNGlycos": self.light_potential_n_glycos_record,
             "LightConfirmedNGlycos": self.light_confirmed_n_glycos_record,
             "LVGermline": self.lv_germline,
+            "LCGermline": self.lv_germline,
+            "LJGermline": self.lv_germline,
+            "HCGermline": self.hc_germline,
+            'HJGermline': self.hc_germline,
+            'HVGermline': self.hc_germline,
+            'HCGermline(CH1,CH2)': self.hc_germline,
+            'HCGermline(CH3)': self.hc_germline,
+            'HCGermline(CH2,CH3)': self.hc_germline,
+            "HCGermline(CH2)": self.hc_germline,
             "ConfirmedPTM": self.confirmed_ptm,
             "DisulfidesInter": self.disulfides_inter,
-            "Linker": self.linker
+            "LightDisulfidesIntra": self.disulfides_intra,
+            "HeavyDisulfidesIntra": self.disulfides_intra,
+            "Linker": self.linker,
+            "LightCysPositions": self.positions,
+            "HeavyCysPositions": self.positions,
+            "CysPositions": self.positions
         }
 
     @staticmethod
@@ -213,13 +235,12 @@ class AntibodyToJSON:
 
         instance = int(key.split("[", 1)[1][:-1])
         key = key.split("[")[0]
-        print(f"range record value: {record}")
         if "-" not in value:
-            mutations = value.split("(", 1)[1][:-2].split(" ") if "(" in value else "NONE"
+            mutations = value.split("(", 1)[1][:-2].split(" ") if "(" in value else ["NONE"]
             data = {"Instance": [instance], "Start": "NONE", "End": "NONE", "Mutations": mutations}
         else:
             start, end = value.strip().split(" ", 1)[0].split("-")
-            mutations = value.split("(", 1)[1][:-1].split(" ") if "(" in value else "NONE"
+            mutations = value.split("(", 1)[1][:-1].split(" ") if "(" in value else ["NONE"]
             data = {"Instance": [instance], "Start": int(start), "End": int(end), "Mutations": mutations}
 
         if key in self.antibody_ann_dict:
@@ -234,15 +255,40 @@ class AntibodyToJSON:
         if "Domains" not in self.antibody_ann_dict:
             if "[" in key:
                 instance = [int(inst) for inst in key.strip().split("[")[1][:-1].split(",")]
-                self.antibody_ann_dict["Domains"] = [{"Instance": instance, "value": value}]
+                self.antibody_ann_dict[f"Domains"] = [{"Instance": instance, "value": value}]
             else:
-                self.antibody_ann_dict["Domains"] = [{"Instance": "NONE", "value": value}]
+                self.antibody_ann_dict["Domains"] = [{"Instance": [0], "value": value}]
         else:
             if "[" in key:
                 instance = [int(inst) for inst in key.strip().split("[")[1][:-1].split(",")]
                 self.antibody_ann_dict["Domains"].append({"Instance": instance, "value": value})
             else:
                 self.antibody_ann_dict["Domains"].append({"Instance": "NONE", "value": value})
+
+
+    def positions(self, record):
+        key, value = record.split(":")
+        key = key.strip()
+        if '[' in key:
+            instance = [int(inst) for inst in key.strip().split("[")[1][:-1].split(",")]
+            main_key = key.split('[')[0]
+        else:
+            instance = [0]
+            main_key = key
+        value = value.split()
+        vals = []
+        for val in value:
+            if val == 'NONE':
+                vals.append('NONE')
+            else:
+                vals.append(int(val))
+        if main_key not in self.antibody_ann_dict:
+            self.antibody_ann_dict[main_key] = [{'Instance': instance, 'Values': vals}]
+        else:
+            self.antibody_ann_dict[main_key].append({'Instance': instance, 'Values': vals})
+
+
+
 
     def note_record(self, record):
         key, value = record.split(":", 1)
@@ -276,10 +322,11 @@ class AntibodyToJSON:
                     self.antibody_ann_dict[self.old_key][i]["Note"] = value.strip()
 
     def instance_note(self, key, value):
-        print(f"Instance Key: {key}")
-        print(f"Instance Value: {value}")
-        note_instance = key.split("[")[1][:-1]
-        if "," in note_instance:
+        if '[' not in key:
+            note_instance = 0
+        else:
+            note_instance = key.split("[")[1][:-1]
+        if isinstance(note_instance, int)==False and "," in note_instance:
             self.methods["Multiple_Instance_Note"](key, value)
             return None
 
@@ -290,11 +337,6 @@ class AntibodyToJSON:
             self.antibody_ann_dict[self.old_key] = "HeavyNGlycos"
 
         # Ask the old value if it has instance. If it doesn't have an instance, add the instance.
-        print(f"Current Key: {key}")
-        print(f"Current Value: {value}")
-        print(f"Old key: {self.old_key}")
-        print(f"Old Value: {self.antibody_ann_dict[self.old_key]}")
-        print(f"Note Instance: {note_instance}")
         if type(self.antibody_ann_dict[self.old_key]) == str:
             self.antibody_ann_dict[self.old_key + "-Note-" + str(note_instance)] = value.strip()
             return None
@@ -306,7 +348,10 @@ class AntibodyToJSON:
             note_index = result[0]
             self.antibody_ann_dict[self.old_key][note_index]["Note"] = value.strip()
         else:
-            self.antibody_ann_dict[self.old_key][0]["Note"] += ", " + value.strip()
+            print(self.antibody_ann_dict[self.old_key][0])
+            print(value)
+            print(key)
+            self.antibody_ann_dict[key] = ", " + value.strip()
 
         # note_index = [self.antibody_ann_dict[self.old_key].index(inst)
         #               for inst in self.antibody_ann_dict[self.old_key]
@@ -323,6 +368,28 @@ class AntibodyToJSON:
         else:
             self.antibody_ann_dict[self.old_key + "_Instances_Note"].append({"Instance": note_instances,
                                                                              "Note": value.strip()})
+
+
+    def disulfides_intra(self, record):
+        colon_count = record.count(':')
+        if colon_count>1:
+            record = record.replace(':', ',', 1)
+        key, value = record.split(":", 1)
+
+
+        if "[" not in key:
+            value = value.strip().split(" ")
+            instances = 0
+        else:
+            instances = key.split("[")[1][:-1]
+
+            if value == ["NONE"]:
+                self.antibody_ann_dict[key] = value
+                return None
+
+        self.antibody_ann_dict[key] = [{"Instance": instances, "Value": value}]
+
+
 
     def cdr_record(self, record):
         key, value = record.split(":")
@@ -411,7 +478,6 @@ class AntibodyToJSON:
             instances = key.split("[")[1][:-1]
             new_key = key.split("[")[0]
             instance_list = instances.replace(',', ' ').split()
-            print(f'instances: {instances}')
             length_name = f'{new_key}[{instance_list[0]}]'
             if len(instance_list)>1:
                 del instance_list[0]
@@ -419,23 +485,35 @@ class AntibodyToJSON:
                 length_val = [{'Values': int(value.strip())}, {'WithInstances': instance_list}]
                 self.antibody_ann_dict[length_name] = length_val
             else:
-                self.antibody_ann_dict[length_name] = value
+                self.antibody_ann_dict[length_name] = int(value)
+        else:
+            self.antibody_ann_dict[f'{key}[0]'] = [{'Values': int(value.strip())}]
 
 
 
 
     def mutation_l_record(self, record):
         key, value = record.split(":", 1)
-
+        key = key.strip()
         if "[" in key:
             instance = int(key.split("[")[1][:-1])
         else:
             instance = "NONE"
-        mutations = value.split("(", 1)[0].strip().split(" ")
-        reason = value.split("(", 1)[1][:-2]
+        if '(' in value:
+            mutations = value.split("(", 1)[0].strip().split(" ")
+            reason = value.split("(", 1)[1].strip().rstrip(");")
+        else:
+            mutations = value
+            reason = 'No reason given'
         mutations_reasons = [{"Mutation": m, "Reason": reason} for m in mutations]
+        if key == 'Mutation' or 'Mutation[' in key or key=='Mutations' or 'Mutations[' in key:
+                        self.antibody_ann_dict["Mutation"] = [{"Instance": [instance],
+                                                    "Mutations": mutations_reasons}]
+        elif 'MutationJ' in key:
+            self.antibody_ann_dict["MutationJ"] = [{"Instance": [instance],
+                                                    "Mutations": mutations_reasons}]
 
-        if "MutationL" not in self.antibody_ann_dict:
+        elif "MutationL" not in self.antibody_ann_dict:
             self.antibody_ann_dict["MutationL"] = [{"Instance": [instance],
                                                     "Mutations": mutations_reasons}]
         else:
@@ -576,24 +654,62 @@ class AntibodyToJSON:
 
         instance = int(key.split("[", 1)[1][:-1])
         key = key.split("[")[0]
+        if value[-1]==')':
+            total = value.split()
+            note = total[-1]
+            gene_id = total[-2]
+            species = [val for val in total if val!= note and val!=gene_id]
+            self.antibody_ann_dict[f'{key}[{instance}]'] = [{"Species": species, "GeneID": gene_id, 'Note': note}]
+            return None
+
+        else:
+            species, gene_id = value.strip().rsplit(" ", 1)
         species, gene_id = value.strip().rsplit(" ", 1)
 
         if key not in self.antibody_ann_dict:
-            self.antibody_ann_dict[key] = [{"Instance": [instance], "Species": species, "GeneID": gene_id}]
+            self.antibody_ann_dict[f'{key}[{instance}]'] = [{"Species": species, "GeneID": gene_id}]
         else:
-            self.antibody_ann_dict[key].append({"Instance": [instance],
-                                                "Species": species, "GeneID": gene_id})
+            self.antibody_ann_dict[f'{key}[{instance}]'].append({"Species": species, "GeneID": gene_id})
 
     def lv_germline_no_instance(self, key, value):
 
         germline = value.strip().rsplit(" ", 1)
 
         if len(germline) == 1:
-            self.antibody_ann_dict[key] = [{"Instance": "NONE", "Species": "Not Specified", "GeneID": germline}]
+            self.antibody_ann_dict[f'{key}[0]'] = [{"Species": "Not Specified", "GeneID": germline}]
             return None
 
         species, gene_id = value.strip().rsplit(" ", 1)
-        self.antibody_ann_dict[key] = [{"Instance": "NONE", "Species": species, "GeneID": gene_id}]
+        self.antibody_ann_dict[f'{key}[0]'] = [{"Species": species, "GeneID": gene_id}]
+
+
+    def hc_germline(self, record): 
+        key, value = record.split(":", 1)
+
+        if "[" not in key:
+            self.lv_germline_no_instance(key, value)
+            return None
+
+        else:
+            instance = int(key.split("[", 1)[1][:-1])
+            germline = value.strip().rsplit(" ", 1)
+            if len(germline) == 1:
+                self.antibody_ann_dict[f'{key}[0]'] = [{"Species": "Not Specified", "GeneID": germline}]
+                return None
+
+
+        key = key.split("[")[0]
+        if len(value.strip().rsplit(" ", 1))==1:
+            self.antibody_ann_dict[f'{key}[0]'] = [{"Species": "Not Specified", "GeneID": value}]
+            species = 'Not Specifed'
+            gene_id = value
+        else:
+            species, gene_id = value.strip().rsplit(" ", 1)
+
+        if key not in self.antibody_ann_dict:
+            self.antibody_ann_dict[key] = [{'Instance': instance, "Species": species, "GeneID": gene_id}]
+        else:
+            self.antibody_ann_dict[key].append({"Species": species, "GeneID": gene_id})
 
     def confirmed_ptm(self, record):  # LightConfirmedPTM[2]: glycation 148 182 189 (rare);
         key, value = record.split(":", 1)
@@ -644,6 +760,7 @@ class AntibodyToJSON:
             record = record.replace(':', ',', 1)
         key, value = record.split(":", 1)
 
+
         if "[" not in key:
             value = value.strip().split(" ")
 
@@ -652,17 +769,19 @@ class AntibodyToJSON:
                 return None
 
             connections = [{"A": int(c.split("-")[0]), "B": int(c.split("-")[1])} for c in value]
-            self.antibody_ann_dict[key] = [{"Bonds": connections}]
+            self.antibody_ann_dict[key] = [{"Residue": connections[0]['A'], 'PartnerResidue': connections[0]["B"]}]
             return None
         dis_record = key.split("[")[1][:-1]
         if ":" in dis_record:
             dis_instances = list(map(int, dis_record.split(":")))
         elif "," in dis_record:
-            dis_instances = list(map(int, dis_record.split(",")))
+            dis_instances = list(dis_record.split(","))
+            dis_instances = [int(inst) for inst in dis_instances if inst.isalnum()]
         if not dis_record[0].isnumeric():
             dis_instances = ["NONE", "NONE"]
         else:
-            dis_instances = list(map(int, key.split("[")[1][:-1].split(",")))
+            dis_instances = list(key.split("[")[1][:-1].split(","))
+            dis_instances = [int(inst) for inst in dis_instances if inst.isalnum()]
 
 
         if len(dis_instances) == 1:
@@ -710,10 +829,11 @@ class AntibodyToJSON:
                 heavy_chain_instances = [int(instance) for instance in heavy_chain_instances.split("-")]
             else:
                 heavy_chain_instances = [int(instance) for instance in heavy_chain_instances.split(",")]
-            self.antibody_ann_dict["HeavyChain"] = [{"Instance": heavy_chain_instances,
-                                                      "Sequence": chain_sequence}]
+            for inst in heavy_chain_instances:
+                self.antibody_ann_dict[f"HeavyChain[{inst}]"] = [{"Sequence": chain_sequence}]
+
         else:
-            self.antibody_ann_dict["HeavyChain"] = chain_sequence
+            self.antibody_ann_dict["HeavyChain[0]"] = [{"Sequence": chain_sequence}]
 
     def light_chain_record(self, record):
         capital_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -729,10 +849,9 @@ class AntibodyToJSON:
                 light_chain_instances = [int(instance) for instance in light_chain_instances.split("-")]
             else:
                 light_chain_instances = [int(instance) for instance in light_chain_instances.split(",")]
-            self.antibody_ann_dict["LightChain"] = [{"Instance": light_chain_instances,
-                                                      "Sequence": chain_sequence}]
+            self.antibody_ann_dict[f"LightChain{light_chain_instances}"] = [{"Sequence": chain_sequence}]
         else:
-            self.antibody_ann_dict["LightChain"] = chain_sequence
+            self.antibody_ann_dict["LightChain[0]"] = [{"Sequence": chain_sequence}]
 
     def chain_record(self, record):
         capital_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -791,6 +910,7 @@ class AntibodyToJSON:
                 value = value.strip()
                 self.antibody_ann_dict[key] = value
         else:
+            print(record)
             value, key = record.split("in", 1)
 
 

@@ -13,17 +13,7 @@ for entry in os.scandir(directory):
             for key, value in list(new_json.items()):
                 replace_lh = {}
 
-                if 'Fusion[' in key:
-                    item = new_json[key]
-                    if 'WithInstances' in item:
-                        instances = item['WithInstances']
-                        instance_vals = [int(val) for val in instances]
-                        new_json[key] = {'WithInstances': instance_vals}
-                        continue
-                    else:
-                        continue
-
-                if 'Linker' in key:
+                if 'Fusion' in key:
                     continue
 
 
@@ -41,8 +31,18 @@ for entry in os.scandir(directory):
                     del new_json['Format_Instances_Note']
                     continue
 
-                if 'ChainLength[' in key:
-                    continue
+                if key == 'Chain':
+                    chain_items = new_json[key][0]
+                    if 'Instance' in chain_items:
+                        new_val = {'Sequence': chain_items['Sequence']}
+                        chain_instances = chain_items['Instance']
+                        new_key = f'{key}[{chain_instances[0]}]'
+                        del chain_instances[0]
+                        if chain_instances != []:
+                            new_val['WithInstances'] = chain_instances
+                        new_json[new_key] = new_val
+                        del new_json[key]
+                        continue
 
 
                 if key=='Type':
@@ -76,6 +76,21 @@ for entry in os.scandir(directory):
                     continue
 
 
+                if key=='ChainLength': 
+                    chain_items = new_json[key]
+                    for item in chain_items:
+                        new_values = {}
+                        if 'Instance' in item:
+                            chain_instances = item['Instance']
+                            chain_key = f'ChainLength[{chain_instances[0]}]'
+                            del chain_instances[0]
+                            new_values = {'Values': int(item['Values'][0])}
+                            if chain_instances!=[]:
+                                new_values['WithInstances']= chain_instances
+                            new_json[chain_key] = new_values
+
+                    del new_json['ChainLength']
+                    continue   
 
                 if 'Mutation' in key:
                     mutation_items = new_json[key]
@@ -107,7 +122,6 @@ for entry in os.scandir(directory):
 
                     instance_dic = {}
                     for bond_item in value:
-                        print(f'bond item: {bond_item}')
                         if isinstance(bond_item, str):
                             instance = 0
                             bonds = bond_item
@@ -124,72 +138,23 @@ for entry in os.scandir(directory):
                             bonds = " ".join(str(bonds))
                         if '-' in bonds:
                             bonds_pairs = bonds.replace("-", " ").split()
-                            print(f'bonds pairs: {bonds_pairs}')
 
                         if instance not in instance_dic:
                             instance_dic[instance] = []
 
-                        for i in range(0, len(bonds_pairs), 2):
+                        for i in range(0, len(bonds), 2):
                             try:
-                                residue = int(bonds_pairs[i])
-                                partner = int(bonds_pairs[i + 1])
-                                print(residue, partner)
+                                residue = int(bonds[i])
+                                partner = int(bonds[i + 1])
                             except (IndexError, ValueError):
                                 continue
-                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': residue, 'PartnerResidue': partner, 'PartnerInstance': instance})
+                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': [residue], 'PartnerResidue': [partner], 'PartnerInstance': instance})
                     
                     new_json.pop(key, None)
                     for inst, bonds_list in instance_dic.items():
                         new_key = f"{key}[{inst}]"
                         new_json[new_key] = bonds_list
                     continue
-
-                if ('DisulfidesInterH1H2' in key or 'DisulfidesInterL1L2' in key) and 'Note' not in key:
-                    chain = 'L' if 'L1L2' in key else 'H'
-
-                    if not isinstance(value, list):
-                        value = [value]
-
-                    instance_dic = {}
-                    for bond_item in value:
-                        print(f'bond item: {bond_item}')
-                        if isinstance(bond_item, str):
-                            instance = 0
-                            bonds = bond_item
-                        elif isinstance(bond_item, dict):
-                            instance = bond_item.get('Instance', [0])
-                            if isinstance(instance, list):
-                                instance = instance[0] if instance else [0]
-                            if str(instance).upper() == 'NONE':
-                                instance = [0]
-                            bonds = bond_item.get('Values', "")
-                        else:
-                            continue
-                        if isinstance(bonds, list):
-                            bonds = " ".join(str(bonds))
-                        if '-' in bonds:
-                            bonds_pairs = bonds.replace("-", " ").split()
-                            print(f'bonds pairs: {bonds_pairs}')
-
-                        if instance not in instance_dic:
-                            instance_dic[instance] = []
-
-                        for i in range(0, len(bonds_pairs), 2):
-                            try:
-                                residue = int(bonds_pairs[i])
-                                partner = int(bonds_pairs[i + 1])
-                                print(residue, partner)
-                            except (IndexError, ValueError):
-                                continue
-                            instance_dic[instance].append({'ThisChain': chain, 'PartnerChain': chain, 'Residue': residue, 'PartnerResidue': partner, 'PartnerInstance': instance})
-                    
-                    new_json.pop(key, None)
-                    for inst, bonds_list in instance_dic.items():
-                        new_key = f"{key}[{inst}]"
-                        new_json[new_key] = bonds_list
-                    continue
-
-
 
                 if 'Positions' in key:
                     new_value = value if isinstance(value, list) else value.split()
@@ -216,22 +181,27 @@ for entry in os.scandir(directory):
                                             if str(instance_a).upper() =='NONE':
                                                 instance_a = 0
                                             new_key = f'{key}[{instance_a}]'
-                                            bonds = item['Bonds'][0]['A']
-                                            partner = item['InstanceB']
-                                            if partner == 'NONE':
-                                                partner = 0
-                                            if 'L1H1' in key or 'L2H2' in key:
-                                                ThisChain = 'L'
-                                                partnerchain = 'H'
-                                                LResidue = bonds
-                                                HResidue = item['Bonds'][0]['B']
-                                                new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
+                                            if len(item['Bonds'])==0:
+                                                bonds = item['Bonds'][0]['A']
+                                                partner = item['InstanceB']
+                                                if partner == 'NONE':
+                                                    partner = 0
+                                                if 'L1H1' in key or 'L2H2' in key:
+                                                    ThisChain = 'L'
+                                                    partnerchain = 'H'
+                                                    LResidue = bonds
+                                                    HResidue = item['Bonds'][0]['B']
+                                                    new_val = [{'HResidue': HResidue, 'LResidue': LResidue, 'Partner': partner, 'ThisChain': ThisChain, 'PartnerChain': partnerchain}]
+                                                else:
+                                                    new_val = [{'Residue': bonds, 'Partner': partner}]
+                                                replacement_dic[new_key] = new_val
+                                                new_json.update(replacement_dic)
                                             else:
-                                                new_val = [{'Residue': bonds, 'Partner': partner}]
-                                            replacement_dic[new_key] = new_val
-                                            new_json.update(replacement_dic)
-
-
+                                                a_bonds = []
+                                                b_bonds = []
+                                                for bond in item['Bonds']:
+                                                    a_bonds.append(bond['A'])
+                                                    b_bonds.append(bond['B'])
 
                                     elif name=='InstanceB':
                                         instances = [item['InstanceB']]
@@ -286,8 +256,6 @@ for entry in os.scandir(directory):
                                             replacement_dic[new_key] = new_val
 
                                             if 'Potential' in item:
-                                                if new_json['Request'] == "12775":
-                                                    continue
                                                 if item['Potential'] == ["None"] or item['Potential']==['NONE'] or item['Potential']=='NONE' or item['Potential']=='None':
                                                     hold_key = f'{key}Potential[{instance}]'
                                                     replacement_dic[hold_key] = [0]
@@ -297,13 +265,13 @@ for entry in os.scandir(directory):
                                                 replacement_dic.pop(new_key, None)
 
                                             if 'Confirmed' in item:
-                                                if new_json['Request'] == "12775":
-                                                    continue
                                                 if item['Confirmed'] == ['None'] or item['Confirmed']==['NONE'] or item['Confirmed']=='NONE' or item['Confirmed']=='None':
                                                     hold_key = f'{key}Confirmed[{instance}]'
                                                     replacement_dic[hold_key] = [0]
                                                 else:
                                                     hold_key = f'{key}Confirmed[{instance}]'
+                                                    if isinstance(hold_key, int)==False:
+                                                        continue
                                                     replacement_dic[hold_key] = [int(res.replace(" ", "")) for res in item['Confirmed']]
                                                 replacement_dic.pop(new_key, None)
 
@@ -411,6 +379,5 @@ for entry in os.scandir(directory):
             output_path = os.path.join(new_folder, "new"+entry.name)
             with open(output_path, 'w') as f:
                 json.dump(new_json, f, indent=4)
-
 
 
