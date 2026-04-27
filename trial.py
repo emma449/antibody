@@ -1,5 +1,10 @@
 import os 
 import json
+from pymongo import MongoClient 
+
+myclient = MongoClient("mongodb://localhost:27017/") 
+db = myclient["Antibodies"]
+Collection = db["data"]
 
 directory = 'json_files'
 new_folder = 'trial_json_files'
@@ -408,4 +413,13 @@ for entry in os.scandir(directory):
 			output_path = os.path.join(new_folder, "try"+entry.name)
 			with open(output_path, 'w') as f:
 				json.dump(final_json, f, indent=4)
+			if isinstance(final_json, list):
+				Collection.insert_many(final_json)
+			else:
+				Collection.insert_one(final_json)
+
+for doc in Collection.find():
+    print(doc)
+
+
 
