@@ -916,6 +916,6 @@ class AntibodyToJSON:
 
 
 if __name__ == "__main__":
-    folder_path = "/Users/emmawrenn/Downloads/sinan"
+    folder_path = "/Users/emmawrenn/Downloads/inn-annotations-Consultation80"
     converter = AntibodyToJSON(folder_path)
     converter.make_files()
