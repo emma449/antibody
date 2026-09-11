@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Antibody search</title>
+	<style type = "text/css">
+		*{
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+		body {
+			display: flex;
+			flex-direction:column;
+			align-items: center;
+			justify-content: center;
+		}
+		h1 {
+			text-align: center;
+			font-size: 50px;
+		}
+		input {
+			width: 25%;
+		}
+
+		.download_btn, .download_seq_btn {
+			margin-top: 1px;
+			margin-right: 1px;
+		}
+
+
+
+		.antibodysource, .type, .class, .special-chain-format, .antigen, .mutation, .ptm, .glycos, .germline, .antibody_name_box, .request_box, .cdr {
+			margin-top: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.download_all {
+			padding: 10px;
+			border: 2px solid;
+			margin: 10px;
+			background-color: white;
+		}
+
+		.download_btn, .download_seq_btn {
+			float: right;
+		}
+
+		.more_btn {
+			margin: 10px;
+			border: 2px solid;
+			background-color: white;
+		}
+
+		.more_info, .even_more_info {
+			font-family: "Times New Roman", Times, serif;
+		}
+
+		.selected {
+    		background-color: steelblue;
+    		color: white;
+		}
+
+		.container {
+			width: 370px;
+			background-color: white;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 2px 2px 10px;
+			margin: 2rem 0;
+			border-color: steelblue;
+
+		}
+		.submit {
+			background-color: cornsilk;
+			width: 25%;
+			padding: 10px 0;
+			margin: 10px 0;
+			font-family: "Times New Roman", Times, serif;
+			font-size: 0.9em;
+			border-radius: 10px;
+
+		}
+		.submit:hover {
+			cursor: pointer;
+			background-color: wheat;
+		}
+
+		.clear:hover {
+			cursor: pointer;
+		}
+
+		.clear {
+			background-color: lightpink;
+			font-family: "Times New Roman", Times, serif;
+			font-size: 0.9em;
+			border-radius: 10px;
+			padding: 10px;
+			margin: 10px 0;
+			float: right;
+
+
+		}
+
+
+		.sourceArrow:after, .classArrow:after, .cdrArrow:after, .typeArrow:after, .heavytypeArrow:after, .lighttypeArrow:after, .heavy-chain-dropdown:after, .light-chain-dropdown:after, .reasonsArrow:after, .mutationtypedropdown:after, .germlinespeciesArrow:after, .germlinetypearrow:after, .antigenspeciesArrow:after, .chain-class-arrow:after, .heavy-chain-class-arrow:after, .light-chain-class-arrow:after, .special-chain-format-arrow:after, .heavyglycosArrow:after, .lightglycosArrow:after, .heavyglycoslinksArrow:after, .lightglycoslinksArrow:after {
+			content: "\25BC";
+			float: right;
+		}
+		.antigenArrow.active:after, .sourceArrow.active:after, .classArrow.active:after, .cdrArrow.active:after, .typeArrow.active:after, .heavytypeArrow.active:after, .lighttypeArrow.active:after, .heavy-chain-dropdown.active:after,  .light-chain-dropdown.active:after, .reasonsArrow.active:after, .mutationtypedropdown.active:after, .germlinespeciesArrow.active:after, .germlinetypearrow.active:after, .antigenspeciesArrow.active:after, .chain-class-arrow.active:after, .heavy-chain-class-arrow.active:after, .light-chain-class-arrow.active:after, .special-chain-format-arrow.active:after, .heavyglycosArrow.active:after, .lightglycosArrow.active:after, .heavyglycoslinksArrow.active:after, .lightglycoslinksArrow.active:after {
+			content: "\25B2";
+			float: right;
+		}
+
+
+
+	    .ptm-dropdown, .germlinearrow, .antigenArrow, .sourceArrow, .classArrow, .typeArrow, .cdrArrow, .glycos-dropdown {
+			cursor: pointer;
+			padding: 5px 0;
+			width: 100%;
+			text-align: left;
+			border: none;
+			outline: none;
+			transition: 0.4s;
+			background-color: white;
+			display: inline-block;
+		}
+		.ptm-dropdown.active, .germlinearrow.active, .antigenArrow.active, .glycos-dropdown.active {
+			background-color: #ccc;
+		}
+		.ptm-dropdown:after, .germlinearrow:after, .antigenArrow:after, .glycos-dropdown:after {
+			content: '\02795';
+			color: #777;
+			float: right;
+			margin-left: 5px;
+		}
+		.ptm-dropdown.active:after, .germlinearrow.active:after, .antigenArrow.active:after, .glycos-dropdown.active:after {
+			content: "\2796";
+		}
+		.remove-gene, .remove-name, .remove-type, .remove-source, .remove-reason {
+			float: right;
+		}
+		.ptm-options, .germlinedropdown, .antigenlist, .glycos-options {
+			overflow: hidden;
+			max-height: 0;
+			transition: max-height 0.2s ease-out;
+			display: none;
+			margin-left: 1rem;
+		}
+		.ptm-options div {
+			margin-top: 0.25rem;
+		}
+		.heavyptm, .lightptm, .heavyPTMtypeMenu, .lightPTMtypeMenu, .germlinetype, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu,.light-chain-class-enter, .heavy-chain-class-enter, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options {
+			display: none;
+		}
+		.heavyptm.active, .lightptm.active, .heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .light-chain-class-enter.active, .heavy-chain-class-enter.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active {
+			display: block;
+		}
+		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .type div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover {
+			cursor: pointer;
+		}
+		.lightPTMtypeMenu div:hover, .heavyPTMtypeMenu div:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown div:hover, .typeMenu div:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover {
+			background-color: #ccc;
+		}
+		select {
+			border: none;
+			margin-bottom: 1rem;
+		}
+
+		.mutation-select {
+			display: flex;
+		}
+		.mutationPresent {
+			margin-left: 9rem;
+		}
+
+		.heavyptm div, .lightptm div, .sourcedropdown, .typeMenu, .classMenu, .mutationtypemenu, .reasonlist, .germlinetype, .species, .chain-class div, .lightglycoslinks, .heavyglycoslinks, .special-chain-menu {
+			margin-left: 0.5rem;
+			font-size: 0.9em;
+			font-family: "Times New Roman", Times, serif;
+		}
+
+		.mutation-name-container, .cdrsourcemenu {
+			margin-left: 1rem;
+		}
+		.antigen-species-enter.active, .germline-species-enter.active {
+			display: flex;
+			gap: 2rem;
+		}
+
+		.results {
+			width: 80%;
+			max-width: 80%;
+		}
+		.add {
+			float: right;
+		}
+
+		.results pre, .info, .more_info, .even_more_info {
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			overflow-wrap: anywhere;
+			max-width: 100%;
+			border: 1px solid;
+		}
+
+		input {
+			margin-bottom: 1 rem;
+			margin-left: 1rem;
+		}
+
+
+
+
+
+
+
+	</style>
+</head>
+<body>
+<title>Antibody</title>
+<h1>Antibody Search</h1>
+	<div class="container">
+
+		<div class="antibodysource" id="antibodysource">
+			<div class="sourceArrow" id = 'sourceArrow'>Antibody Source</div>
+			<div class = "sourcedropdown" id = "sourcedropdown">
+				<div data-value="canine" class="canine-option" id="canine">Canine</div>
+				<div data-value ="chimeric" id="chimeric">Chimeric</div>
+				<div data-value="human">Human</div>
+				<div data-value="humanized">Humanized</div>
+				<div class = 'antibody-source-enter' id = 'antibody-source-enter'>
+					<input type='text' id = 'other-antibody-source'></input>
+					<button class = 'add' id = 'add-antibody-source'>Add other</button>
+				</div>
+			</div>
+
+		</div>
+
+		<div class = "type" id = "type">
+			<div class = "typeArrow" id = 'typeArrow'>Antibody Type</div>
+			<div class = "typeMenu" id = "typeMenu">
+				<div data-value="conjugated">Conjugated</div>
+				<div data-value="bispecific">Bispecific</div>
+				<div  data-value="fusion" >Fusion</div>
+				<div data-value = 'monoclonal'>Monoclonal antibody</div>
+				<div data-value="trispecific">Trispecific</div>
+				<div class = 'antibody-type-enter' id = 'antibody-type-enter'>
+					<input type='text' id = 'other-antibody-type'></input>
+					<button class = 'add' id = 'add-antibody-type'>Add other</button>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="class" id="class">
+			<div class="classArrow" id = 'classArrow'>Antibody Class</div>
+			<div class = "classMenu" id = "classMenu">
+
+				<div class = 'heavy-chain-class-arrow' id = "heavy-chain-class-arrow"><b>Heavy chain class</b></div>
+				<div class = 'heavy-chain-class-menu' id = "heavy-chain-class-menu">
+					<div data-value="Alpha">IgA</div>
+					<div data-value="Gamma1">IgG1</div>
+					<div data-value ="Gamma2">IgG2</div>
+					<div data-value="Gamma3">IgG3</div>
+					<div data-value="Gamma4">IgG4</div>
+					<div data-value = 'IgE'>IgE</div>
+					<div data-value = 'IgM'>IgM</div>
+					<div id = 'other-heavy-chain-class'>Other</div>
+					<div class = 'heavy-chain-class-enter' id = 'heavy-chain-class-enter'>
+						<input type='text' id = 'heavy-chain-class'></input>
+						<button class = 'add' id = 'add-heavy-chain-class'>Add other</button>
+					</div>
+				</div>
+
+				<div class = 'light-chain-class-arrow' id = "light-chain-class-arrow"><b>Light chain class</b></div>
+				<div class = 'light-chain-class-menu' id = 'light-chain-class-menu'>
+					<div data-value = "kappa">Kappa</div>
+					<div data-value = "lambda">Lambda</div>
+				</div>
+
+
+
+			</div>
+		</div>
+
+
+		<div class = 'special-chain-format'>
+		<div class = 'special-chain-format-arrow' id = "special-chain-format-arrow">Special chain format</div>
+			<div class = 'special-chain-menu' id = 'special-chain-menu'>
+				<div data-value = "crossmab">Crossmab</div>
+				<div data-value = "dimer">Dimer</div>
+				<div data-value = "fab">Fab</div>
+				<div data-value = "scfv">scFv</div>
+				<div data-value = "xscfv">XscFv</div>
+				<div id = 'other-special-chain-class'>Other</div>
+				<div class = 'special-chain-enter' id = 'speical-chain-enter'>
+					<input type='text' id = 'special-chain-name'></input>
+					<button class = 'add' id = 'add-special-chain'>Add other</button>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="antigen" id="antigen">
+			<div class="antigenArrow" id = 'antigenArrow'>Antigen</div>
+
+			<div class = "antigenlist" id = "antigenlist">
+				<div class = 'antigenName' id='antigenName'>Name
+					<input type = 'text' id = 'antigenNameText'></input>
+					<button class = 'add' id = 'add-antigen-name'>Add name</button>
+				</div>
+
+				<div class = 'antigenspeciesArrow' id = 'antigenSpeciesArrow'>Species</div>
+				<div class = 'species' id = 'antigenSpecies'>
+					<div data-value = 'human'>Human</div>
+					<div data-value = 'cat'>Cat</div>
+					<div data-value = 'dog'>Dog</div>
+					<div data-value = 'rat'>Rat</div>
+					<div id = 'other-antigen-species'>Other</div>
+					<div class = 'antigen-species-enter' id = 'antigen-species-enter'>
+						<input type='text' id = 'other-antigen-species-name'></input>
+						<button class = 'add' id = 'add-antigen-species'>Add other species</button>
+					</div>
+				</div>
+
+				<div class = 'antigenGene' id='antigenGene'>Gene
+					<input type = 'text' id = 'antigenGeneText'></input>
+					<button class = 'add' id = 'add-antigen-gene'>Add gene</button>
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class = "mutation" id = "mutation">
+			<div class="mutation-select">
+				<div class = 'mutationArrow' id = 'mutationArrow'>Mutation Present</div>
+					<select id = 'mutationPresent' class = 'mutationPresent'>
+						<option value = 'select'>Select</option>
+						<option value = "yes">Yes</option>
+						<option value = "no">No</option>
+					</select>
+			</div>
+			<div class = 'mutation-name-container' id = "mutation-name-container" style = "display:none;">
+				<div class = 'mutationtypedropdown' id="mutationtypedropdown">Mutation Type</div>
+
+					<div class = 'mutationtypemenu' id = 'mutationtypemenu'>
+						<div data-value = 'mutationh'>MutationH</div>
+						<div data-value = 'mutationl'>MutationL</div>
+					</div>
+
+					<div class="reasonsArrow" id = 'reasonsArrow'>Mutation Reasons</div>
+					<div class = "reasonlist" id = "reasonlist">
+						<div data-value = "avoid free thiol">Avoid free thiol</div>
+						<div data-value = "artificial disulfide">Artificial Disulfide</div>
+						<div data-value = "bispecific formation">Bispecific formation</div>
+						<div data-value =  "bispecific formation with light chian">Bispecific formation with light chain</div>
+						<div data-value = 'heterodimer formation hole'>Heterodimer formation hole</div>
+						<div data-value = 'reduce CDC'>Reduce CDC</div>
+						<div class = 'addOtherReason' id='addOtherReason'>
+							<input type = 'text' id = 'otherReasonText'></input>
+							<button class = 'add' id = 'add-other-reason'>Add reason</button>
+						</div>
+
+					</div>
+
+			</div>
+		</div>
+
+
+		<div class = "ptm">
+			<div class = "ptm-dropdown" id = "PTMdropdown">PTM</div>
+			<div class = "ptm-options" id = "ptmOptions">
+				<div class = 'heavy-chain-dropdown' id = 'heavychaindropdown'><b>Heavy chain</b></div>
+				<div class = "heavyptm" id =  'heavyptm'>
+					<div class="potential-select" id="potential-select">
+						<select class = 'heavypotentialconfirmed' id = 'heavypotentialconfirmed'>
+							<option value = 'default'>Select potential or confirmed</option>
+							<option value = "both">Potential or confirmed</option>
+							<option value = "potential">Potential</option>
+							<option value = "confirmed">Confirmed</option>
+						</select>
+					</div>
+
+					<div class="heavytypeArrow" id = 'heavytypeArrow'>Select Type</div>
+					<div class = "heavyPTMtypeMenu" id = 'heavyPTMtypeMenu'>
+						<div data-value = "amidation">amidation</div>
+						<div data-value = 'cterclip'>cterclip</div>
+						<div data-value = "deamidation">deamidation</div>
+						<div data-value = "glycation">glycation</div>
+						<div data-value = "hydroxylation">hydroxylation</div>
+						<div data-value = 'isomerization'>isomerization</div>
+						<div data-value = "nterdeformylate">nterdeformylate</div>
+						<div data-value = "nterpca">nterpca</div>
+						<div data-value = "oxidation">oxidation</div>
+						<div data-value = 'succinide-formation'>succinide formation</div>
+						<div data-value = "succinimide-formation">succinimide formation</div>
+					</div>
+
+
+
+				</div>
+				<div class = 'light-chain-dropdown' id = 'lightchaindropdown'><b>Light chain</b></div>
+				<div class = "lightptm" id = 'lightptm'>
+					<div class="potential-select" id="potential-select">
+						<select id = 'lightpotentialconfirmed'>
+							<option value = 'default'>Select potential or confirmed</option>
+							<option value = "both">Potential or confirmed</option>
+							<option value = "potential">Potential</option>
+							<option value = "confirmed">Confirmed</option>
+						</select>
+					</div>
+					<div class="lighttypeArrow" id = "lighttypeArrow">Select Type</div>
+					<div class = "lightPTMtypeMenu" id = 'lightPTMtypeMenu'>
+						<div data-value = "amidation">amidation</div>
+						<div data-value = 'cterclip'>cterclip</div>
+						<div data-value = "deamidation">deamidation</div>
+						<div data-value = "glycation">glycation</div>
+						<div data-value = "hydroxylation">hydroxylation</div>
+						<div data-value = 'isomerization'>isomerization</div>
+						<div data-value = "nterdeformylate">nterdeformylate</div>
+						<div data-value = "nterpca">nterpca</div>
+						<div data-value = "oxidation">oxidation</div>
+						<div data-value = 'succinide-formation'>succinide formation</div>
+						<div data-value = "succinimide-formation">succinimide formation</div>
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+
+		<div class = 'glycos' id = 'glycos'>
+
+			<div class = "glycos-dropdown" id = "glycosdropdown">Glycosylation sites</div>
+			<div class = 'glycos-options' id = 'glycosoptions'>
+
+				<div class = 'heavyglycosArrow' id = 'heavyglycosArrow'><b>Heavy glycosylation sites</b></div>
+				<div class = 'heavy-glycos-options' id = 'heavy-glycos-options'>
+
+					<div class="potential-select" id="potential-select">
+						<select class = 'heavyglycospotentialconfirmed' id = 'heavyglycospotentialconfirmed'>
+							<option value = 'default'>Select potential or confirmed</option>
+							<option value = "both">Potential or confirmed</option>
+							<option value = "potential">Potential</option>
+							<option value = "confirmed">Confirmed</option>
+						</select>
+					</div>
+
+					<div class = 'heavyglycoslinksArrow' id = 'heavyglycoslinksArrow'>Glycosylation links</div>
+					<div class = "heavyglycoslinks" id = "heavyglycoslinks">
+						<div data-value = 'n'>N-linked</div>
+						<div data-value = 'o'>O-linked</div>
+					</div>
+
+				</div>
+
+				<div class = 'lightglycosArrow' id = 'lightglycosArrow'><b>Light glycosylation sites</b></div>
+				<div class = 'light-glycos-options' id = 'light-glycos-options'>
+					<div class="potential-select" id="potential-select">
+						<select class = 'lightglycospotentialconfirmed' id = 'lightglycospotentialconfirmed'>
+							<option value = 'default'>Select potential or confirmed</option>
+							<option value = "both">Potential or confirmed</option>
+							<option value = "potential">Potential</option>
+							<option value = "confirmed">Confirmed</option>
+						</select>
+					</div>
+
+					<div class = 'lightglycoslinksArrow' id = 'lightglycoslinksArrow'>Glycosylation links</div>
+					<div class = "lightglycoslinks" id = "lightglycoslinks">
+						<div data-value = 'n'>N-linked</div>
+						<div data-value = 'o'>O-linked</div>
+					</div>
+
+				</div>
+
+			</div>
+
+
+		</div>
+
+
+
+		<div class = "germline" id = 'germline'>
+			<div class = 'germlinearrow' id = 'germlinearrow'>Germline</div>
+			
+			<div class = 'germlinedropdown' id = 'germlinedropdown'>
+				<div class = 'germlinetypearrow' id = 'germlinetypearrow'>Type</div>
+				<div class = 'germlinetype' id = 'germlinetype'>
+					<div data-value = 'hc'>HC</div>
+					<div data-value = 'hj'>HJ</div>
+					<div data-value = 'hv'>HV</div>
+					<div data-value = 'lc'>LC</div>
+					<div data-value = 'lj'>LJ</div>
+					<div data-value = 'lv'>LV</div>
+				</div>
+
+				<div class = 'germlineTypeDetails' id = 'germlineTypeDetails'></div>
+			</div>
+
+		</div>
+
+
+		<div class = 'antibody_name_box' id='antibody_name_box'>
+			<label>Antibody name</label>
+			<input type = 'text' id = 'antibody-name-text'>
+			<button class = 'add' id = 'add-antibody-name'>Add name</button>
+
+		</div>
+
+		<div class = 'request_box' id='request_box'>
+			<label>Request number</label>
+			<input type = 'text' id = 'request'>
+			<button class = 'add' id = 'add-request'>Add request number</button>
+
+		</div>
+
+
+
+		<div class = 'cdr' id = 'cdr'>
+			<div class="cdrArrow" id = "cdrArrow">CDR Source</div>
+			<div class = 'cdrsourcemenu' id = 'cdrsourcemenu'>
+				<div data-value = 'Lama pacos'>Alpaca (Lama pacos)</div>
+				<div data-value = 'Rattus norvegicus'>Brown rat (Rattus norvegicus)</div>
+				<div data-value= 'Camelus bactrianus'>Camelus bactrianus</div>
+				<div data-value = 'Oryctolagus cuniculus'>European rabbit (Oryctolagus cuniculus)</div>
+				<div data-value = 'Mus musculus'>House mouse (Mus musculus)</div>
+				<div data-value = 'Homo sapiens'>Human (Homo sapiens)</div>
+				<div data-value = 'Lama glama'>Llama (Lama glama)</div>
+
+			</div>
+
+
+		</div>
+
+		<button class = 'submit' id = 'submit'>Submit</button>
+		<buttun class = 'clear' id = 'clear'>Clear filters</buttun>
+
+
+	</div>
+
+	<div id = 'results' class='results'></div>
+<script>
+
+//search json
+const searchFilters = {
+    antibodySource: [],
+    heavyChainClass: [],
+    lightChainClass: [],
+    antibodyType: [],
+    heavyPTMDic: {'potentialconfirmed': null, 'types': []},
+    lightPTMDic: {'potentialconfirmed': null, 'types': []},
+    mutationDic: {
+    	present: null,
+    	types: [],
+    	reasons: []
+    },
+    cdrSource: [],
+    germlineDic: [], 
+    antigenDic: {'names': [], 'species': [], 'genes': []},
+    heavyglycosDic: {'potentialconfirmed': null, 'links': []},
+    lightglycosDic: {'potentialconfirmed': null, 'links': []},
+    specialChain: [],
+    antibody_name: [],
+    requests: []
+};
+
+
+function getDefaultFilters() {
+	return {
+	    antibodySource: [],
+	    heavyChainClass: [],
+	    lightChainClass: [],
+	    antibodyType: [],
+	    heavyPTMDic: {'potentialconfirmed': null, 'types': []},
+	    lightPTMDic: {'potentialconfirmed': null, 'types': []},
+	    mutationDic: {
+	    	present: null,
+	    	types: [],
+	    	reasons: []
+	    },
+	    cdrSource: [],
+	    germlineDic: [], 
+	    antigenDic: {'names': [], 'species': [], 'genes': []},
+	    heavyglycosDic: {'potentialconfirmed': null, 'links': []},
+	    lightglycosDic: {'potentialconfirmed': null, 'links': []},
+	    specialChain: [],
+	    antibody_name: [],
+	    requests: []
+	};
+}
+
+
+//antibody source
+const sourceArrow = document.getElementById('sourceArrow');
+const sourcedropdown = document.getElementById('sourcedropdown');
+const antibodySourceEnter = document.getElementById('antibody-source-enter');
+const otherAntibodySource = document.getElementById('other-antibody-source');
+const addAntibodySource = document.getElementById('add-antibody-source');
+
+sourceArrow.addEventListener('click', (e) => {
+	sourcedropdown.classList.toggle('active');
+	sourceArrow.classList.toggle('active');
+});
+
+sourcedropdown.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!value) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.antibodySource.includes(value)) {
+        searchFilters.antibodySource =
+            searchFilters.antibodySource.filter(v => v !== value);
+    } else {
+        searchFilters.antibodySource.push(value);
+    }
+});
+
+addAntibodySource.addEventListener('click', () => {
+	const source = otherAntibodySource.value.trim();
+	if (!source) return;
+	const newSource = document.createElement('div');
+	newSource.textContent = source;
+	newSource.dataset.value = source.toLowerCase();
+
+	//create remove button with class name remove-gene
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-source');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.antibodySource = searchFilters.antibodySource.filter(v => v !== source);
+		newSource.remove();
+	});
+
+	newSource.appendChild(removeBtn);
+
+	sourcedropdown.insertBefore(newSource, antibodySourceEnter);
+	newSource.classList.toggle("selected");
+	otherAntibodySource.value = "";
+	if (searchFilters.antibodySource.includes(source)) {
+		searchFilters.antibodySource =
+        	searchFilters.antibodySource.filter(v => v !== source);
+	}
+	else {
+		searchFilters.antibodySource.push(source);
+	}
+});
+
+
+
+//class
+const classArrow = document.getElementById('classArrow');
+const classMenu = document.getElementById('classMenu');
+const heavyChainClassArrow = document.getElementById('heavy-chain-class-arrow');
+const lightChainClassArrow = document.getElementById('light-chain-class-arrow');
+
+const heavyChainClassMenu = document.getElementById('heavy-chain-class-menu');
+const lightChainClassMenu = document.getElementById('light-chain-class-menu');
+
+
+//other keys
+const otherheavychainclass = document.getElementById('other-heavy-chain-class');
+
+
+//the fields to toggle between showing and not showing when other is clicked
+const heavychainother = document.getElementById('heavy-chain-class-enter');
+
+const addlightchain = document.getElementById('add-light-chain-class');
+const addheavychain = document.getElementById('add-heavy-chain-class');
+
+
+
+
+
+classArrow.addEventListener('click', (e) => {
+	classMenu.classList.toggle('active');
+	classArrow.classList.toggle('active');
+});
+
+
+heavyChainClassMenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!value) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.heavyChainClass.includes(value)) {
+        searchFilters.heavyChainClass =
+            searchFilters.heavyChainClass.filter(v => v !== value);
+    } else {
+        searchFilters.heavyChainClass.push(value);
+    }
+
+});
+
+lightChainClassMenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!value) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.lightChainClass.includes(value)) {
+        searchFilters.lightChainClass =
+            searchFilters.lightChainClass.filter(v => v !== value);
+    } else {
+        searchFilters.lightChainClass.push(value);
+    }
+
+});
+
+
+
+heavyChainClassArrow.addEventListener('click', (e) => {
+	heavyChainClassArrow.classList.toggle('active');
+	heavyChainClassMenu.classList.toggle('active');
+});
+
+lightChainClassArrow.addEventListener('click', (e) => {
+	lightChainClassArrow.classList.toggle('active');
+	lightChainClassMenu.classList.toggle('active');
+});
+
+
+
+
+otherheavychainclass.addEventListener('click', (e) => {
+	addheavychain.classList.toggle('active');
+	heavychainother.classList.toggle('active');
+	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
+		otherheavychainclass.style.backgroundColor = 'white';
+	}
+	else {
+		otherheavychainclass.style.backgroundColor = 'steelblue';
+	}
+});
+
+
+
+addheavychain.addEventListener('click', () => {
+	addheavychain.classList.toggle('active');
+	heavychainother.classList.toggle('active');
+	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
+		otherheavychainclass.style.backgroundColor = 'white';
+	}
+	else {
+		otherheavychainclass.style.backgroundColor = 'steelblue';
+	}
+
+	const className = document.getElementById('heavy-chain-class').value.trim();
+	if (!className) return;
+	const newClass = document.createElement('div');
+	newClass.textContent = className;
+	newClass.dataset.value = className.toLowerCase();
+	heavyChainClassMenu.insertBefore(newClass, otherheavychainclass);
+	newClass.classList.toggle("selected");
+	if (searchFilters.heavyChainClass.includes(className)) {
+		searchFilters.heavyChainClass =
+        	searchFilters.heavyChainClass.filter(v => v !== className);
+	}
+	else {
+		searchFilters.heavyChainClass.push(className);
+	}
+});
+
+
+//special chain
+const specialChainArrow = document.getElementById('special-chain-format-arrow');
+const specialChainMenu = document.getElementById('special-chain-menu');
+
+specialChainArrow.addEventListener('click', (e) => {
+	specialChainArrow.classList.toggle('active');
+	specialChainMenu.classList.toggle('active');
+});
+
+specialChainMenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!value) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.specialChain.includes(value)) {
+        searchFilters.specialChain =
+            searchFilters.specialChain.filter(v => v !== value);
+    } else {
+        searchFilters.specialChain.push(value);
+    }
+
+});
+
+
+//type
+const typeArrow = document.getElementById("typeArrow");
+const typeMenu = document.getElementById("typeMenu");
+
+const antibodyTypeEnter = document.getElementById('antibody-type-enter'); //container of the other option
+const addAntibodyType = document.getElementById('add-antibody-type'); //button to add other
+const otherAntibodyType = document.getElementById('other-antibody-type'); //text of other antibody
+
+typeArrow.addEventListener('click', (e) => {
+	typeMenu.classList.toggle('active');
+	typeArrow.classList.toggle('active');
+});
+
+typeMenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!value) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.antibodyType.includes(value)) {
+        searchFilters.antibodyType =
+            searchFilters.antibodyType.filter(v => v !== value);
+    } else {
+        searchFilters.antibodyType.push(value);
+    }
+});
+
+
+addAntibodyType.addEventListener('click', () => {
+	const type = otherAntibodyType.value.trim();
+	if (!type) return;
+	const newType = document.createElement('div');
+	newType.textContent = type;
+	newType.dataset.value = type.toLowerCase();
+
+	//create remove button with class name remove-gene
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-type');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.antibodyType = searchFilters.antibodyType.filter(v => v !== type);
+		newType.remove();
+	});
+
+	newType.appendChild(removeBtn);
+
+	typeMenu.insertBefore(newType, antibodyTypeEnter);
+	newType.classList.toggle("selected");
+	otherAntibodyType.value = "";
+	if (searchFilters.antibodyType.includes(type)) {
+		searchFilters.antibodyType =
+        	searchFilters.antibodyType.filter(v => v !== type);
+	}
+	else {
+		searchFilters.antibodyType.push(type);
+	}
+});
+
+
+
+//ptm
+const ptmDropdown = document.getElementById("PTMdropdown");
+const ptmOptions = document.getElementById("ptmOptions");
+const heavyptm =document.getElementById("heavyptm");
+const lightptm =document.getElementById("lightptm");
+const heavyptmdropdown = document.getElementById("heavychaindropdown");
+const lightptmdropdown = document.getElementById("lightchaindropdown");
+const lighttypeArrow = document.getElementById("lighttypeArrow");
+const heavytypeArrow = document.getElementById("heavytypeArrow");
+const lightptmTypemenu = document.getElementById("lightPTMtypeMenu");
+const heavyptmTypemenu = document.getElementById("heavyPTMtypeMenu");
+const potentialselect = document.getElementById("potential-select");
+const heavypotentialconfirmed = document.getElementById('heavypotentialconfirmed');
+const lightpotentialconfirmed = document.getElementById('lightpotentialconfirmed');
+
+
+
+heavytypeArrow.style.display = 'none';
+lighttypeArrow.style.display = 'none';
+heavypotentialconfirmed.addEventListener("change", () => {
+	if (heavypotentialconfirmed.value==='potential') {
+		searchFilters.heavyPTMDic.potentialconfirmed = 'potential';
+		heavytypeArrow.style.display = 'block';
+		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+	}
+	if (heavypotentialconfirmed.value==='confirmed') {
+		searchFilters.heavyPTMDic.potentialconfirmed = 'confirmed';
+		heavytypeArrow.style.display = 'block';
+		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+	}
+	if (heavypotentialconfirmed.value==='both') {
+		searchFilters.heavyPTMDic.potentialconfirmed = 'both';
+		heavytypeArrow.style.display = 'block';
+		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+	}
+	if (heavypotentialconfirmed.value === 'default') {
+		searchFilters.heavyPTMDic.potentialconfirmed = null;
+		heavyptmTypemenu.style.display = 'none';
+		heavytypeArrow.style.display = 'none';
+	}
+});
+
+
+lightpotentialconfirmed.addEventListener("change", () => {
+	if (lightpotentialconfirmed.value==='potential') {
+		searchFilters.lightPTMDic.potentialconfirmed = 'potential';
+		lighttypeArrow.style.display = 'block';
+		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+	}
+	if (lightpotentialconfirmed.value==='confirmed') {
+		searchFilters.lightPTMDic.potentialconfirmed = 'confirmed';
+		lighttypeArrow.style.display = 'block';
+		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+	}
+	if (lightpotentialconfirmed.value==='both') {
+		searchFilters.lightPTMDic.potentialconfirmed = 'both';
+		lighttypeArrow.style.display = 'block';
+		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+
+	}
+	if (lightpotentialconfirmed.value === 'default') {
+		searchFilters.lightPTMDic.potentialconfirmed = null;
+		lightptmTypemenu.style.display = 'none';
+		lighttypeArrow.style.display = 'none';
+	}
+});
+
+ptmDropdown.addEventListener("click", function() {
+/* Toggle between adding and removing the "active" class,
+to highlight the button that controls the panel */
+	this.classList.toggle("active");
+	if (ptmOptions.style.display === "block") {
+	  ptmOptions.style.display = "none";
+	} else {
+	  ptmOptions.style.display = "block";
+	}
+	if (ptmOptions.style.maxHeight) {
+	  ptmOptions.style.maxHeight = null;
+	} else {
+	  ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+	}
+});
+
+heavyptmdropdown.addEventListener("click", () => {
+	heavyptmdropdown.classList.toggle("active");
+    heavyptm.classList.toggle("active");
+    ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+});
+
+lightptmdropdown.addEventListener("click", () => {
+	lightptmdropdown.classList.toggle("active");
+    lightptm.classList.toggle("active");
+    ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+});
+
+
+
+heavytypeArrow.addEventListener("click", () => {
+	heavytypeArrow.classList.toggle("active");
+    heavyptmTypemenu.classList.toggle("active");
+    ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+});
+lighttypeArrow.addEventListener("click", () => {
+	lighttypeArrow.classList.toggle("active");
+    lightptmTypemenu.classList.toggle("active");
+    ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
+});
+
+
+heavyptmTypemenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.heavyPTMDic.types.includes(value)) {
+        searchFilters.heavyPTMDic.types =
+            searchFilters.heavyPTMDic.types.filter(v => v !== value);
+    } else {
+        searchFilters.heavyPTMDic.types.push(value);
+    }
+
+});
+
+lightptmTypemenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.lightPTMDic.types.includes(value)) {
+        searchFilters.lightPTMDic.types =
+            searchFilters.lightPTMDic.types.filter(v => v !== value);
+    } else {
+        searchFilters.lightPTMDic.types.push(value);
+    }
+
+});
+
+
+
+//glycos
+const glycosdropdown = document.getElementById('glycosdropdown');
+const glycosoptions = document.getElementById('glycosoptions');
+
+const heavyglycosArrow = document.getElementById('heavyglycosArrow');
+const lightglycosArrow = document.getElementById('lightglycosArrow');
+const heavyglycosoptions = document.getElementById('heavy-glycos-options');
+const lightglycosoptions = document.getElementById('light-glycos-options');
+
+const heavyglycoslinksArrow = document.getElementById('heavyglycoslinksArrow');
+const lightglycoslinksArrow = document.getElementById('lightglycoslinksArrow');
+const heavyglycoslinks = document.getElementById('heavyglycoslinks');
+const lightglycoslinks = document.getElementById('lightglycoslinks');
+
+const lightglycospotentialconfirmed = document.getElementById('lightglycospotentialconfirmed');
+const heavyglycospotentialconfirmed = document.getElementById('heavyglycospotentialconfirmed');
+
+
+glycosdropdown.addEventListener("click", function() {
+/* Toggle between adding and removing the "active" class,
+to highlight the button that controls the panel */
+	this.classList.toggle("active");
+	if (glycosoptions.style.display === "block") {
+	  glycosoptions.style.display = "none";
+	} else {
+	  glycosoptions.style.display = "block";
+	}
+	if (glycosoptions.style.maxHeight) {
+	  glycosoptions.style.maxHeight = null;
+	} else {
+	  glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+});
+
+heavyglycoslinksArrow.style.display = 'none';
+lightglycoslinksArrow.style.display = 'none';
+
+heavyglycosArrow.addEventListener("click", () => {
+	heavyglycosArrow.classList.toggle("active");
+    heavyglycosoptions.classList.toggle("active");
+    glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+});
+
+lightglycosArrow.addEventListener("click", () => {
+	lightglycosArrow.classList.toggle("active");
+    lightglycosoptions.classList.toggle("active");
+    glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+});
+
+heavyglycoslinksArrow.addEventListener("click", () => {
+	heavyglycoslinksArrow.classList.toggle("active");
+    heavyglycoslinks.classList.toggle("active");
+    glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+});
+
+lightglycoslinksArrow.addEventListener("click", () => {
+	lightglycoslinksArrow.classList.toggle("active");
+    lightglycoslinks.classList.toggle("active");
+    glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+});
+
+heavyglycospotentialconfirmed.addEventListener("change", () => {
+	if (heavyglycospotentialconfirmed.value==='potential') {
+		searchFilters.heavyglycosDic.potentialconfirmed = 'potential';
+		heavyglycoslinksArrow.style.display = 'block';
+		glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+	if (heavyglycospotentialconfirmed.value==='confirmed') {
+		searchFilters.heavyglycosDic.potentialconfirmed = 'confirmed';
+		heavyglycoslinksArrow.style.display = 'block';
+		glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+	if (heavyglycospotentialconfirmed.value==='both') {
+		searchFilters.heavyglycosDic.potentialconfirmed = 'both';
+		heavyglycoslinksArrow.style.display = 'block';
+		glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+	if (heavyglycospotentialconfirmed.value === 'default') {
+		searchFilters.heavyglycosDic.potentialconfirmed = null;
+		heavyglycoslinksArrow.style.display = 'none';
+		heavyglycoslinks.style.display = 'none';
+	}
+});
+
+lightglycospotentialconfirmed.addEventListener("change", () => {
+	if (lightglycospotentialconfirmed.value==='potential') {
+		searchFilters.lightglycosDic.potentialconfirmed = 'potential';
+		lightglycoslinksArrow.style.display = 'block';
+		glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+	if (lightglycospotentialconfirmed.value==='confirmed') {
+		searchFilters.lightglycosDic.potentialconfirmed = 'confirmed';
+		lightglycoslinksArrow.style.display = 'block';
+		glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+	if (lightglycospotentialconfirmed.value==='both') {
+		searchFilters.lightglycosDic.potentialconfirmed = 'both';
+		lightglycoslinksArrow.style.display = 'block';
+		glycosoptions.style.maxHeight = glycosoptions.scrollHeight + "px";
+	}
+	if (lightglycospotentialconfirmed.value === 'default') {
+		searchFilters.lightglycosDic.potentialconfirmed = null;
+		lightglycoslinksArrow.style.display = 'none';
+		lightglycoslinks.style.display = 'none';
+	}
+});
+
+lightglycoslinks.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.lightglycosDic.links.includes(value)) {
+        searchFilters.lightglycosDic.links =
+            searchFilters.lightglycosDic.links.filter(v => v !== value);
+    } else {
+        searchFilters.lightglycosDic.links.push(value);
+    }
+
+});
+
+heavyglycoslinks.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.heavyglycosDic.links.includes(value)) {
+        searchFilters.heavyglycosDic.links =
+            searchFilters.heavyglycosDic.links.filter(v => v !== value);
+    } else {
+        searchFilters.heavyglycosDic.links.push(value);
+    }
+
+});
+
+
+//antigen
+const antigenArrow = document.getElementById("antigenArrow");
+const antigenList = document.getElementById("antigenlist");
+const antigenSpeciesArrow = document.getElementById('antigenSpeciesArrow');
+const antigenSpecies = document.getElementById('antigenSpecies');
+const otherantigenspecies = document.getElementById('other-antigen-species');
+const antigenspeciesenter = document.getElementById('antigen-species-enter');
+const addantigenspecies = document.getElementById('add-antigen-species');
+const otherantigenspeciestext = document.getElementById('other-antigen-species-name');
+
+//antigen gene and name divs
+const antigenGene = document.getElementById('antigenGene');
+const antigenName = document.getElementById('antigenName');
+
+
+const antigenNameText = document.getElementById('antigenNameText');
+const antigenGeneText = document.getElementById('antigenGeneText');
+
+//antigen name and gene enter buttons
+const addAntigenGene = document.getElementById('add-antigen-gene');
+const addAntigenName = document.getElementById('add-antigen-name');
+
+
+
+antigenArrow.addEventListener("click", function() {
+	this.classList.toggle("active");
+	if (antigenList.style.display === "block") {
+	  antigenList.style.display = "none";
+	} else {
+	  antigenList.style.display = "block";
+	}
+	if (antigenList.style.maxHeight) {
+	  antigenList.style.maxHeight = null;
+	} else {
+	  antigenList.style.maxHeight = antigenList.scrollHeight + "px";
+	}
+});
+
+antigenSpeciesArrow.addEventListener("click", (e) => {
+	antigenSpeciesArrow.classList.toggle('active');
+    antigenSpecies.classList.toggle("active");
+    antigenList.style.maxHeight = antigenList.scrollHeight + "px";
+});
+
+
+antigenSpecies.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.antigenDic.species.includes(value)) {
+        searchFilters.antigenDic.species =
+            searchFilters.antigenDic.species.filter(v => v !== value);
+    } else {
+        searchFilters.antigenDic.species.push(value);
+    }
+
+});
+
+otherantigenspecies.addEventListener('click', (e) => {
+	antigenspeciesenter.classList.toggle('active');
+	if (otherantigenspecies.style.backgroundColor === 'steelblue') {
+		otherantigenspecies.style.backgroundColor = 'white';
+	}
+	else {
+		otherantigenspecies.style.backgroundColor = 'steelblue';
+	}
+	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
+
+});
+
+addantigenspecies.addEventListener('click', () => {
+	const speciesName = document.getElementById('other-antigen-species-name').value.trim();
+	if (!speciesName) return;
+	const newSpecies = document.createElement('div');
+	newSpecies.textContent = speciesName;
+	newSpecies.dataset.value = speciesName.toLowerCase();
+	antigenSpecies.insertBefore(newSpecies, otherantigenspecies);
+	newSpecies.classList.toggle("selected");
+	otherantigenspeciestext.value = "";
+	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
+	if (searchFilters.antigenDic.species.includes(speciesName)) {
+		searchFilters.antigenDic.species =
+        	searchFilters.antigenDic.species.filter(v => v !== speciesName);
+	}
+	else {
+		searchFilters.antigenDic.species.push(speciesName);
+	}
+});
+
+
+addAntigenGene.addEventListener('click', () => {
+	const gene = antigenGeneText.value.trim();
+	if (!gene) return;
+	const newGene = document.createElement('div');
+	newGene.textContent = gene;
+	newGene.dataset.value = gene.toLowerCase();
+
+	//create remove button with class name remove-gene
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-gene');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.antigenDic.genes = searchFilters.antigenDic.genes.filter(v => v !== gene);
+		newGene.remove();
+	});
+
+	newGene.appendChild(removeBtn);
+
+	antigenGene.insertBefore(newGene, antigenGeneText);
+	newGene.classList.toggle("selected");
+	antigenGeneText.value = "";
+	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
+	if (searchFilters.antigenDic.genes.includes(gene)) {
+		searchFilters.antigenDic.genes =
+        	searchFilters.antigenDic.genes.filter(v => v !== gene);
+	}
+	else {
+		searchFilters.antigenDic.genes.push(gene);
+	}
+});
+
+addAntigenName.addEventListener('click', () => {
+	const name = antigenNameText.value.trim();
+	if (!name) return;
+	const newName = document.createElement('div');
+	newName.textContent = name;
+	newName.dataset.value = name.toLowerCase();
+
+	//create remove button with class name remove-gene
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-name');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.antigenDic.names = searchFilters.antigenDic.names.filter(v => v !== name);
+		newName.remove();
+	});
+
+	newName.appendChild(removeBtn);
+
+	antigenName.insertBefore(newName, antigenNameText);
+	newName.classList.toggle("selected");
+	antigenNameText.value = "";
+	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
+	if (searchFilters.antigenDic.names.includes(name)) {
+		searchFilters.antigenDic.names =
+        	searchFilters.antigenDic.names.filter(v => v !== name);
+	}
+	else {
+		searchFilters.antigenDic.names.push(name);
+	}
+});
+
+
+const mutationPresent = document.getElementById('mutationPresent');
+const mutationNameContainer = document.getElementById("mutation-name-container");
+const mutationtypedropdown = document.getElementById("mutationtypedropdown");
+const mutationtypemenu = document.getElementById("mutationtypemenu");
+const reasonsarrow = document.getElementById("reasonsArrow");
+const reasonlist = document.getElementById('reasonlist');
+const addOtherReason = document.getElementById('addOtherReason');
+const otherReasonText = document.getElementById('otherReasonText');
+const enterOtherReason = document.getElementById('add-other-reason');
+
+
+mutationPresent.addEventListener("change", () => {
+	if (mutationPresent.value==='yes') {
+		mutationNameContainer.style.display = "block";
+		searchFilters.mutationDic.present = true;
+	}
+	else {
+		mutationNameContainer.style.display = "none";
+	}
+	if (mutationPresent.value==='no') {
+		searchFilters.mutationDic.present = false;
+	}
+	if (mutationPresent.value === 'select') {
+		searchFilters.mutationDic.present = null;
+	}
+});
+
+mutationtypedropdown.addEventListener('click', (e) => {
+	mutationtypedropdown.classList.toggle("active");
+	mutationtypemenu.classList.toggle("active");
+});
+
+reasonsarrow.addEventListener('click', (e) => {
+	reasonsarrow.classList.toggle("active");
+	reasonlist.classList.toggle("active");
+});
+
+mutationtypemenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.mutationDic.types.includes(value)) {
+        searchFilters.mutationDic.types =
+            searchFilters.mutationDic.types.filter(v => v !== value);
+    } else {
+        searchFilters.mutationDic.types.push(value);
+    }
+});
+
+reasonlist.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.mutationDic.reasons.includes(value)) {
+        searchFilters.mutationDic.reasons =
+            searchFilters.mutationDic.reasons.filter(v => v !== value);
+    } else {
+        searchFilters.mutationDic.reasons.push(value);
+    }
+});
+
+enterOtherReason.addEventListener('click', () => {
+	const reason = otherReasonText.value.trim();
+	if (!reason) return;
+	const newReason = document.createElement('div');
+	newReason.textContent = reason;
+	newReason.dataset.value = reason.toLowerCase();
+
+	//create remove button with class name remove-reason
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-reason');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.mutationDic.reasons = searchFilters.mutationDic.reasons.filter(v => v !== reason);
+		newReason.remove();
+	});
+
+	newReason.appendChild(removeBtn);
+
+	addOtherReason.insertBefore(newReason, otherReasonText);
+	newReason.classList.toggle("selected");
+	otherReasonText.value = "";
+	if (searchFilters.mutationDic.reasons.includes(reason)) {
+		searchFilters.mutationDic.reasons =
+        	searchFilters.mutationDic.reasons.filter(v => v !== reason);
+	}
+	else {
+		searchFilters.mutationDic.reasons.push(reason);
+	}
+});
+
+
+//cdr source
+const cdrArrow = document.getElementById("cdrArrow");
+const cdrsourcemenu = document.getElementById("cdrsourcemenu");
+cdrArrow.addEventListener("click", (e) => {
+    cdrsourcemenu.classList.toggle("active");
+    cdrArrow.classList.toggle("active");
+});
+
+cdrsourcemenu.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!value) return;
+	e.target.classList.toggle("selected");
+	if (searchFilters.cdrSource.includes(value)) {
+        searchFilters.cdrSource =
+            searchFilters.cdrSource.filter(v => v !== value);
+    } else {
+        searchFilters.cdrSource.push(value);
+    }
+});
+
+otherheavychainclass.addEventListener('click', (e) => {
+	addheavychain.classList.toggle('active');
+	heavychainother.classList.toggle('active');
+	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
+		otherheavychainclass.style.backgroundColor = 'white';
+	}
+	else {
+		otherheavychainclass.style.backgroundColor = 'steelblue';
+	}
+});
+
+
+
+addheavychain.addEventListener('click', () => {
+	addheavychain.classList.toggle('active');
+	heavychainother.classList.toggle('active');
+	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
+		otherheavychainclass.style.backgroundColor = 'white';
+	}
+	else {
+		otherheavychainclass.style.backgroundColor = 'steelblue';
+	}
+
+	const className = document.getElementById('heavy-chain-class').value.trim();
+	if (!className) return;
+	const newClass = document.createElement('div');
+	newClass.textContent = className;
+	newClass.dataset.value = className.toLowerCase();
+	heavyChainClassMenu.insertBefore(newClass, otherheavychainclass);
+	newClass.classList.toggle("selected");
+	if (searchFilters.heavyChainClass.includes(className)) {
+		searchFilters.heavyChainClass =
+        	searchFilters.heavyChainClass.filter(v => v !== className);
+	}
+	else {
+		searchFilters.heavyChainClass.push(className);
+	}
+});
+
+
+//antibody_name
+const antibody_name_text = document.getElementById('antibody-name-text');
+const add_antibody_name = document.getElementById('add-antibody-name');
+const antibody_name_box = document.getElementById('antibody_name_box');
+
+add_antibody_name.addEventListener('click', () => {
+	const name = antibody_name_text.value.trim();
+	if (!name) return;
+	const newName = document.createElement('div');
+	newName.textContent = name;
+	newName.dataset.value = name.toLowerCase();
+	newName.classList.add("selected");
+	if (!searchFilters.antibody_name.includes(name)) {
+		searchFilters.antibody_name.push(name);
+	} else {
+		return;
+	}
+
+	//create remove button with class name remove-gene
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-name');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.antibody_name = searchFilters.antibody_name.filter(v => v !== name);
+		newName.remove();
+
+	});
+	newName.appendChild(removeBtn);
+
+	antibody_name_box.insertBefore(newName, antibody_name_text);
+	
+	antibody_name_text.value = "";
+});
+
+
+//request
+const request = document.getElementById('request');
+const add_request = document.getElementById('add-request');
+const request_box = document.getElementById('request_box');
+
+add_request.addEventListener('click', () => {
+	const name = request.value.trim();
+	if (!name) return;
+	const newName = document.createElement('div');
+	newName.textContent = name;
+	newName.dataset.value = name.toLowerCase();
+	newName.classList.add("selected");
+	if (!searchFilters.requests.includes(name)) {
+		searchFilters.requests.push(name);
+	} else {
+		return;
+	}
+
+	//create remove button with class name remove-gene
+	const removeBtn = document.createElement('button');
+	removeBtn.textContent = 'x';
+	removeBtn.classList.add('remove-name');
+
+	//make remove button remove searched gene when clicked
+	removeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		searchFilters.requests = searchFilters.requests.filter(v => v !== name);
+		newName.remove();
+
+	});
+	newName.appendChild(removeBtn);
+
+	request_box.insertBefore(newName, request);
+	
+	request.value = "";
+});
+
+
+
+//germline
+const germlinearrow = document.getElementById('germlinearrow');
+const germlinedropdown = document.getElementById('germlinedropdown');
+const germlinetypearrow = document.getElementById('germlinetypearrow');
+const germlinetype = document.getElementById('germlinetype');
+const germlineTypeDetails = document.getElementById('germlineTypeDetails');
+
+
+germlinearrow.addEventListener("click", function() {
+/* Toggle between adding and removing the "active" class,
+to highlight the button that controls the panel */
+	this.classList.toggle("active");
+	if (germlinedropdown.style.display === "block") {
+	  germlinedropdown.style.display = "none";
+	} else {
+	  germlinedropdown.style.display = "block";
+	}
+	if (germlinedropdown.style.maxHeight) {
+	  germlinedropdown.style.maxHeight = null;
+	} else {
+	  germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+	}
+});
+
+germlinetypearrow.addEventListener("click", (e) => {
+	germlinetypearrow.classList.toggle("active");
+    germlinetype.classList.toggle("active");
+    germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+});
+
+
+germlinetype.addEventListener('click', (e) => {
+	const value = e.target.dataset.value;
+	if (!e.target.matches('[data-value]')) return;
+	e.target.classList.toggle("selected");
+	const existing = searchFilters.germlineDic.find(g => g.type === value);
+	if (existing) {
+		searchFilters.germlineDic = searchFilters.germlineDic.filter (g => g.type !== value);
+		document.querySelector(`.germline-section[data-type="${value}"]`)?.remove();
+	} else {
+		createGermlineSection(value);
+	}
+
+});
+
+
+
+function createGermlineSection(type) {
+	const wrapper = document.createElement('div');
+	wrapper.className = 'germline-section';
+	wrapper.dataset.type = type;
+	wrapper.innerHTML = `
+		<hr>
+
+		<h4>${type.toUpperCase()}</h4>
+
+		<div class = 'germlineSpeciesArrow'>Species</div>
+		<div class = 'speciesMenu'>
+			<div data-value = 'Homo sapiens'>Human (Homo sapiens)</div>
+			<div data-value = 'Lama pacos'>Alpaca (Lama/Vicugna pacos)</div>
+			<div data-value = 'Rattus norvegicus'>Brown rat (Rattus norvegicus)</div>
+			<div data-value = 'Felis catus'>Cat (Felis catus)</div>
+			<div data-value = 'Canis lupus familiaris'>Dog (Canis lupus familiaris)</div>
+			<div data-value = 'Lama glama'>Llama (Lama glama)</div>
+			<div data-value = 'Camelus dromedarius'>One-humped camel (Camelus dromedarius)</div>
+			<div data-value = 'Macaca mulatta'>Rhesus macaque (Macaca mulatta)</div>
+			<div data-value = 'Sus scrofa'>Wild boar (Sus scrofa)</div>
+			<div class = 'other-germline-species'>Other</div>
+			<div class = 'germline-species-enter'>
+				<input type='text' class = 'other-germline-species-name'></input>
+				<button class = 'add-germline-species'>Add other species</button>
+			</div>
+		</div>
+
+		<div class = 'geneBox' style = 'margin-top:8px;'>
+			<label>Gene</label><br>
+			<input type = 'text' class = 'geneInput'>
+			<button type = 'button' class = 'addGene'>Add</button>
+			<div class = 'geneList'></div>
+		</div>
+	`;
+	germlineTypeDetails.appendChild(wrapper);
+	germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+
+	searchFilters.germlineDic.push({type, 
+		species: [],
+		genes: []});
+
+	const record = searchFilters.germlineDic.find(g => g.type === type);
+
+	const speciesMenu = wrapper.querySelector('.speciesMenu');
+	const addgenebutton = wrapper.querySelector('.addGene');
+	const geneBox = wrapper.querySelector('.geneBox');
+
+
+	speciesMenu.addEventListener('click', (e) => {
+		const value = e.target.dataset.value;
+		if (!value) return;
+		e.target.classList.toggle('selected');
+
+		if (!record) return;
+
+		if (record.species.includes(value)) {
+			record.species = record.species.filter(v => v !== value);
+		} else {
+			record.species.push(value);
+		}
+
+
+	});
+
+	const germlineSpeciesArrow = wrapper.querySelector('.germlineSpeciesArrow');
+	germlineSpeciesArrow.addEventListener("click", (e) => {
+		germlineSpeciesArrow.classList.toggle("active");
+	    speciesMenu.classList.toggle("active");
+	    germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+	});
+
+	wrapper.querySelector('.addGene').addEventListener('click', () => {
+		const input = wrapper.querySelector('.geneInput');
+		const value = input.value.trim();
+		if (!value) return;
+		const record = searchFilters.germlineDic.find(g => g.type === type);
+
+		if (!record.genes.includes(value)) {
+			record.genes.push(value);
+		} else {
+			return;
+		}
+		const div = document.createElement('div');
+		div.textContent = value;
+		input.value = '';
+
+		const removeBtn = document.createElement('button');
+		removeBtn.textContent = 'x';
+		removeBtn.classList.add('remove-gene');
+		div.appendChild(removeBtn);
+		geneBox.insertBefore(div, addgenebutton);
+
+	//make remove button remove searched gene when clicked
+		removeBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			record.genes = record.genes.filter(v => v !== value);
+			div.remove();
+		});
+
+	});
+
+	const otherspecies = wrapper.querySelector('.other-germline-species'); //option to select 'other'
+	const enterotherspecies = wrapper.querySelector('.germline-species-enter') //the element that appears when the user selects other
+	const addOtherSpecies = wrapper.querySelector('.add-germline-species'); //add other species button
+	const otherspeciestext = wrapper.querySelector('.other-germline-species-name'); //name of the other species entered into the other input box
+
+	otherspecies.addEventListener('click', (e) => {
+		enterotherspecies.classList.toggle('active');
+		if (enterotherspecies.style.backgroundColor === 'steelblue') {
+			enterotherspecies.style.backgroundColor = 'white';
+		}
+		else {
+			enterotherspecies.style.backgroundColor = 'steelblue';
+		}
+		germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+
+	});
+
+	//add other species to the germline type dict
+	addOtherSpecies.addEventListener('click', () => {
+		const speciesName = otherspeciestext.value.trim();
+		if (!speciesName) return;
+
+		const newSpecies = document.createElement('div');
+		newSpecies.textContent = speciesName;
+		newSpecies.dataset.value = speciesName;
+		newSpecies.classList.toggle("selected");
+
+		speciesMenu.insertBefore(newSpecies, otherspecies);
+		otherspeciestext.value = "";
+
+		if (record.species.includes(speciesName)) {
+			record.species = record.species.filter(s => s !== speciesName);
+		} else {
+			record.species.push(speciesName);
+		}
+
+		germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+	});
+
+
+}
+
+
+//submit button
+
+const submit = document.getElementById('submit');
+
+
+async function searchdb (query) {
+	await client.connect();
+	const db = myclient.db("Antibodies");
+	const collection = db.collection('json_files');
+	const results = await collection.find(query).toArray();
+	results.forEach(result => {
+		Object.entries(result).forEach(([key, value]) => {
+			console.log(`${key}:`, value);
+		});
+	});
+	await client.close();
+
+
+}
+
+
+const resultsdiv = document.getElementById('results');
+submit.addEventListener('click', async (e) => {
+	e.preventDefault();
+	console.log(searchFilters);
+	const query = searchFilters;
+	const response = await fetch ("/search", {
+		method: 'POST',
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(searchFilters)
+	});
+	const results = await response.json();
+
+	resultsdiv.innerHTML = ""; //clear previous search
+
+	if (results.length===0) {
+		resultsdiv.innerHTML = "No results";
+		return;
+	}
+
+
+	const resultsnum = document.createElement('div');
+	resultsnum.classList.add('results');
+	resultsnum.innerHTML = `
+		<h2>${results.length} results</h2>
+	`;
+	resultsdiv.append(resultsnum);
+
+	const download_all = document.createElement('button'); //button to download every JSON result
+	download_all.classList.add('download_all');
+	download_all.textContent = 'Download all results';
+	resultsdiv.append(download_all);
+	download_all.addEventListener('click', (e) => {
+		e.stopPropagation();
+		results.forEach((result) => {
+		    const json = JSON.stringify(result, null, 2);
+		    const blob = new Blob([json], { type: 'application/json' });
+
+		    const url = URL.createObjectURL(blob);
+
+		    const a = document.createElement('a');
+		    a.href = url;
+		    a.download = `${result.Antibody_name || result.Request || 'antibody'}.json`;
+
+		    document.body.appendChild(a);
+		    a.click();
+		    document.body.removeChild(a);
+
+		    URL.revokeObjectURL(url);
+		});
+	});
+
+	results.forEach((result, index) => {
+		const record = document.createElement('div');
+		record.classList.add('results');
+		const info = document.createElement('div');
+		info.classList.add('info');
+		if (result.Antibody_name) {
+			const antibodyname = document.createElement('div');
+			antibodyname.textContent = result.Antibody_name;
+			info.appendChild(antibodyname);
+		}
+		const request = document.createElement('div');
+		request.textContent = result.Request;
+		info.appendChild(request);
+
+		const download_btn = document.createElement('button');
+		download_btn.classList.add('download_btn');
+		download_btn.textContent = 'Download JSON';
+		record.appendChild(download_btn);
+
+		const download_seq_btn = document.createElement('button');
+		download_seq_btn.classList.add('download_seq_btn');
+		download_seq_btn.textContent = 'Download chain sequence JSON';
+		record.appendChild(download_seq_btn);
+
+		download_btn.addEventListener('click', (e) => {
+		    e.stopPropagation();
+
+		    const json = JSON.stringify(result, null, 2);
+		    const blob = new Blob([json], { type: 'application/json' });
+
+		    const url = URL.createObjectURL(blob);
+
+		    const a = document.createElement('a');
+		    a.href = url;
+		    a.download = `${result.Antibody_name || result.Request}.json`;
+
+		    document.body.appendChild(a);
+		    a.click();
+		    document.body.removeChild(a);
+
+		    URL.revokeObjectURL(url);
+		});
+
+		download_seq_btn.addEventListener('click', (e) => {
+			e.stopPropagation();
+
+			let chain_dict = {};
+
+			for (const [key, val] of Object.entries(result)) {
+				if (key==='Chain'||key.includes(' Chain')) {
+					chain_dict[key] = val;
+				}
+			}
+
+			const json_seq = JSON.stringify(chain_dict, null, 2);
+
+			const seq_blob = new Blob([json_seq], { type: 'application/json' });
+			const seq_url = URL.createObjectURL(seq_blob);
+
+			const seq_a = document.createElement('a');
+			seq_a.href = seq_url;
+
+			seq_a.download = `${result.Antibody_name || result.Request}chainseq.json`;
+
+		    document.body.appendChild(seq_a);
+		    seq_a.click();
+		    document.body.removeChild(seq_a);
+
+		    URL.revokeObjectURL(seq_url);
+
+		});
+
+		const more_info = document.createElement('pre');
+		more_info.classList.add('more_info');
+		more_info.append(
+		    ` Format: ${result.Format}\n`
+		);
+
+		if (result.AbML) {
+			more_info.append(` AbML: ${result.AbML}\n`)
+		}
+
+		if (result.Antigen) {
+			result.Antigen.forEach(antigen => {
+				more_info.append(
+				` Antigen Name: ${antigen.Name}\n Antigen Gene: ${antigen.Gene}\n`);
+			});
+		}
+
+		if (result.HeavyChainClass) {
+			more_info.append(` Heavy chain class: ${result.HeavyChainClass.Value}\n`);
+		}
+
+		if (result.LightChainClass) {
+			more_info.append(` Light chain class: ${result.LightChainClass.Value}\n`);
+		}
+
+		if (result.CDRSource) {
+			more_info.append(
+			` CDR Source: ${result.CDRSource.Value}\n`);
+		}
+
+		for (const key in result) {
+			if (key.includes('Germline')) {
+				more_info.append(` ${key} Species: ${result[key].Species}\n ${key} Gene: ${result[key].GeneID}\n`);
+			}
+
+			if (key.includes('Mutation')) {
+				result[key].forEach(mutation=> {
+					displayValue(mutation, key, more_info);
+				});
+			}
+		}
+
+		const more_btn = document.createElement('button');
+		more_btn.classList.add('more_btn');
+		more_btn.textContent = 'show more';
+		more_info.appendChild(more_btn);
+		more_info.style.display = 'none';
+
+		//even_more_info shows the entire json
+		const even_more_info = document.createElement('pre');
+		even_more_info.classList.add('even_more_info');
+
+		for (const [key, val] of Object.entries(result)) {
+			if (key.includes('CDRKabat')) {
+				const kabat_key = key.slice(0, -3);
+				const kabat_value = `${result[key].Sequence}(${result[key].Start}-${result[key].End})`;
+				displayValue(kabat_value, kabat_key, even_more_info);
+			}
+
+
+			else if (key.includes('Range')) {
+				const range_val = `${result[key].Start}-${result[key].End}`
+				if (result[key].Mutations != 'NONE') {
+					const complete_val = range_val + '\n     Mutations: ' + result[key].Mutations;
+					displayValue(complete_val, key, even_more_info);
+				}
+				else {
+					displayValue(range_val, key, even_more_info);
+				}
+
+			}
+
+			else if (key.includes(' Chain')||key==='Chain') {
+				if (isNaN(result[key].Sequence.slice(result[key].Sequence.length-3, result[key].Sequence.length))===false) { 
+
+				//remove the last three characters because this is the chain length, which is already there
+
+					chain_val = `\n${result[key].Sequence.slice(0, result[key].Sequence.length-4)}`; //-4 because fourth to last character is a new line
+					displayValue(chain_val, key, even_more_info);
+				}
+				else {
+					chain_val = `\n${val}`
+					displayValue(val, key, even_more_info);
+				}
+			}
+
+
+
+			else if (key.includes('Disulfides')) {
+				for(let i = 0; i<result[key].length; i+=2) {
+					const value = `${result[key][i].PartnerResidue}-${result[key][i].Residue}`;
+					if (result[key][i].Instance!==result[key][i].PartnerInstances[0]) {
+						const PartnerInstances = result[key][i].PartnerInstances.toString();
+						const dis_key = `${key}[${result[key][i].Instance},${PartnerInstances}]`;
+						displayValue(value, dis_key, even_more_info);
+					}
+					else {
+						displayValue(value, `${key}[${result[key][i].Instance}]`, even_more_info);
+					}
+				}
+			}
+
+
+
+			else {
+				displayValue(val, key, even_more_info);
+			}
+
+		}
+
+		even_more_info.style.display = 'none';
+
+
+		info.addEventListener('click', () => {
+			if (more_info.style.display === 'none') {
+				more_info.style.display = 'block';
+			} else {
+				more_info.style.display = 'none';
+				even_more_info.style.display = 'none';
+			}
+		});
+
+		more_btn.addEventListener('click', () => {
+			if (even_more_info.style.display === 'none') {
+				even_more_info.style.display = 'block';
+				more_btn.textContent = 'show less';
+			} else {
+				even_more_info.style.display = 'none';
+				more_btn.textContent = 'show more';
+			}
+		});
+
+
+
+		record.appendChild(info);
+		record.appendChild(more_info);
+		record.appendChild(even_more_info);
+
+		resultsdiv.append(record);
+
+	});
+});
+
+const clear = document.getElementById('clear');
+clear.addEventListener('click', async (e) => {
+	e.preventDefault();
+	Object.assign(searchFilters, getDefaultFilters());
+	document.querySelectorAll('.selected').forEach(el => {
+		el.classList.remove('selected');
+	});
+	document.querySelectorAll('input[type="text"]').forEach(input => {
+		input.value = '';
+	});
+
+	const germlineTypeDetails = document.getElementById('germlineTypeDetails');
+	if (germlineTypeDetails) {
+		germlineTypeDetails.innerHTML = '';
+	}
+
+	document.querySelectorAll('.active').forEach(el => {
+		el.classList.remove('active');
+	});
+
+});
+
+//even_more_info
+function displayValue(value, key, element, indent = 0) {
+
+	const spaces = "  ".repeat(indent);
+
+    if (Array.isArray(value)) {
+
+		//display simple array on one line
+		if (value.every(item => typeof item !== "object" || item === null)) {
+			element.append(
+				` ${spaces}${key}: ${value.join(", ")}\n`
+			);
+			return;
+		}
+
+    	element.append(` ${spaces}${key}\n`);
+
+        value.forEach((item, index) => {
+        	if (typeof item === "object" && item !== null) {
+
+
+        		const filteredItem = { ...item };
+
+        		if (Array.isArray(filteredItem.Instances) && filteredItem.Instances.length === 1 && key!== 'Antigen') {
+        			delete filteredItem.Instances;
+        		}
+
+        		if (filteredItem.Instance === 0 && key!== 'Antigen') {
+        			delete filteredItem.Instances;
+        		}
+
+
+        		for (const [itemKey, itemValue] of Object.entries(filteredItem)) {
+        			displayValue(itemValue, itemKey, element, indent+1);
+        		}
+        	} else {
+        		element.append(` ${spaces}   ${item}\n`);
+        	}
+        });
+        return;
+
+    } else if (typeof value === "object" && value !== null) {
+
+
+		if(value.Sequence!==undefined || value.Value !== undefined || value.Values !== undefined || value.Note !== undefined) {
+			if(value.Sequence!==undefined) {
+				displayValue(value.Sequence, key, element, indent);
+				return;
+			}
+			else if (value.Value!==undefined) {
+				displayValue(value.Value, key, element, indent);
+				return;
+			}
+			else if (value.Values) {
+				displayValue(value.Values, key, element, indent);
+				return;
+			}
+			else if (value.Note) {
+				displayValue(value.Note, key, element, indent);
+				return;
+			}
+
+		}
+
+		const filteredValue = {...value};
+
+		if (Array.isArray(filteredValue.Instances)&&filteredValue.Instances.length===1) {
+			delete filteredValue.Instances;
+		}
+
+		if (filteredValue.Instance === 0) {
+			delete filteredValue.Instance;
+		}
+
+		element.append(` ${spaces}${key}:\n`);
+
+        for (const [objectKey, objectValue] of Object.entries(filteredValue)) {
+            displayValue(objectValue, objectKey, element, indent+1);
+		}
+
+    } else {
+
+        element.append(` ${spaces}${key}: ${value}\n`);
+    }
+}
+
+</script>
+</body>
+</html>
