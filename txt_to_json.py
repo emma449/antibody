@@ -46,6 +46,11 @@ def antigen(key, value):
 	else:
 		name_key = key
 		instances = [0]
+
+	if value.strip() == 'unknown':
+		antigen_val = [{'Name':'Unknown', 'Instances': [int(i) for i in instances], 'Gene': 'Unknown'}]
+		return name_key, antigen_val
+
 	gene = value.split(" ")[-1][1:-1].strip()
 	antigen_raw_key = value.split(",")
 	antigen = antigen_raw_key[0]
@@ -61,23 +66,30 @@ def antigen(key, value):
 		if len(instances)>1:
 			antigen_key = name_key
 			if 'a' not in instances[0]:
-				antigen_val = {'Name':antigen.strip(), 'Instance': int(instances[0]), 'Gene': gene, 'Genesearch': re.sub(r'\d+', '', gene), 'Pseudonyms': psuedonyms, 'WithInstances': [int (i) for i in instances[1:]]}
-			else: 
-				antigen_val = {'Name':antigen.strip(), 'Instance': instances[0], 'Gene': gene, 'Genesearch': re.sub(r'\d+', '', gene), 'Pseudonyms': psuedonyms, 'WithInstances': [instances[1:]]}
-			return antigen_key, antigen_val
+				antigen_val = [{'Name':f'{antigen.strip()}', 'Instances': [int(i) for i in instances], 'Gene': gene, 'Pseudonyms': psuedonyms}]
+			else:
+				for instance in instances:
+					antigen_val = [{'Name':f'{antigen.strip()}', 'Instances': instances, 'Gene': gene, 'Pseudonyms': psuedonyms}]
 		else:
 			antigen_key = name_key
-			antigen_val = {'Name':antigen.strip(), 'Instance': instances[0], 'Gene': gene, 'Genesearch': re.sub(r'\d+', '', gene), 'Pseudonyms': psuedonyms}
-			return antigen_key, antigen_val
+			antigen_val = [{'Name':f'{antigen.strip()}', 'Instances': [int(i) for i in instances], 'Gene': gene, 'Pseudonyms': psuedonyms}]
 	else:
 		if len(instances)>1:
 			antigen_key = name_key
-			antigen_val = {'Name':antigen.strip(), 'Instance': int(instances[0]), 'Gene': gene, 'Genesearch': re.sub(r'\d+', '', gene), 'WithInstances': [int (i) for i in instances[1:]]}
+			for instance in instances:
+				antigen_val = [{'Name':f'{antigen.strip()}', 'Instances': [int(i) for i in instances], 'Gene': gene}]
 		else:
 			antigen_key = name_key
-			antigen_val = {'Name':antigen.strip(), 'Instance': int(instances[0]), 'Gene': gene, 'Genesearch': re.sub(r'\d+', '', gene)}
+			antigen_val = [{'Name':f'{antigen.strip()}', 'Instances': instances, 'Gene': gene}]
 
+	if new_json.get(antigen_key):
+		existing_dic = new_json[antigen_key]
+		antigen_val.extend(existing_dic)
 		return antigen_key, antigen_val
+
+
+	return antigen_key, antigen_val
+
 
 def chainlength(key, value):
 	value = ''.join(filter(str.isalnum, value))
@@ -99,16 +111,21 @@ def mutation(key, value):
 	if '[' in key:
 		mutations_key, instances = key.split("[")
 		instances = instances[:-1].strip().split(",")
+		instances = [int(i) for i in instances]
 	else:
 		mutations_key = key
 		instances = [0]
 	if '(' in value:
 		mutations = value.split("(", 1)[0].strip().split(" ")
 		reason = value.split("(", 1)[1][:-1]
-		mutations_val = {'Mutations': mutations, 'Instances': [int(i) for i in instances], 'Reason': reason}
+		mutations_val = [{f'Mutation{instances}': mutations, 'Reason': reason}]
 	else:
-		mutations = value.strip()
-		mutations_val = {'Mutations': mutations, 'Instances': [int(i) for i in instances]}
+		mutations = value.strip().split(" ")
+		mutations_val = [{f'Mutation{instances}': mutations}]
+	if new_json.get(mutations_key):
+		existing_dic = new_json[mutations_key]
+		mutations_val.extend(existing_dic)
+		return mutations_key, mutations_val
 	return mutations_key, mutations_val
 
 def info_range(key, value):
@@ -148,17 +165,16 @@ def info_range(key, value):
 
 
 def cdrkabat(key, value):
-	if '[' in key:
-		cdr_key, instance = key.split('[')
-		instances =  instance[:-1].strip().split(",")
-	else:
-		cdr_key = key 
-		instances = [0]
+	if '[' not in key:
+		cdr_key = f'{key}[0]'
+	else: 
+		cdr_key = key
+
 	values = value.split()
 	values = [val.strip() for val in values]
 	sequence = values[0]
 	start, end = list(map(int, value.strip().split(" ")[1][1:-1].split("-")))
-	cdr_val = {'Sequence': sequence, 'Instances': [int(i) for i in instances], 'Start': start, 'End': end}
+	cdr_val = {'Sequence': sequence, 'Start': start, 'End': end}
 	return cdr_key, cdr_val
 
 def germline(key, value):
@@ -197,7 +213,8 @@ def disulfides(key, value):
 		if 'A' not in instance and 'B' not in instance:
 			instance = list(map(int, (key.split("[", 1)[1][:-1].split(","))))
 		if len(instance)>1:
-			partner_inst = instance[1]
+			partner_inst = instance[1:]
+			instance = instance[0]
 			dis_key = name_key
 		else:
 			partner_inst = instance[0]
@@ -232,6 +249,11 @@ def disulfides(key, value):
 
 		disulfides_dic.append({'ThisChain': chain, 'Instance': instance, 'Residue': int(pair[0]), 'PartnerChain': partner_chain, 'PartnerResidue': int(pair[1]), 'PartnerInstances': partner_inst})
 
+	if new_json.get(dis_key):
+		existing_dic = new_json[dis_key]
+		disulfides_dic.extend(existing_dic)
+		return dis_key, disulfides_dic
+
 	return dis_key, disulfides_dic
  
 
@@ -245,43 +267,23 @@ cdr_sources = []
 germline_species_list = []
 germline_dic = {}
 requests = []
+requests_without_names = []
 for entry in os.scandir(folder_path): 
 	if entry.is_file():
 		file_name = os.path.basename(entry)
 
-		if file_name=='00RNtoName.txt':
+		if file_name=='RNtoName_20260826.txt':
 			with open(entry.path, "r", encoding="utf-8") as f:
 				name_json = []
 				for line in f:
-					line = line.strip()
+					line = line.strip().split()
 					if not line:
 						continue
-					parts = re.split(r"\s+", line)
-					if parts[0].isnumeric():
-						request = parts[0]
-					else:
-						request = parts[0]
-					nums = parts[-2:]
-					two_nums = True
-					for num in nums:
-						for val in num:
-							if val.isnumeric()==False:
-								two_nums = False
-
-					if two_nums == True:
-						PLNum = nums[0]
-						CLNum = nums[1]
-						name = " ".join(parts[1:-2])
-						name_json.append({'Request': request, 'Name': name, 'PLNum': PLNum, 'CLNum': CLNum})
-					else:
-						if parts[-1].isnumeric():
-							PLNum = parts[-1]
-							name = " ".join(parts[1:-1])
-							name_json.append({'Request': request, 'Name': name, 'PLNum': PLNum})
-						else:
-							ConsultationNum = parts[-1]
-							name = " ".join(parts[1:-1])
-						name_json.append({'Request': request, 'Name': name, 'ConsultationNum': ConsultationNum})
+					request = line[0]
+					name = line[1:]
+					name = ' '.join(name)
+					print(name)				
+					name_json.append({'Request': request, 'Name': name})
 
 				request_to_name = {
 					item["Request"]: item["Name"]
@@ -290,12 +292,16 @@ for entry in os.scandir(folder_path):
 				}
 
 
+
 for entry in os.scandir(folder_path): 
 	if entry.is_file():
 		try:
 			new_json = {}
 			file_name = os.path.basename(entry)
 			if file_name=='00RNtoName.txt':
+				continue
+
+			if file_name == 'RNtoName_20260826.txt':
 				continue
 
 			with open(entry, 'r', encoding='utf-8') as f:
@@ -325,15 +331,20 @@ for entry in os.scandir(folder_path):
 					key, value = record.split(":", 1)
 					if 'Request' in key:
 						request = value.strip().split()[0]
+						if '.' in request:
+							print(request)
+							decimal_point = request.index('.')
+							request = request[:decimal_point]
+						if '-' in request:
+							dash = request.index('-')
+							request = request[:dash]
 						new_json['Request'] = request
 						if request in request_to_name:
 							new_json['Antibody_name'] = request_to_name[request]
+						else:
+							requests_without_names.append(request)
 						requests.append(request)
-						if request == "12786":
-							print("CURRENT WORKING DIRECTORY:", os.getcwd())
-							print("SCRIPT FILE:", os.path.abspath(__file__))
-							print("REQUEST:", repr(request))
-							print("OUTPUT PATH:", os.path.abspath(output_path))
+
 
 					elif 'Format' in key:
 						new_json[key] = value.strip()
@@ -360,20 +371,12 @@ for entry in os.scandir(folder_path):
 						note_key, note_val = note(old_key, key, value)
 						new_json[note_key] = note_val
 					elif 'Domain' in key:
-						if '[' in key:
-							domain_key, instance = key.split('[')
-							instances = instance[:-1].strip().split(",")
+						if '[' not in key:
+							domain_key = f'{key}[0]'
 						else:
 							domain_key = key
-							instances = [0]
-						if domain_key in new_json:
-							existing_domain_dic = new_json[domain_key]
-							existing_domain_dic['Instances'] = [existing_domain_dic['Instances'], [int(i) for i in instances]]
-							existing_domain_dic['Values'] = [existing_domain_dic['Values'], value.split()]
-							new_json[domain_key] = existing_domain_dic
 
-						else:
-							new_json[domain_key.strip()] = {'Values': value.split(), 'Instances': [int(i) for i in instances]}
+						new_json[domain_key.strip()] = value.split()
 					elif 'Antigen' in key:
 						antigen_key, antigen_value = antigen(key, value)
 						new_json[antigen_key] = antigen_value		
@@ -386,11 +389,11 @@ for entry in os.scandir(folder_path):
 						else: 
 							source_key, instance = key.split("[")
 							instances = instance[:-1].strip().split(",")
-							if len(instance)>1:
-								source_val = {'Value': value.strip(), 'Instances': [int(i) for i in instances]}
-							else:
-								source_val = {'Value': value.strip(), 'Instances': [int(i) for i in instances]}
-								source_key = source_key.strip()
+						if len(instances)>1:
+							source_val = {'Value': value.strip(), 'Instances': [int(i) for i in instances]}
+						else:
+							source_val = {'Value': value.strip(), 'Instances': [int(i) for i in instances]}
+							source_key = source_key.strip()
 						if value.strip() not in cdr_sources:
 							cdr_sources.append(value.strip())
 
@@ -426,7 +429,16 @@ for entry in os.scandir(folder_path):
 						else:
 							name_key = key
 							instances = [0]
-						new_json[name_key] = {'Sequence': value, 'Instances': [int(i) for i in instances]}
+						sequence = value
+						for i in range(len(value)):
+							if value[i].isnumeric() and value[i-1]==' ' and len(value)>i+3:
+								if value[i+2].isnumeric():
+									index = sequence.find(f' {value[i]}{value[i+1]}')+4
+								else:
+									index = sequence.find(f' {value[i]}{value[i+1]}')+3
+								sequence = sequence[:index] + '\n' + sequence[index:]
+
+						new_json[name_key] = {'Sequence': sequence, 'Instances': [int(i) for i in instances]}
 					elif 'ChainClass' in key:
 						if '[' in key:
 							class_key, instance = key.split("[")
@@ -441,6 +453,8 @@ for entry in os.scandir(folder_path):
 							name_key, instance = key.split("[")
 							instances = instance[:-1].strip().split(",")
 							seq = ['NONE'] if value.strip()=='NONE' else [int(val) for val in value.split()]
+							if seq == []:
+								seq = ['NONE']
 							new_json[name_key] = {'Positions': seq, 'Instances': [int(i) for i in instances]}
 						else:
 							seq = ['NONE'] if value.strip()=='NONE' else [int(val) for val in value.split()]
@@ -457,16 +471,13 @@ for entry in os.scandir(folder_path):
 							linker_val = {'Residues': value, 'Instances': [0]}
 						new_json[linker_key] = linker_val
 					elif 'Type' in key:
-						if '[' in key:
-							name_key, instance = key.split("[")
-							instances = instance[:-1].strip().split(",")
-							instances = [int(i)for i in instances]
-							if len(instances)>1:
-								new_json[name_key] = {'Values': [value.strip()], 'Instances': [int(i) for i in instances]}
-							else:
-								new_json[name_key] = {'Values': [value.strip()], 'Instances': [int(i) for i in instances]}
+						if not '[' in key:
+							type_key = f'{key}[0]'
 						else:
-							new_json[key] = {'Values': [value.strip()], 'Instances': [0]}
+							type_key = key
+
+						new_json[type_key] = value.strip()
+
 					elif 'Positions' in key:
 						if value.strip() =='NONE':
 							positions == [0]
@@ -481,7 +492,7 @@ for entry in os.scandir(folder_path):
 							new_json[key] = {'Values': [int(val) for val in positions], 'Instances': [0]}
 
 					else:
-						new_json[key] = value
+						new_json[key] = value.strip()
 
 
 
@@ -515,9 +526,16 @@ result = Collection.delete_many({
 	}
 })
 
+
 white_space_deletes = Collection.delete_many({
 	'Request': {
 	'$regex': r'\ '
+	}
+})
+
+dp_deletes =  Collection.delete_many({
+	'Request': {
+	'$regex': r'\.'
 	}
 })
 
@@ -530,6 +548,7 @@ wrong_files = Collection.delete_many({
 print(f'deleted {result.deleted_count} documents')
 print(f'deleted {white_space_deletes.deleted_count} documents')
 print(f'deleted {wrong_files.deleted_count} documents')
+print(f'requests without names: {requests_without_names}')
 
 
 
