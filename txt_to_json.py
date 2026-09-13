@@ -430,13 +430,7 @@ for entry in os.scandir(folder_path):
 							name_key = key
 							instances = [0]
 						sequence = value
-						for i in range(len(value)):
-							if value[i].isnumeric() and value[i-1]==' ' and len(value)>i+3:
-								if value[i+2].isnumeric():
-									index = sequence.find(f' {value[i]}{value[i+1]}')+4
-								else:
-									index = sequence.find(f' {value[i]}{value[i+1]}')+3
-								sequence = sequence[:index] + '\n' + sequence[index:]
+						sequence  = re.sub(r'\s+(\d{2,3})(?=\s*[A-Z])', r' \1\n', value)
 
 						new_json[name_key] = {'Sequence': sequence, 'Instances': [int(i) for i in instances]}
 					elif 'ChainClass' in key:
