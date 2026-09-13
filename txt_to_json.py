@@ -259,7 +259,7 @@ def disulfides(key, value):
 
 
 
-folder_path = "/Users/emmawrenn/Downloads/inn-annotations-Consultation80"
+folder_path = "" #insert path here
 directory = 'json_files'
 new_folder = 'cleaned_json_files'
 os.makedirs(new_folder, exist_ok=True)
