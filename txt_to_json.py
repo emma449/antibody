@@ -259,7 +259,7 @@ def disulfides(key, value):
 
 
 
-folder_path = "" #insert path here
+folder_path = '' #insert path here
 directory = 'json_files'
 new_folder = 'cleaned_json_files'
 os.makedirs(new_folder, exist_ok=True)
@@ -267,6 +267,7 @@ cdr_sources = []
 germline_species_list = []
 germline_dic = {}
 requests = []
+six_dig = []
 requests_without_names = []
 for entry in os.scandir(folder_path): 
 	if entry.is_file():
@@ -325,6 +326,7 @@ for entry in os.scandir(folder_path):
 
 				record_counter = 0 #keep this so it knows if the note is format or antigen
 
+
 				for record in records:
 
 					
@@ -332,9 +334,14 @@ for entry in os.scandir(folder_path):
 					if 'Request' in key:
 						request = value.strip().split()[0]
 						if '.' in request:
-							print(request)
+							print(f'request with dp: {request}')
 							decimal_point = request.index('.')
 							request = request[:decimal_point]
+							print(f'request without dp: {request}')
+						if len(request)==6:
+							six_dig.append(request)
+							request = request[:5]
+							print(f'shortened reqest: {request}')
 						if '-' in request:
 							dash = request.index('-')
 							request = request[:dash]
@@ -539,10 +546,19 @@ wrong_files = Collection.delete_many({
 	}
 })
 
+for dig in six_dig:
+	six_dig_file = Collection.delete_one({'Request': dig})
+
+
 print(f'deleted {result.deleted_count} documents')
 print(f'deleted {white_space_deletes.deleted_count} documents')
 print(f'deleted {wrong_files.deleted_count} documents')
 print(f'requests without names: {requests_without_names}')
+print(f'6 digits: {six_dig}')
+
+
+
+
 
 
 
