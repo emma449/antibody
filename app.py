@@ -324,9 +324,9 @@ def build_query(filters):
 				]
 				if len(mutationDic['reasons'])>0:
 						query['$or'] = [
-							{'MutationH.Reason': {'$in': mutationDic['reasons']}},
-							{'MutationL.Reason': {'$in': mutationDic['reasons']}},
-							{'Mutation.Reason': {'$in': mutationDic['reasons']}}
+							{'MutationH.Reason': {'$regex': '|'.join(mutationDic['reasons']), '$options': 'i'}},
+							{'MutationL.Reason': {'$regex': '|'.join(mutationDic['reasons']), '$options': 'i'}},
+							{'Mutation.Reason': {'$regex': '|'.join(mutationDic['reasons']), '$options': 'i'}}
 						]
 
 

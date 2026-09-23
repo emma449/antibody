@@ -1,0 +1,1 @@
+This tool allows users to search through a database of antibody based drugs. The templates folder contains the HTML template for the search tool, and app.py contains the Python code to query the database on MongoDB. txt_to_json.py is the code I used to covert the txt file with the antibody information into a JSON.  

@@ -259,7 +259,7 @@ def disulfides(key, value):
 
 
 
-folder_path = '' #insert path here
+folder_path = '/Users/emmawrenn/Downloads/annotations_20260917' #insert path here
 directory = 'json_files'
 new_folder = 'cleaned_json_files'
 os.makedirs(new_folder, exist_ok=True)
@@ -273,7 +273,7 @@ for entry in os.scandir(folder_path):
 	if entry.is_file():
 		file_name = os.path.basename(entry)
 
-		if file_name=='RNtoName_20260826.txt':
+		if file_name=='RNtoName_20260917a.txt':
 			with open(entry.path, "r", encoding="utf-8") as f:
 				name_json = []
 				for line in f:
@@ -546,15 +546,12 @@ wrong_files = Collection.delete_many({
 	}
 })
 
-for dig in six_dig:
-	six_dig_file = Collection.delete_one({'Request': dig})
 
 
 print(f'deleted {result.deleted_count} documents')
 print(f'deleted {white_space_deletes.deleted_count} documents')
 print(f'deleted {wrong_files.deleted_count} documents')
 print(f'requests without names: {requests_without_names}')
-print(f'6 digits: {six_dig}')
 
 
 
