@@ -1,13 +1,15 @@
+#!/usr/bin/env python3
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from pymongo import MongoClient
 import re
+import config
 
 app = Flask(__name__)
 CORS(app)
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["Antibodies"]
+myclient = MongoClient("mongodb://" + config.mongodb_server + ":" + config.mongodb_port + "/") 
+db = myclient["Antibodies"]
 collection = db["json_files"]
 
 def normalise_list(values):
