@@ -1,15 +1,13 @@
+#!/usr/bin/env python3
 import json
 import os, sys
 import re
 import traceback
 from pymongo import MongoClient 
+import config
 
 
-
-
-
-
-myclient = MongoClient("mongodb://localhost:27017/") 
+myclient = MongoClient("mongodb://" + config.mongodb_server + ":" + config.mongodb_port + "/") 
 db = myclient["Antibodies"]
 Collection = db["json_files"]
 
@@ -265,7 +263,7 @@ def disulfides(key, value):
 
 
 
-folder_path = '' #insert path here
+folder_path = config.inn_data_dir
 directory = 'json_files'
 new_folder = 'cleaned_json_files'
 os.makedirs(new_folder, exist_ok=True)
@@ -279,7 +277,7 @@ for entry in os.scandir(folder_path):
 	if entry.is_file():
 		file_name = os.path.basename(entry)
 
-		if file_name=='RNtoName_20260917a.txt':
+		if file_name==config.rn_to_name_file:
 			with open(entry.path, "r", encoding="utf-8") as f:
 				name_json = []
 				for line in f:
