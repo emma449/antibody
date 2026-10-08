@@ -14,17 +14,12 @@ db = myclient["Antibodies"]
 Collection = db["json_files"]
 
 
-def fusion(key, value):
-	fusion_vals = value.split()
-	new_key = 'Fusion'
-	new_val = [int(fus) for fus in fusion_vals]
-	return new_key, new_val
-
+#old_key = the key before the note key. key = the current key. value = the current value. This function adds the name of the previous key to 'Note', telling the user which key the note pertains to.  
 def note(old_key, key, value):
 	base = old_key if '[' not in old_key else old_key.split('[')[0]
 	if '[' in key:
-		name_key, instance = key.split("[")
-		instances = instance[:-1].strip().split(",")
+		name_key, instance = key.split("[") #separates the key with the instance into two variables 
+		instances = instance[:-1].strip().split(",") 
 		if len(instances)>1:
 			new_key = f'{base}_Note'
 			withinstance = [int(i) for i in instances[1:]]
@@ -312,7 +307,7 @@ for entry in os.scandir(folder_path):
 			if file_name=='00RNtoName.txt':
 				continue
 
-			if file_name == 'RNtoName_20260826.txt':
+			if file_name == 'RNtoName_20260917a.txt':
 				continue
 
 			with open(entry, 'r', encoding='utf-8') as f:
@@ -475,7 +470,10 @@ for entry in os.scandir(folder_path):
 							if value.strip()=='NONE' or '??' in value.strip():
 								seq = ['NONE'] if value.strip()=='NONE' else ['Unknown']
 							else:
-								seq = [int(val) for val in value.split()]
+								if '(partial)' in value:
+									seq = value.split()
+								else:
+									seq = [int(val) for val in value.split()]
 							if seq == []:
 								seq = ['NONE']
 							new_json[name_key] = {'Positions': seq, 'Instances': [int(i) for i in instances]}
@@ -568,6 +566,18 @@ dp_deletes =  Collection.delete_many({
 wrong_files = Collection.delete_many({
 	'Request': {
 	'$exists': False
+	}
+})
+
+withdrawn_files = Collection.delete_many({
+	'Antibody_name': {
+	'$regex': r'WITHDRAWN'
+	}
+})
+
+defer_files = Collection.delete_many({
+	'Antibody_name': {
+	'$regex': r'DEFER'
 	}
 })
 
