@@ -273,7 +273,11 @@ germline_dic = {}
 requests = []
 six_dig = []
 requests_without_names = []
-for entry in os.scandir(folder_path): 
+request_to_name = {}
+
+
+for entry in os.scandir(folder_path):
+
 	if entry.is_file():
 		file_name = os.path.basename(entry)
 
@@ -302,11 +306,11 @@ for entry in os.scandir(folder_path):
 		try:
 			new_json = {}
 			file_name = os.path.basename(entry)
-			if file_name=='00RNtoName.txt':
+
+			#ignore the name mapping file
+			if 'toName' in file_name:
 				continue
 
-			if file_name == 'RNtoName_20260917a.txt':
-				continue
 
 			with open(entry, 'r', encoding='utf-8') as f:
 
