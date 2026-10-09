@@ -338,6 +338,10 @@ for entry in os.scandir(folder_path):
 
 					
 					key, value = record.split(":", 1)
+
+					if '#' in value:
+						value = value.split('#')[0] #ignoring anything in value that occurs after '#' so value doesn't contain any comments.
+
 					if 'Request' in key:
 						request = value.strip().split()[0]
 						if '.' in request:
@@ -573,13 +577,15 @@ wrong_files = Collection.delete_many({
 
 withdrawn_files = Collection.delete_many({
 	'Antibody_name': {
-	'$regex': r'WITHDRAWN'
+	'$regex': r'WITHDRAWN',
+	'$options': 'i'
 	}
 })
 
 defer_files = Collection.delete_many({
 	'Antibody_name': {
-	'$regex': r'DEFER'
+	'$regex': r'DEFER',
+	'$options': 'i'
 	}
 })
 
