@@ -1729,6 +1729,7 @@ async function searchdb (query) {
 
 const resultsdiv = document.getElementById('results');
 submit.addEventListener('click', async (e) => {
+	resultsdiv.style.display = 'block';
 	e.preventDefault();
 	console.log(searchFilters);
 	const query = searchFilters;
@@ -2033,6 +2034,10 @@ clear.addEventListener('click', async (e) => {
 	document.querySelectorAll('.active').forEach(el => {
 		el.classList.remove('active');
 	});
+
+	if (resultsdiv) {
+		resultsdiv.style.display = 'none';
+	}
 
 });
 
