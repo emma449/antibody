@@ -572,6 +572,8 @@ const searchFilters = {
 };
 
 
+
+//returns a dictionary with no search criteria
 function getDefaultFilters() {
 	return {
 	    antibodySource: [],
@@ -1281,7 +1283,7 @@ addAntigenName.addEventListener('click', () => {
 });
 
 
-const mutationPresent = document.getElementById('mutationPresent');
+const mutationPresent = document.getElementById('mutationPresent'); //dropdown to select whether or not a mutation is present
 const mutationNameContainer = document.getElementById("mutation-name-container");
 const mutationtypedropdown = document.getElementById("mutationtypedropdown");
 const mutationtypemenu = document.getElementById("mutationtypemenu");
@@ -1739,6 +1741,7 @@ submit.addEventListener('click', async (e) => {
 	});
 	const results = await response.json();
 
+
 	resultsdiv.innerHTML = ""; //clear previous search
 
 	if (results.length===0) {
@@ -2007,6 +2010,8 @@ submit.addEventListener('click', async (e) => {
 });
 
 const clear = document.getElementById('clear');
+
+//resets filters when user clicks on the reset filters button
 clear.addEventListener('click', async (e) => {
 	e.preventDefault();
 	Object.assign(searchFilters, getDefaultFilters());
@@ -2021,6 +2026,9 @@ clear.addEventListener('click', async (e) => {
 	if (germlineTypeDetails) {
 		germlineTypeDetails.innerHTML = '';
 	}
+
+	mutationPresent.value = 'select'; //change value of the mutationpresent dropdown so it is at the default value ('select')
+	mutationNameContainer.style.display = "none";
 
 	document.querySelectorAll('.active').forEach(el => {
 		el.classList.remove('active');
