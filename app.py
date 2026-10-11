@@ -53,13 +53,39 @@ def build_query(filters):
 				}
 			})
 
+	if filters.get('antibodySpecificity'):
+		cleaned_spec = normalise_list(filters['antibodySpecificity'])
+		for spec in cleaned_spec:
+			if spec == 'monospecific':
+				query.setdefault('$and', []).append(
+					{'Format': {
+						'$not': {
+							'$regex': 'specific',
+							'$options': 'i'
+						}
+					}
+				})
+			else:
+				query.setdefault('$and', []).append(
+					{'Format': {
+						'$regex': r'\b' + spec + r'\b',
+						'$options': 'i'
+					}
+				})
+		print(f'filters: {filters}')
+		print(query)
+
+
+
 	if filters.get('specialChain'):
 		cleaned_chain = normalise_list(filters['specialChain'])
 		chain_query = "(" + "|".join(cleaned_chain) + ")"
-		query['Format'] = {
-			'$regex': chain_query,
-			'$options': 'i'
-		}
+		query.setdefault('$and', []).append(
+			{'Format': {
+				'$regex': r'\b' + spec + r'\b',
+				'$options': 'i'
+			}
+		})
 
 
 
