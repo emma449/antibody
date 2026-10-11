@@ -286,41 +286,33 @@ def build_query(filters):
 		if mutationDic['present'] == False:
 			query['MutationH'] = {"$exists": False}
 			query['MutationL'] = {"$exists": False}
-			query['Mutation'] = {"$exists": False}
-		if mutationDic['present'] == True:
+
+		elif mutationDic['present'] == True:
 			mutation_criteria = [] #empty array to add conditions to
 			if len(mutationDic['types'])>0:
+
 				if 'mutationh' in mutationDic['types']:
+
 					mutationHdic = {'MutationH': {"$exists": True}}
 					if mutationDic['reasons']:
-						mutationHdic['MutationH.Reason'] = {'$in': mutationDic['reasons']}
+						mutationHdic['MutationH.Reason'] = {'$all': mutationDic['reasons']}
 					mutation_criteria.append(mutationHdic)
 
 				if 'mutationl' in mutationDic['types']:
 					mutationLdic = {'MutationL': {"$exists": True}}
 					if mutationDic['reasons']:
-						mutationLdic['MutationL.Reason'] = {'$in': mutationDic['reasons']}
+						mutationLdic['MutationL.Reason'] = {'$all': mutationDic['reasons']}
 					mutation_criteria.append(mutationLdic)
 				query['$or'] = mutation_criteria
 
 
 			else:
-				query['$or'] = [
+				mutation_criteria = [
 					{'MutationH': {'$exists': True}},
 					{'MutationL': {'$exists': True}},
-					{'Mutation': {'$exists': True}}
 				]
-				if len(mutationDic['reasons'])>0:
-						query['$or'] = [
-							{'MutationH.Reason': {'$regex': '|'.join(mutationDic['reasons']), '$options': 'i'}},
-							{'MutationL.Reason': {'$regex': '|'.join(mutationDic['reasons']), '$options': 'i'}},
-							{'Mutation.Reason': {'$regex': '|'.join(mutationDic['reasons']), '$options': 'i'}}
-						]
 
-
-
-
-
+			query.setdefault('$and', []).append({'$or': mutation_criteria})
 
 
 	return query
