@@ -198,7 +198,17 @@
 			word-wrap: break-word;
 			overflow-wrap: anywhere;
 			max-width: 100%;
+		}
+
+		.info {
 			border: 1px solid;
+			border-bottom: 0.5px solid #ddd;
+		}
+
+		.more_info, .even_more_info {
+			border-left: 1px solid;
+			border-right: 1px solid;
+			border-top: 0.5px;
 		}
 
 		input {
@@ -1764,6 +1774,8 @@ function createGermlineSection(type) {
 const submit = document.getElementById('submit');
 
 
+
+//input: the search filters dictionary. connects to database 
 async function searchdb (query) {
 	await client.connect();
 	const db = myclient.db("Antibodies");
@@ -1781,8 +1793,9 @@ async function searchdb (query) {
 
 
 const resultsdiv = document.getElementById('results');
+
 submit.addEventListener('click', async (e) => {
-	resultsdiv.style.display = 'block';
+	resultsdiv.style.display = 'block'; //resultsdiv style changed to 'none' when user clicks reset filters. this line reverses that.
 	e.preventDefault();
 	console.log(searchFilters);
 	const query = searchFilters;
@@ -2051,7 +2064,6 @@ submit.addEventListener('click', async (e) => {
 				more_btn.textContent = 'show more';
 			}
 		});
-
 
 
 		record.appendChild(info);
