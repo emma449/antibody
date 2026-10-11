@@ -93,12 +93,12 @@ def build_query(filters):
 	if filters.get('heavyPTMDic'):
 		ptmdic = filters.get('heavyPTMDic')
 		print(f'ptmdic:{ptmdic}')
-		query['HeavyConfirmedPTM.Type'] = {'$in': ptmdic}
+		query['HeavyConfirmedPTM.Type'] = {'$all': ptmdic}
 
 
 	if filters.get('lightPTMDic'):
 		ptmdic = filters.get('lightPTMDic')
-		query['LightConfirmedPTM.Type'] = {'$in': ptmdic}
+		query['LightConfirmedPTM.Type'] = {'$all': ptmdic}
 
 
 	if filters.get('heavyglycosDic'):
