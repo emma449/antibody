@@ -147,10 +147,10 @@
 		.ptm-options div {
 			margin-top: 0.25rem;
 		}
-		.heavyptm, .lightptm, .heavyPTMtypeMenu, .lightPTMtypeMenu, .germlinetype, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu,.light-chain-class-enter, .heavy-chain-class-enter, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
+		.heavyPTMtypeMenu, .lightPTMtypeMenu, .germlinetype, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu,.light-chain-class-enter, .heavy-chain-class-enter, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
 			display: none;
 		}
-		.heavyptm.active, .lightptm.active, .heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .light-chain-class-enter.active, .heavy-chain-class-enter.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
+		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .light-chain-class-enter.active, .heavy-chain-class-enter.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
 			display: block;
 		}
 		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover {
@@ -171,7 +171,7 @@
 			margin-left: 9rem;
 		}
 
-		.heavyptm div, .lightptm div, .sourcedropdown, .typeMenu, .specificityMenu, .classMenu, .mutationtypemenu, .reasonlist, .germlinetype, .species, .chain-class div, .lightglycoslinks, .heavyglycoslinks, .special-chain-menu {
+		.heavyPTMtypeMenu div, .lightPTMtypeMenu div, .sourcedropdown, .typeMenu, .specificityMenu, .classMenu, .mutationtypemenu, .reasonlist, .germlinetype, .species, .chain-class div, .lightglycoslinks, .heavyglycoslinks, .special-chain-menu {
 			margin-left: 0.5rem;
 			font-size: 0.9em;
 			font-family: "Times New Roman", Times, serif;
@@ -411,18 +411,9 @@
 		<div class = "ptm">
 			<div class = "ptm-dropdown" id = "PTMdropdown">PTM</div>
 			<div class = "ptm-options" id = "ptmOptions">
-				<div class = 'heavy-chain-dropdown' id = 'heavychaindropdown'><b>Heavy chain</b></div>
 				<div class = "heavyptm" id =  'heavyptm'>
-					<div class="potential-select" id="potential-select">
-						<select class = 'heavypotentialconfirmed' id = 'heavypotentialconfirmed'>
-							<option value = 'default'>Select potential or confirmed</option>
-							<option value = "both">Potential or confirmed</option>
-							<option value = "potential">Potential</option>
-							<option value = "confirmed">Confirmed</option>
-						</select>
-					</div>
 
-					<div class="heavytypeArrow" id = 'heavytypeArrow'>Select Type</div>
+					<div class="heavytypeArrow" id = 'heavytypeArrow'><b>Heavy chain</b></div>
 					<div class = "heavyPTMtypeMenu" id = 'heavyPTMtypeMenu'>
 						<div data-value = "amidation">amidation</div>
 						<div data-value = 'cterclip'>cterclip</div>
@@ -440,17 +431,9 @@
 
 
 				</div>
-				<div class = 'light-chain-dropdown' id = 'lightchaindropdown'><b>Light chain</b></div>
 				<div class = "lightptm" id = 'lightptm'>
-					<div class="potential-select" id="potential-select">
-						<select id = 'lightpotentialconfirmed'>
-							<option value = 'default'>Select potential or confirmed</option>
-							<option value = "both">Potential or confirmed</option>
-							<option value = "potential">Potential</option>
-							<option value = "confirmed">Confirmed</option>
-						</select>
-					</div>
-					<div class="lighttypeArrow" id = "lighttypeArrow">Select Type</div>
+
+					<div class="lighttypeArrow" id = "lighttypeArrow"><b>Light chain</b></div>
 					<div class = "lightPTMtypeMenu" id = 'lightPTMtypeMenu'>
 						<div data-value = "amidation">amidation</div>
 						<div data-value = 'cterclip'>cterclip</div>
@@ -589,8 +572,8 @@ const searchFilters = {
     lightChainClass: [],
     antibodyType: [],
     antibodySpecificity: [],
-    heavyPTMDic: {'potentialconfirmed': null, 'types': []},
-    lightPTMDic: {'potentialconfirmed': null, 'types': []},
+    heavyPTMDic: [],
+    lightPTMDic: [],
     mutationDic: {
     	present: null,
     	types: [],
@@ -616,8 +599,8 @@ function getDefaultFilters() {
 	    lightChainClass: [],
 	    antibodyType: [],
 	    antibodySpecificity: [],
-	    heavyPTMDic: {'potentialconfirmed': null, 'types': []},
-	    lightPTMDic: {'potentialconfirmed': null, 'types': []},
+	    heavyPTMDic: [],
+	    lightPTMDic: [],
 	    mutationDic: {
 	    	present: null,
 	    	types: [],
@@ -919,73 +902,20 @@ addAntibodyType.addEventListener('click', () => {
 //ptm
 const ptmDropdown = document.getElementById("PTMdropdown");
 const ptmOptions = document.getElementById("ptmOptions");
-const heavyptm =document.getElementById("heavyptm");
-const lightptm =document.getElementById("lightptm");
-const heavyptmdropdown = document.getElementById("heavychaindropdown");
-const lightptmdropdown = document.getElementById("lightchaindropdown");
+
+
 const lighttypeArrow = document.getElementById("lighttypeArrow");
 const heavytypeArrow = document.getElementById("heavytypeArrow");
+
 const lightptmTypemenu = document.getElementById("lightPTMtypeMenu");
 const heavyptmTypemenu = document.getElementById("heavyPTMtypeMenu");
-const potentialselect = document.getElementById("potential-select");
-const heavypotentialconfirmed = document.getElementById('heavypotentialconfirmed');
-const lightpotentialconfirmed = document.getElementById('lightpotentialconfirmed');
 
 
 
-heavytypeArrow.style.display = 'none';
-lighttypeArrow.style.display = 'none';
-heavypotentialconfirmed.addEventListener("change", () => {
-	if (heavypotentialconfirmed.value==='potential') {
-		searchFilters.heavyPTMDic.potentialconfirmed = 'potential';
-		heavytypeArrow.style.display = 'block';
-		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-	}
-	if (heavypotentialconfirmed.value==='confirmed') {
-		searchFilters.heavyPTMDic.potentialconfirmed = 'confirmed';
-		heavytypeArrow.style.display = 'block';
-		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-	}
-	if (heavypotentialconfirmed.value==='both') {
-		searchFilters.heavyPTMDic.potentialconfirmed = 'both';
-		heavytypeArrow.style.display = 'block';
-		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-	}
-	if (heavypotentialconfirmed.value === 'default') {
-		searchFilters.heavyPTMDic.potentialconfirmed = null;
-		heavyptmTypemenu.style.display = 'none';
-		heavytypeArrow.style.display = 'none';
-	}
-});
 
-
-lightpotentialconfirmed.addEventListener("change", () => {
-	if (lightpotentialconfirmed.value==='potential') {
-		searchFilters.lightPTMDic.potentialconfirmed = 'potential';
-		lighttypeArrow.style.display = 'block';
-		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-	}
-	if (lightpotentialconfirmed.value==='confirmed') {
-		searchFilters.lightPTMDic.potentialconfirmed = 'confirmed';
-		lighttypeArrow.style.display = 'block';
-		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-	}
-	if (lightpotentialconfirmed.value==='both') {
-		searchFilters.lightPTMDic.potentialconfirmed = 'both';
-		lighttypeArrow.style.display = 'block';
-		ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-
-	}
-	if (lightpotentialconfirmed.value === 'default') {
-		searchFilters.lightPTMDic.potentialconfirmed = null;
-		lightptmTypemenu.style.display = 'none';
-		lighttypeArrow.style.display = 'none';
-	}
-});
 
 ptmDropdown.addEventListener("click", function() {
-/* Toggle between adding and removing the "active" class,
-to highlight the button that controls the panel */
+// Toggle between adding and removing the "active" class to highlight the button that controls the panel
 	this.classList.toggle("active");
 	if (ptmOptions.style.display === "block") {
 	  ptmOptions.style.display = "none";
@@ -999,41 +929,31 @@ to highlight the button that controls the panel */
 	}
 });
 
-heavyptmdropdown.addEventListener("click", () => {
-	heavyptmdropdown.classList.toggle("active");
-    heavyptm.classList.toggle("active");
-    ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-});
-
-lightptmdropdown.addEventListener("click", () => {
-	lightptmdropdown.classList.toggle("active");
-    lightptm.classList.toggle("active");
-    ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
-});
-
-
-
 heavytypeArrow.addEventListener("click", () => {
+	heavyptmTypemenu.classList.toggle("active");
 	heavytypeArrow.classList.toggle("active");
-    heavyptmTypemenu.classList.toggle("active");
     ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
 });
+
 lighttypeArrow.addEventListener("click", () => {
+	lightptmTypemenu.classList.toggle("active");
 	lighttypeArrow.classList.toggle("active");
-    lightptmTypemenu.classList.toggle("active");
     ptmOptions.style.maxHeight = ptmOptions.scrollHeight + "px";
 });
+
+
+
 
 
 heavyptmTypemenu.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;
 	if (!e.target.matches('[data-value]')) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.heavyPTMDic.types.includes(value)) {
-        searchFilters.heavyPTMDic.types =
-            searchFilters.heavyPTMDic.types.filter(v => v !== value);
+	if (searchFilters.heavyPTMDic.includes(value)) {
+        searchFilters.heavyPTMDic =
+            searchFilters.heavyPTMDic.filter(v => v !== value);
     } else {
-        searchFilters.heavyPTMDic.types.push(value);
+        searchFilters.heavyPTMDic.push(value);
     }
 
 });
@@ -1042,11 +962,11 @@ lightptmTypemenu.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;
 	if (!e.target.matches('[data-value]')) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.lightPTMDic.types.includes(value)) {
-        searchFilters.lightPTMDic.types =
-            searchFilters.lightPTMDic.types.filter(v => v !== value);
+	if (searchFilters.lightPTMDic.includes(value)) {
+        searchFilters.lightPTMDic =
+            searchFilters.lightPTMDic.filter(v => v !== value);
     } else {
-        searchFilters.lightPTMDic.types.push(value);
+        searchFilters.lightPTMDic.push(value);
     }
 
 });
@@ -2129,7 +2049,7 @@ function displayValue(value, key, element, indent = 0) {
 
         		const filteredItem = { ...item };
 
-        		if (Array.isArray(filteredItem.Instances) && filteredItem.Instances.length === 1 && key!== 'Antigen') {
+        		if (Array.isArray(filteredItem.Instances) && filteredItem.Instances.length === 1 && key!== 'Antigen' && key !== 'HeavyConfirmedPTM' && key !== 'LightConfirmedPTM') {
         			delete filteredItem.Instances;
         		}
 

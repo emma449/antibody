@@ -193,10 +193,15 @@ def confirmed_ptm(key, value):
 	else:
 		ptm_key = key 
 		instances = [0]		
-	frequency = value.strip().split(" ")[-1][1:-1] if "(" in value else ["Total"]
-	m_type = value.strip().split(" ")[0]
+	frequency = ['Rare'] if "Rare" in value else ["Total"] #eg in HeavyConfirmedPTM[2]: amidation 681 (after cterclip 682 683, rare) 'rare' is the frequency
+	type = value.strip().split(" ")[0]
 	position = [int(num) for num in value.strip().split(" ") if num.isnumeric()]
-	ptm_val = {'Type': m_type, 'Instances': instances, 'Positions': position, 'Frequency': frequency}
+	ptm_val = [{'Type': type, 'Instances': [int(i) for i in instances], 'Positions': position, 'Frequency': frequency}]
+
+	if new_json.get(ptm_key):
+		existing_dic = new_json[ptm_key]
+		ptm_val.extend(existing_dic)
+
 	return ptm_key, ptm_val
 
 

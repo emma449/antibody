@@ -93,52 +93,12 @@ def build_query(filters):
 	if filters.get('heavyPTMDic'):
 		ptmdic = filters.get('heavyPTMDic')
 		print(f'ptmdic:{ptmdic}')
-		if ptmdic['potentialconfirmed'] == 'potential':
-			query['HeavyPotentialPTM'] = {"$exists": True}
-			if len(ptmdic['types'])>0:
-				query['HeavyPotentialPTM.Type'] = {'$in': ptmdic['types']}
-		elif ptmdic['potentialconfirmed'] == 'confirmed':
-			query['HeavyConfirmedPTM'] = {"$exists": True}
-			if len(ptmdic['types'])>0:
-				print(ptmdic['types'])
-				query['HeavyConfirmedPTM.Type'] = {'$in': ptmdic['types']}
-		elif ptmdic['potentialconfirmed'] == 'both':
-			print(ptmdic)
-			if len(ptmdic['types'])>0:
-				print(ptmdic['types'])
-				query['$or'] = [
-				{'HeavyPotentialPTM.Type': {'$in': ptmdic['types']}},
-				{'HeavyConfirmedPTM.Type': {'$in': ptmdic['types']}}
-				]
-			else:
-				query['$or'] = [
-					{'HeavyPotentialPTM': {'$exists': True}},
-					{'HeavyConfirmedPTM': {'$exists': True}}
-				]
+		query['HeavyConfirmedPTM.Type'] = {'$in': ptmdic}
 
 
 	if filters.get('lightPTMDic'):
 		ptmdic = filters.get('lightPTMDic')
-		if ptmdic['potentialconfirmed'] == 'potential':
-			query['LightPotentialPTM'] = {"$exists": True}
-			if len(ptmdic['types'])>0:
-				query['LightPotentialPTM.Type'] = {'$in': ptmdic['types']}
-		elif ptmdic['potentialconfirmed'] == 'confirmed':
-			query['LightConfirmedPTM'] = {"$exists": True}
-			if len(ptmdic['types'])>0:
-				print(ptmdic['types'])
-				query['LightConfirmedPTM.Type'] = {'$in': ptmdic['types']}
-		elif ptmdic['potentialconfirmed'] == 'both':
-			if len(ptmdic['types'])>0:
-				query['$or'] = [
-				{'LightPotentialPTM.Type': {'$in': ptmdic['types']}},
-				{'LightConfirmedPTM.Type': {'$in': ptmdic['types']}}
-				]
-			else:
-				query['$or'] = [
-					{'LightPotentialPTM': {'$exists': True}},
-					{'LightConfirmedPTM': {'$exists': True}}
-				]
+		query['LightConfirmedPTM.Type'] = {'$in': ptmdic}
 
 
 	if filters.get('heavyglycosDic'):
