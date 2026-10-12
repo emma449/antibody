@@ -85,6 +85,7 @@
 			background-color: wheat;
 		}
 
+
 		.clear:hover {
 			cursor: pointer;
 		}
@@ -134,7 +135,7 @@
 		.ptm-dropdown.active:after, .germlinearrow.active:after, .antigenArrow.active:after, .glycos-dropdown.active:after {
 			content: "\2796";
 		}
-		.remove-gene, .remove-name, .remove-type, .remove-source, .remove-reason {
+		.remove-gene, .remove-name, .remove-type, .remove-source, .remove-reason, .remove-request {
 			float: right;
 		}
 		.ptm-options, .germlinedropdown, .antigenlist, .glycos-options {
@@ -223,6 +224,11 @@
 <body>
 <title>Antibody</title>
 <h1>Antibody Search</h1>
+
+<div class = 'search_info' id = 'search_info'>
+	<p>Multiple selection criteria create a query in which each separate criterion is joined by an 'AND'. Exceptions are searches for multiple request numbers and multiple antibody names, which are joined by an 'OR'.</p>
+</div>
+
 	<div class="container">
 
 		<div class="antibodysource" id="antibodysource">
@@ -633,6 +639,7 @@ function getDefaultFilters() {
 }
 
 
+
 //antibody source
 const sourceArrow = document.getElementById('sourceArrow');
 const sourcedropdown = document.getElementById('sourcedropdown');
@@ -664,7 +671,7 @@ addAntibodySource.addEventListener('click', () => {
 	newSource.textContent = source;
 	newSource.dataset.value = source.toLowerCase();
 
-	//create remove button with class name remove-gene
+	//create remove button with class name remove-source
 	const removeBtn = document.createElement('button');
 	removeBtn.textContent = 'x';
 	removeBtn.classList.add('remove-source');
@@ -886,10 +893,11 @@ addAntibodyType.addEventListener('click', () => {
 	newType.textContent = type;
 	newType.dataset.value = type.toLowerCase();
 
-	//create remove button with class name remove-gene
+	//create remove button with class name remove-type
 	const removeBtn = document.createElement('button');
 	removeBtn.textContent = 'x';
 	removeBtn.classList.add('remove-type');
+
 
 	//make remove button remove searched gene when clicked
 	removeBtn.addEventListener('click', (e) => {
@@ -1480,33 +1488,36 @@ const add_request = document.getElementById('add-request');
 const request_box = document.getElementById('request_box');
 
 add_request.addEventListener('click', () => {
-	const name = request.value.trim();
-	if (!name) return;
-	const newName = document.createElement('div');
-	newName.textContent = name;
-	newName.dataset.value = name.toLowerCase();
-	newName.classList.add("selected");
-	if (!searchFilters.requests.includes(name)) {
-		searchFilters.requests.push(name);
+	const req = request.value.trim();
+	if (!req) return;
+	const newRequest = document.createElement('div');
+	newRequest.textContent = req;
+	newRequest.dataset.value = req;
+	newRequest.classList.add("selected");
+	if (!searchFilters.requests.includes(req)) {
+		searchFilters.requests.push(req);
 	} else {
 		return;
 	}
 
-	//create remove button with class name remove-gene
+
+	//create remove button with class name remove-request
 	const removeBtn = document.createElement('button');
 	removeBtn.textContent = 'x';
-	removeBtn.classList.add('remove-name');
+	removeBtn.classList.add('remove-request');
 
-	//make remove button remove searched gene when clicked
+	//make remove button remove searched request when clicked
 	removeBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
-		searchFilters.requests = searchFilters.requests.filter(v => v !== name);
-		newName.remove();
+		searchFilters.requests = searchFilters.requests.filter(v => v !== req);
+		newRequest.remove();
 
 	});
-	newName.appendChild(removeBtn);
 
-	request_box.insertBefore(newName, request);
+	newRequest.appendChild(removeBtn);
+
+
+	request_box.insertBefore(newRequest, request);
 	
 	request.value = "";
 });
