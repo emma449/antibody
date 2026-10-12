@@ -135,6 +135,7 @@
 		.ptm-dropdown.active:after, .germlinearrow.active:after, .antigenArrow.active:after, .glycos-dropdown.active:after {
 			content: "\2796";
 		}
+
 		.remove-gene, .remove-name, .remove-type, .remove-source, .remove-reason, .remove-request {
 			float: right;
 		}
@@ -1744,6 +1745,26 @@ submit.addEventListener('click', async (e) => {
 	resultsdiv.style.display = 'block'; //resultsdiv style changed to 'none' when user clicks reset filters. this line reverses that.
 	e.preventDefault();
 	console.log(searchFilters);
+
+	//make it so that request is added to search filters without having to click add request
+	if (searchFilters.requests.length === 0) {
+		const req_val = request.value.trim();
+		if (req_val) {
+			searchFilters.requests.push(req_val);
+		}
+	}
+	const req_val = request.value.trim();
+	searchFilters.requests = req_val ? [req_val] : [];
+
+	if (searchFilters.antibody_name.length === 0) {
+		const name_val = antibody_name_text.value.trim();
+		if (name_val) {
+			searchFilters.antibody_name.push(name_val);
+		}
+	}
+	const name_val = antibody_name_text.value.trim();
+	searchFilters.antibody_name = name_val ? [name_val] : [];
+
 	const query = searchFilters;
 	const response = await fetch ("/search", {
 		method: 'POST',
