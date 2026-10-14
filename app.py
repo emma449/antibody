@@ -12,12 +12,16 @@ myclient = MongoClient("mongodb://" + config.mongodb_server + ":" + config.mongo
 db = myclient["Antibodies"]
 collection = db["json_files"]
 
+
+#makes sure all values are cleaned of white spaces
 def normalise_list(values):
 	return[v.strip() for v in values if v]
 
-
+#builds the search query from the filters
 def build_query(filters):
 	query = {}
+	requests_names = [] #an array to build the queries for requests and antibody names, which are ORed with the rest of the query conditions
+
 	if filters.get('cdrSource'):
 		cleaned = normalise_list(filters['cdrSource'])
 		query['CDRSource.Value'] = {'$in': cleaned}
@@ -224,18 +228,23 @@ def build_query(filters):
 	if filters.get('antibody_name'):
 		cleaned_names = normalise_list(filters.get('antibody_name'))
 		name_query = '|'.join(cleaned_names)
-		query['Antibody_name'] = {
+		requests_names.append({
+			'Antibody_name':{
 				'$regex': name_query,
 				'$options': 'i'
 			}
+		})
+
 
 	if filters.get('requests'):
 		cleaned_nums = normalise_list(filters.get('requests'))
 		request_query = '|'.join(cleaned_nums)
-		query['Request'] = {
+		requests_names.append({
+			'Request':{
 				'$regex': request_query,
 				'$options': 'i'
 			}
+		})
 
 
 
@@ -313,6 +322,13 @@ def build_query(filters):
 				]
 
 			query.setdefault('$and', []).append({'$or': mutation_criteria})
+
+			if requests_names:
+				other_query = query.copy()
+
+				query = {
+					'$or': [*requests_names, other_query]
+				}
 
 
 	return query
