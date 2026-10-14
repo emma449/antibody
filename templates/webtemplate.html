@@ -1763,7 +1763,7 @@ submit.addEventListener('click', async (e) => {
 		}
 	}
 	const name_val = antibody_name_text.value.trim();
-	searchFilters.antibody_name = name_val ? [name_val] : [];
+	searchFilters.antibody_name = name_val ? [name_val] : []; //delete old search from the search filters
 
 	const query = searchFilters;
 	const response = await fetch ("/search", {
@@ -1993,11 +1993,11 @@ submit.addEventListener('click', async (e) => {
 					const value = `${result[key][i].PartnerResidue}-${result[key][i].Residue}`;
 					if (result[key][i].Instance!==result[key][i].PartnerInstances[0]) {
 						const PartnerInstances = result[key][i].PartnerInstances.toString();
-						const dis_key = `${key}[${result[key][i].Instance},${PartnerInstances}]`;
+						const dis_key = key;
 						displayValue(value, dis_key, even_more_info);
 					}
 					else {
-						displayValue(value, `${key}[${result[key][i].Instance}]`, even_more_info);
+						displayValue(value, key, even_more_info);
 					}
 				}
 			}
