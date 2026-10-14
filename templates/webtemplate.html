@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 	<title>Antibody search</title>
 	<style type = "text/css">
 		*{
@@ -212,6 +213,7 @@
 			border-right: 1px solid;
 			border-top: 0.5px;
 		}
+
 
 		input {
 			margin-bottom: 1 rem;
@@ -1795,24 +1797,32 @@ submit.addEventListener('click', async (e) => {
 	download_all.classList.add('download_all');
 	download_all.textContent = 'Download all results';
 	resultsdiv.append(download_all);
-	download_all.addEventListener('click', (e) => {
+
+	//downloads all results and puts them into a zip file
+	download_all.addEventListener('click', async (e) => {
 		e.stopPropagation();
+		const zip = new JSZip();
+
+		//this adds a json file for each result into the folder
 		results.forEach((result) => {
 		    const json = JSON.stringify(result, null, 2);
-		    const blob = new Blob([json], { type: 'application/json' });
-
-		    const url = URL.createObjectURL(blob);
-
-		    const a = document.createElement('a');
-		    a.href = url;
-		    a.download = `${result.Antibody_name || result.Request || 'antibody'}.json`;
-
-		    document.body.appendChild(a);
-		    a.click();
-		    document.body.removeChild(a);
-
-		    URL.revokeObjectURL(url);
+		    let filename = result.Antibody_name || result.Request;
+		    zip.file(`${filename}.json`, json);
 		});
+
+		const blob = await zip.generateAsync({ type: 'blob' });
+
+	    const url = URL.createObjectURL(blob);
+
+	    const a = document.createElement('a');
+	    a.href = url;
+	    a.download = 'antibody_results.zip';
+
+	    document.body.appendChild(a);
+	    a.click();
+	    document.body.removeChild(a);
+
+	    URL.revokeObjectURL(url);
 	});
 
 	results.forEach((result, index) => {
@@ -1988,17 +1998,10 @@ submit.addEventListener('click', async (e) => {
 
 
 
-			else if (key.includes('Disulfides')) {
+			else if (key.includes('Disulfides')) { //changes displayed format of disulfide keys so it is key: Residue-PartnerResidue
 				for(let i = 0; i<result[key].length; i+=2) {
 					const value = `${result[key][i].PartnerResidue}-${result[key][i].Residue}`;
-					if (result[key][i].Instance!==result[key][i].PartnerInstances[0]) {
-						const PartnerInstances = result[key][i].PartnerInstances.toString();
-						const dis_key = key;
-						displayValue(value, dis_key, even_more_info);
-					}
-					else {
-						displayValue(value, key, even_more_info);
-					}
+					displayValue(value, key, even_more_info);
 				}
 			}
 
@@ -2073,14 +2076,14 @@ clear.addEventListener('click', async (e) => {
 
 });
 
-//even_more_info
+//even_more_info. key, value represent specific fields, eg Antigen is the key and all the following information about the antigen is the value. Element displays the result.
 function displayValue(value, key, element, indent = 0) {
 
 	const spaces = "  ".repeat(indent);
 
     if (Array.isArray(value)) {
 
-		//display simple array on one line
+		//display array on one line
 		if (value.every(item => typeof item !== "object" || item === null)) {
 			element.append(
 				` ${spaces}${key}: ${value.join(", ")}\n`
@@ -2088,7 +2091,7 @@ function displayValue(value, key, element, indent = 0) {
 			return;
 		}
 
-    	element.append(` ${spaces}${key}\n`);
+    	element.append(` ${spaces}${key}\n`); //adds the information to the key for when there is an array within the key, as is the case for antigens
 
         value.forEach((item, index) => {
         	if (typeof item === "object" && item !== null) {
@@ -2155,7 +2158,7 @@ function displayValue(value, key, element, indent = 0) {
 
     } else {
 
-        element.append(` ${spaces}${key}: ${value}\n`);
+        element.append(` ${spaces}${key}: ${value}\n\n`);
     }
 }
 
