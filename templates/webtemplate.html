@@ -54,6 +54,7 @@
 
 		.more_info, .even_more_info {
 			font-family: "Times New Roman", Times, serif;
+			padding-left: 2px;
 		}
 
 		.selected {
@@ -212,6 +213,21 @@
 			border-left: 1px solid;
 			border-right: 1px solid;
 			border-top: 0.5px;
+			padding-left: 3px;
+			font-family: monospace;
+			font-size: 0.9rem;
+		}
+
+		.info,
+		.more_info,
+		.even_more_info {
+		    box-sizing: border-box;
+		    width: 100%;
+		    white-space: pre-wrap;
+		    overflow-wrap: anywhere;
+		    line-height: 1.5;
+		    padding: 10px 12px;
+		    margin: 0;
 		}
 
 
@@ -1825,6 +1841,7 @@ submit.addEventListener('click', async (e) => {
 	    URL.revokeObjectURL(url);
 	});
 
+	//creates the basic information that the user first sees for each result (antibody name and request number)
 	results.forEach((result, index) => {
 		const record = document.createElement('div');
 		record.classList.add('results');
@@ -1833,7 +1850,7 @@ submit.addEventListener('click', async (e) => {
 		if (result.Antibody_name) {
 			const antibodyname = document.createElement('div');
 			antibodyname.textContent = result.Antibody_name;
-			info.appendChild(antibodyname);
+			info.appendChild(antibodyname); //add antibody name to the info in the result
 		}
 		const request = document.createElement('div');
 		request.textContent = result.Request;
@@ -1842,12 +1859,12 @@ submit.addEventListener('click', async (e) => {
 		const download_btn = document.createElement('button');
 		download_btn.classList.add('download_btn');
 		download_btn.textContent = 'Download JSON';
-		record.appendChild(download_btn);
+		record.appendChild(download_btn); //option to download a JSON of that individual file
 
 		const download_seq_btn = document.createElement('button');
 		download_seq_btn.classList.add('download_seq_btn');
 		download_seq_btn.textContent = 'Download chain sequence FASTA';
-		record.appendChild(download_seq_btn);
+		record.appendChild(download_seq_btn); //option to download the chain sequence of that file
 
 		download_btn.addEventListener('click', (e) => {
 		    e.stopPropagation();
@@ -1913,36 +1930,36 @@ submit.addEventListener('click', async (e) => {
 		const more_info = document.createElement('pre');
 		more_info.classList.add('more_info');
 		more_info.append(
-		    ` Format: ${result.Format}\n`
+		    `Format: ${result.Format}\n`
 		);
 
 		if (result.AbML) {
-			more_info.append(` AbML: ${result.AbML}\n`)
+			more_info.append(`AbML: ${result.AbML}\n`)
 		}
 
 		if (result.Antigen) {
 			result.Antigen.forEach(antigen => {
 				more_info.append(
-				` Antigen Name: ${antigen.Name}\n Antigen Gene: ${antigen.Gene}\n`);
+				`Antigen: ${antigen.Name} (${antigen.Pseudonyms})\n   Antigen Gene: ${antigen.Gene}\n`);
 			});
 		}
 
 		if (result.HeavyChainClass) {
-			more_info.append(` Heavy chain class: ${result.HeavyChainClass.Value}\n`);
+			more_info.append(`Heavy chain class: ${result.HeavyChainClass.Value}\n`);
 		}
 
 		if (result.LightChainClass) {
-			more_info.append(` Light chain class: ${result.LightChainClass.Value}\n`);
+			more_info.append(`Light chain class: ${result.LightChainClass.Value}\n`);
 		}
 
 		if (result.CDRSource) {
 			more_info.append(
-			` CDR Source: ${result.CDRSource.Value}\n`);
+			`CDR Source: ${result.CDRSource.Value}\n`);
 		}
 
 		for (const key in result) {
 			if (key.includes('Germline')) {
-				more_info.append(` ${key} Species: ${result[key].Species}\n ${key} Gene: ${result[key].GeneID}\n`);
+				more_info.append(`${key}: ${result[key].Species} ${result[key].GeneID}\n`); //germline information (species and gene ID) is displayed on one line
 			}
 
 			if (key.includes('Mutation')) {
@@ -2112,7 +2129,7 @@ function displayValue(value, key, element, indent = 0) {
         			displayValue(itemValue, itemKey, element, indent+1);
         		}
         	} else {
-        		element.append(` ${spaces}   ${item}\n`);
+        		element.append(`${spaces}  ${item}\n`);
         	}
         });
         return;
@@ -2150,7 +2167,7 @@ function displayValue(value, key, element, indent = 0) {
 			delete filteredValue.Instance;
 		}
 
-		element.append(` ${spaces}${key}:\n`);
+		element.append(`${spaces}${key}:\n`);
 
         for (const [objectKey, objectValue] of Object.entries(filteredValue)) {
             displayValue(objectValue, objectKey, element, indent+1);
@@ -2158,7 +2175,7 @@ function displayValue(value, key, element, indent = 0) {
 
     } else {
 
-        element.append(` ${spaces}${key}: ${value}\n\n`);
+        element.append(`${spaces}${key}: ${value}\n`);
     }
 }
 
