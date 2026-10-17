@@ -323,12 +323,19 @@ def build_query(filters):
 
 			query.setdefault('$and', []).append({'$or': mutation_criteria})
 
-			if requests_names:
-				other_query = query.copy()
+	if len(requests_names)>0:
+		if len(query)>0:
+			other_query = query.copy()
 
-				query = {
-					'$or': [*requests_names, other_query]
-				}
+
+			query = {
+				'$or': [*requests_names, other_query]
+			}
+		else:
+			query = {'$or': requests_names}
+
+
+	print(f'query with request {query}')
 
 
 	return query
