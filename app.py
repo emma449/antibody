@@ -295,33 +295,31 @@ def build_query(filters):
 		if mutationDic['present'] == False:
 			query['MutationH'] = {"$exists": False}
 			query['MutationL'] = {"$exists": False}
+			#results will exclude any value with a mutation
 
 		elif mutationDic['present'] == True:
 			mutation_criteria = [] #empty array to add conditions to
-			if len(mutationDic['types'])>0:
 
-				if 'mutationh' in mutationDic['types']:
+			#create two arrays of the types and reasons selected in the search query
+			types = mutationDic.get('types')
+			reasons = mutationDic.get('reasons')
 
-					mutationHdic = {'MutationH': {"$exists": True}}
-					if mutationDic['reasons']:
-						mutationHdic['MutationH.Reason'] = {'$all': mutationDic['reasons']}
-					mutation_criteria.append(mutationHdic)
+			#check if MutationH is selected for (no selected types assumes any mutation present is selected for)
+			if 'mutationh' in types or len(types)==0:
+				mutationHdic = {'MutationH': {"$exists": True}}
+				if len(reasons)>0:
+					mutationHdic['MutationH.Reason'] = {'$all': reasons}
+				mutation_criteria.append(mutationHdic)
 
-				if 'mutationl' in mutationDic['types']:
-					mutationLdic = {'MutationL': {"$exists": True}}
-					if mutationDic['reasons']:
-						mutationLdic['MutationL.Reason'] = {'$all': mutationDic['reasons']}
-					mutation_criteria.append(mutationLdic)
-				query['$or'] = mutation_criteria
+			#check if MutationL is selected for (no selected types assumes any mutation present is selected for)
+			if 'mutationl' in types or len(types)==0:
+				mutationLdic = {'MutationL': {"$exists": True}}
+				if mutationDic['reasons']:
+					mutationLdic['MutationL.Reason'] = {'$all': reasons}
+				mutation_criteria.append(mutationLdic)
 
 
-			else:
-				mutation_criteria = [
-					{'MutationH': {'$exists': True}},
-					{'MutationL': {'$exists': True}},
-				]
-
-			query.setdefault('$and', []).append({'$or': mutation_criteria})
+			query.setdefault('$and', []).append({'$or': mutation_criteria}) #adds all of the mutation criteria to the query
 
 	if len(requests_names)>0:
 		if len(query)>0:
