@@ -72,7 +72,7 @@ def build_query(filters):
 			else:
 				query.setdefault('$and', []).append(
 					{'Format': {
-						'$regex': r'\b' + spec + r'\b',
+						'$regex': spec,
 						'$options': 'i'
 					}
 				})
