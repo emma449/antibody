@@ -687,6 +687,7 @@ addAntibodySource.addEventListener('click', () => {
 	const source = otherAntibodySource.value.trim();
 	if (!source) return;
 	const newSource = document.createElement('div');
+	newSource.classList.add('rid_val');
 	newSource.textContent = source;
 	newSource.dataset.value = source.toLowerCase();
 
@@ -929,6 +930,7 @@ addAntibodyType.addEventListener('click', () => {
 
 	typeMenu.insertBefore(newType, antibodyTypeEnter);
 	newType.classList.toggle("selected");
+	newType.classList.add('rid_val');
 	otherAntibodyType.value = "";
 	if (searchFilters.antibodyType.includes(type)) {
 		searchFilters.antibodyType =
@@ -1227,6 +1229,7 @@ addantigenspecies.addEventListener('click', () => {
 	newSpecies.dataset.value = speciesName.toLowerCase();
 	antigenSpecies.insertBefore(newSpecies, otherantigenspecies);
 	newSpecies.classList.toggle("selected");
+	newSpecies.classList.add('rid_val');
 	otherantigenspeciestext.value = "";
 	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
 	if (searchFilters.antigenDic.species.includes(speciesName)) {
@@ -1262,6 +1265,7 @@ addAntigenGene.addEventListener('click', () => {
 
 	antigenGene.insertBefore(newGene, antigenGeneText);
 	newGene.classList.toggle("selected");
+	newGene.classList.add('rid_val');
 	antigenGeneText.value = "";
 	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
 	if (searchFilters.antigenDic.genes.includes(gene)) {
@@ -1296,6 +1300,7 @@ addAntigenName.addEventListener('click', () => {
 
 	antigenName.insertBefore(newName, antigenNameText);
 	newName.classList.toggle("selected");
+	newName.classList.add('rid_val');
 	antigenNameText.value = "";
 	antigenList.style.maxHeight = antigenList.scrollHeight + "px";
 	if (searchFilters.antigenDic.names.includes(name)) {
@@ -1474,7 +1479,7 @@ add_antibody_name.addEventListener('click', () => {
 	const newName = document.createElement('div');
 	newName.textContent = name;
 	newName.dataset.value = name.toLowerCase();
-	newName.classList.add("selected");
+	newName.classList.add("selected", 'rid_val'); //class 'rid_val' marks value to delete for reset filters
 	if (!searchFilters.antibody_name.includes(name)) {
 		searchFilters.antibody_name.push(name);
 	} else {
@@ -1512,7 +1517,7 @@ add_request.addEventListener('click', () => {
 	const newRequest = document.createElement('div');
 	newRequest.textContent = req;
 	newRequest.dataset.value = req;
-	newRequest.classList.add("selected");
+	newRequest.classList.add("selected", 'rid_val'); //class 'rid_val' marks value to delete for reset filters
 	if (!searchFilters.requests.includes(req)) {
 		searchFilters.requests.push(req);
 		console.log(searchFilters)
@@ -2080,11 +2085,16 @@ clear.addEventListener('click', async (e) => {
 		germlineTypeDetails.innerHTML = '';
 	}
 
+
 	mutationPresent.value = 'select'; //change value of the mutationpresent dropdown so it is at the default value ('select')
 	mutationNameContainer.style.display = "none";
 
 	document.querySelectorAll('.active').forEach(el => {
 		el.classList.remove('active');
+	});
+
+	document.querySelectorAll('.rid_val').forEach(el => {
+		el.remove();
 	});
 
 	if (resultsdiv) {
