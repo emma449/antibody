@@ -321,7 +321,7 @@ def build_query(filters):
 
 			query.setdefault('$and', []).append({'$or': mutation_criteria}) #adds all of the mutation criteria to the query
 
-	if len(requests_names)>0:
+	if requests_names:
 		if len(query)>0:
 			other_query = query.copy()
 

@@ -1515,6 +1515,7 @@ add_request.addEventListener('click', () => {
 	newRequest.classList.add("selected");
 	if (!searchFilters.requests.includes(req)) {
 		searchFilters.requests.push(req);
+		console.log(searchFilters)
 	} else {
 		return;
 	}
@@ -1535,7 +1536,7 @@ add_request.addEventListener('click', () => {
 
 	newRequest.appendChild(removeBtn);
 
-
+	console.log('adding request');
 	request_box.insertBefore(newRequest, request);
 	
 	request.value = "";
@@ -1763,33 +1764,32 @@ submit.addEventListener('click', async (e) => {
 	resultsdiv.style.display = 'block'; //resultsdiv style changed to 'none' when user clicks reset filters. this line reverses that.
 	e.preventDefault();
 	console.log(searchFilters);
+	const query = {...searchFilters};
+	console.log(`query: ${query}`);
 
 	//make it so that request is added to search filters without having to click add request
-	if (searchFilters.requests.length === 0) {
+	if (searchFilters.requests.length === 0 && request.value.trim() !== '') {
+		console.log('request working');
 		const req_val = request.value.trim();
-		if (req_val) {
-			searchFilters.requests.push(req_val);
-		}
+		query.requests.push(req_val);
+		console.log(query.requests);
+		searchFilters.requests = []; //delete old search from the search filters
 	}
-	const req_val = request.value.trim();
-	searchFilters.requests = req_val ? [req_val] : [];
 
-	if (searchFilters.antibody_name.length === 0) {
+
+	if (searchFilters.antibody_name.length === 0 && antibody_name_text.value.trim() !== '') {
 		const name_val = antibody_name_text.value.trim();
-		if (name_val) {
-			searchFilters.antibody_name.push(name_val);
-		}
+		query.antibody_name.push(name_val);
+		searchFilters.antibody_name = []; //delete old search from the search filters
 	}
-	const name_val = antibody_name_text.value.trim();
-	searchFilters.antibody_name = name_val ? [name_val] : []; //delete old search from the search filters
 
-	const query = searchFilters;
+
 	const response = await fetch ("/search", {
 		method: 'POST',
 		headers: {
 			"Content-Type": "application/json"
 		},
-		body: JSON.stringify(searchFilters)
+		body: JSON.stringify(query)
 	});
 	const results = await response.json();
 
