@@ -801,6 +801,7 @@ addheavychain.addEventListener('click', () => {
 	console.log('clicked other heavy chain');
 	heavyChainClassMenu.insertBefore(newClass, heavychainother);
 	newClass.classList.toggle("selected");
+	newClass.classList.add('rid_val');
 	if (searchFilters.heavyChainClass.includes(className)) {
 		searchFilters.heavyChainClass =
         	searchFilters.heavyChainClass.filter(v => v !== className);
@@ -816,6 +817,8 @@ addheavychain.addEventListener('click', () => {
 //special chain
 const specialChainArrow = document.getElementById('special-chain-format-arrow');
 const specialChainMenu = document.getElementById('special-chain-menu');
+const specialChainEnter = document.getElementById('speical-chain-enter');
+const addSpecialChain = document.getElementById('add-special-chain');
 
 specialChainArrow.addEventListener('click', (e) => {
 	specialChainArrow.classList.toggle('active');
@@ -834,6 +837,24 @@ specialChainMenu.addEventListener('click', (e) => {
     }
 
 });
+
+addSpecialChain.addEventListener('click', (e) => {
+	const chainName = document.getElementById('special-chain-name').value.trim();
+	if (!chainName) return;
+	const newChain = document.createElement('div');
+	newChain.textContent = chainName;
+	newChain.dataset.value = chainName.toLowerCase();
+	specialChainMenu.insertBefore(newChain, specialChainEnter);
+	newChain.classList.toggle('selected');
+	newChain.classList.add('rid_val');
+	if (searchFilters.specialChain.includes(chainName)) {
+		searchFilters.specialChain =
+        	searchFilters.specialChain.filter(v => v !== chainName);
+	}
+	else {
+		searchFilters.specialChain.push(chainName);
+	}
+})
 
 //specificity
 
