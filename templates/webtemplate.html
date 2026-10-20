@@ -151,10 +151,10 @@
 		.ptm-options div {
 			margin-top: 0.25rem;
 		}
-		.heavyPTMtypeMenu, .lightPTMtypeMenu, .germlinetype, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu,.light-chain-class-enter, .heavy-chain-class-enter, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
+		.heavyPTMtypeMenu, .lightPTMtypeMenu, .germlinetype, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
 			display: none;
 		}
-		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .light-chain-class-enter.active, .heavy-chain-class-enter.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
+		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
 			display: block;
 		}
 		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover {
@@ -305,7 +305,6 @@
 					<div data-value="Gamma4">IgG4</div>
 					<div data-value = 'IgE'>IgE</div>
 					<div data-value = 'IgM'>IgM</div>
-					<div id = 'other-heavy-chain-class'>Other</div>
 					<div class = 'heavy-chain-class-enter' id = 'heavy-chain-class-enter'>
 						<input type='text' id = 'heavy-chain-class'></input>
 						<button class = 'add' id = 'add-heavy-chain-class'>Add other</button>
@@ -729,12 +728,11 @@ const heavyChainClassMenu = document.getElementById('heavy-chain-class-menu');
 const lightChainClassMenu = document.getElementById('light-chain-class-menu');
 
 
-//other keys
-const otherheavychainclass = document.getElementById('other-heavy-chain-class');
 
 
 //the fields to toggle between showing and not showing when other is clicked
 const heavychainother = document.getElementById('heavy-chain-class-enter');
+const otherheavychainclass = document.getElementById('heavy-chain-class')
 
 const addlightchain = document.getElementById('add-light-chain-class');
 const addheavychain = document.getElementById('add-heavy-chain-class');
@@ -790,35 +788,18 @@ lightChainClassArrow.addEventListener('click', (e) => {
 
 
 
-otherheavychainclass.addEventListener('click', (e) => {
-	addheavychain.classList.toggle('active');
-	heavychainother.classList.toggle('active');
-	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
-		otherheavychainclass.style.backgroundColor = 'white';
-	}
-	else {
-		otherheavychainclass.style.backgroundColor = 'steelblue';
-	}
-});
-
 
 
 addheavychain.addEventListener('click', () => {
 	addheavychain.classList.toggle('active');
-	heavychainother.classList.toggle('active');
-	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
-		otherheavychainclass.style.backgroundColor = 'white';
-	}
-	else {
-		otherheavychainclass.style.backgroundColor = 'steelblue';
-	}
 
 	const className = document.getElementById('heavy-chain-class').value.trim();
 	if (!className) return;
 	const newClass = document.createElement('div');
 	newClass.textContent = className;
 	newClass.dataset.value = className.toLowerCase();
-	heavyChainClassMenu.insertBefore(newClass, otherheavychainclass);
+	console.log('clicked other heavy chain');
+	heavyChainClassMenu.insertBefore(newClass, heavychainother);
 	newClass.classList.toggle("selected");
 	if (searchFilters.heavyChainClass.includes(className)) {
 		searchFilters.heavyChainClass =
@@ -828,6 +809,8 @@ addheavychain.addEventListener('click', () => {
 		searchFilters.heavyChainClass.push(className);
 	}
 });
+
+
 
 
 //special chain
@@ -1411,6 +1394,8 @@ enterOtherReason.addEventListener('click', () => {
 //cdr source
 const cdrArrow = document.getElementById("cdrArrow");
 const cdrsourcemenu = document.getElementById("cdrsourcemenu");
+
+
 cdrArrow.addEventListener("click", (e) => {
     cdrsourcemenu.classList.toggle("active");
     cdrArrow.classList.toggle("active");
@@ -1428,44 +1413,6 @@ cdrsourcemenu.addEventListener('click', (e) => {
     }
 });
 
-otherheavychainclass.addEventListener('click', (e) => {
-	addheavychain.classList.toggle('active');
-	heavychainother.classList.toggle('active');
-	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
-		otherheavychainclass.style.backgroundColor = 'white';
-	}
-	else {
-		otherheavychainclass.style.backgroundColor = 'steelblue';
-	}
-});
-
-
-
-addheavychain.addEventListener('click', () => {
-	addheavychain.classList.toggle('active');
-	heavychainother.classList.toggle('active');
-	if (otherheavychainclass.style.backgroundColor === 'steelblue') {
-		otherheavychainclass.style.backgroundColor = 'white';
-	}
-	else {
-		otherheavychainclass.style.backgroundColor = 'steelblue';
-	}
-
-	const className = document.getElementById('heavy-chain-class').value.trim();
-	if (!className) return;
-	const newClass = document.createElement('div');
-	newClass.textContent = className;
-	newClass.dataset.value = className.toLowerCase();
-	heavyChainClassMenu.insertBefore(newClass, otherheavychainclass);
-	newClass.classList.toggle("selected");
-	if (searchFilters.heavyChainClass.includes(className)) {
-		searchFilters.heavyChainClass =
-        	searchFilters.heavyChainClass.filter(v => v !== className);
-	}
-	else {
-		searchFilters.heavyChainClass.push(className);
-	}
-});
 
 
 //antibody_name
