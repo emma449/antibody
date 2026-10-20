@@ -90,6 +90,7 @@
 
 		.clear:hover {
 			cursor: pointer;
+			background-color: palevioletred;
 		}
 
 		.clear {
@@ -157,10 +158,10 @@
 		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
 			display: block;
 		}
-		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover {
+		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover, .antigenspeciesArrow:hover {
 			cursor: pointer;
 		}
-		.lightPTMtypeMenu div:hover, .heavyPTMtypeMenu div:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown div:hover, .typeMenu > div[data-value]:hover,  .specificityMenu > div[data-value]:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover, .specificityArrow:hover {
+		.lightPTMtypeMenu div:hover, .heavyPTMtypeMenu div:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown div:hover, .typeMenu > div[data-value]:hover,  .specificityMenu > div[data-value]:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover, .specificityArrow:hover, .antigenspeciesArrow:hover {
 			background-color: #ccc;
 		}
 		select {
@@ -349,19 +350,6 @@
 					<button class = 'add' id = 'add-antigen-name'>Add name</button>
 				</div>
 
-				<div class = 'antigenspeciesArrow' id = 'antigenSpeciesArrow'>Species</div>
-				<div class = 'species' id = 'antigenSpecies'>
-					<div data-value = 'human'>Human</div>
-					<div data-value = 'cat'>Cat</div>
-					<div data-value = 'dog'>Dog</div>
-					<div data-value = 'rat'>Rat</div>
-					<div id = 'other-antigen-species'>Other</div>
-					<div class = 'antigen-species-enter' id = 'antigen-species-enter'>
-						<input type='text' id = 'other-antigen-species-name'></input>
-						<button class = 'add' id = 'add-antigen-species'>Add other species</button>
-					</div>
-				</div>
-
 				<div class = 'antigenGene' id='antigenGene'>Gene
 					<input type = 'text' id = 'antigenGeneText'></input>
 					<button class = 'add' id = 'add-antigen-gene'>Add gene</button>
@@ -370,6 +358,20 @@
 			</div>
 
 		</div>
+
+		<div class = 'antigenspeciesArrow' id = 'antigenSpeciesArrow'>Antigen Species</div>
+		<div class = 'species' id = 'antigenSpecies'>
+			<div data-value = 'human'>Human</div>
+			<div data-value = 'cat'>Cat</div>
+			<div data-value = 'dog'>Dog</div>
+			<div data-value = 'rat'>Rat</div>
+			<div id = 'other-antigen-species'>Other</div>
+			<div class = 'antigen-species-enter' id = 'antigen-species-enter'>
+				<input type='text' id = 'other-antigen-species-name'></input>
+				<button class = 'add' id = 'add-antigen-species'>Add other species</button>
+			</div>
+		</div>
+
 
 		<div class = "mutation" id = "mutation">
 			<div class="mutation-select">
@@ -1196,7 +1198,6 @@ antigenArrow.addEventListener("click", function() {
 antigenSpeciesArrow.addEventListener("click", (e) => {
 	antigenSpeciesArrow.classList.toggle('active');
     antigenSpecies.classList.toggle("active");
-    antigenList.style.maxHeight = antigenList.scrollHeight + "px";
 });
 
 
