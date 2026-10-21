@@ -51,9 +51,12 @@ def build_query(filters):
 
 
 	if filters.get('antibodyType'):
-		cleaned_type = normalise_list(filters['antibodyType'])
+		types = filters.get('antibodyType')
+		print(types)
+		cleaned_type = normalise_list(types['values'])
+		bool_key = '$or' if types['bool'] == 'OR' else '$and'
 		for type in cleaned_type:
-			query.setdefault('$and', []).append(
+			query.setdefault(bool_key, []).append(
 				{'Format': {
 					'$regex': r'\b' + type + r'\b',
 					'$options': 'i'

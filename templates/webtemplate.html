@@ -282,6 +282,12 @@
 		<div class = "type" id = "type">
 			<div class = "typeArrow" id = 'typeArrow'>Antibody Type</div>
 			<div class = "typeMenu" id = "typeMenu">
+				<div class = 'bool' id = 'type_bool'>
+					<input type = 'radio' name = 'type_bool' id = 'type_and' value='AND' checked="checked">
+					<label for = 'type_and'>AND</label>
+					<input type = 'radio' name = 'type_bool' value='OR' id = 'type_or'>
+					<label for = 'type_or'>OR</label>
+				</div>
 				<div data-value="conjugated">Conjugated</div>
 				<div  data-value="fusion" >Fusion</div>
 				<div class = 'antibody-type-enter' id = 'antibody-type-enter'>
@@ -689,7 +695,7 @@ const searchFilters = {
     antibodySource: {'values': [], 'bool': 'AND'},
     heavyChainClass: [],
     lightChainClass: [],
-    antibodyType: [],
+    antibodyType: {'values': [], 'bool': 'AND'},
     antibodySpecificity: [],
     heavyPTMDic: [],
     lightPTMDic: [],
@@ -712,11 +718,12 @@ const searchFilters = {
 //returns a dictionary with no search criteria
 function getDefaultFilters() {
 	document.getElementById('source_and').checked = true; //make bool selection AND
+	document.getElementById('type_and').checked = true;
 	return {
 	    antibodySource: {'values': [], 'bool': 'AND'},
 	    heavyChainClass: [],
 	    lightChainClass: [],
-	    antibodyType: [],
+	    antibodyType: {'values': [], 'bool': 'AND'},
 	    antibodySpecificity: [],
 	    heavyPTMDic: [],
 	    lightPTMDic: [],
@@ -967,6 +974,8 @@ specificityMenu.addEventListener('click', (e) => {
 const typeArrow = document.getElementById("typeArrow");
 const typeMenu = document.getElementById("typeMenu");
 
+const type_bools = document.querySelectorAll('input[name="type_bool"]'); //all of the type bools (AND and OR)
+
 
 const antibodyTypeEnter = document.getElementById('antibody-type-enter'); //container of the other option
 const addAntibodyType = document.getElementById('add-antibody-type'); //button to add other
@@ -983,11 +992,11 @@ typeMenu.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;;
 	if (!value) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.antibodyType.includes(value)) {
-        searchFilters.antibodyType =
-            searchFilters.antibodyType.filter(v => v !== value);
+	if (searchFilters.antibodyType.values.includes(value)) {
+        searchFilters.antibodyType.values =
+            searchFilters.antibodyType.values.filter(v => v !== value);
     } else {
-        searchFilters.antibodyType.push(value);
+        searchFilters.antibodyType.values.push(value);
     }
 });
 
@@ -1009,7 +1018,7 @@ addAntibodyType.addEventListener('click', () => {
 	//make remove button remove searched gene when clicked
 	removeBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
-		searchFilters.antibodyType = searchFilters.antibodyType.filter(v => v !== type);
+		searchFilters.antibodyType.values = searchFilters.antibodyType.values.filter(v => v !== type);
 		newType.remove();
 	});
 
@@ -1019,12 +1028,12 @@ addAntibodyType.addEventListener('click', () => {
 	newType.classList.toggle("selected");
 	newType.classList.add('rid_val');
 	otherAntibodyType.value = "";
-	if (searchFilters.antibodyType.includes(type)) {
-		searchFilters.antibodyType =
-        	searchFilters.antibodyType.filter(v => v !== type);
+	if (searchFilters.antibodyType.values.includes(type)) {
+		searchFilters.antibodyType.values =
+        	searchFilters.antibodyType.values.filter(v => v !== type);
 	}
 	else {
-		searchFilters.antibodyType.push(type);
+		searchFilters.antibodyType.values.push(type);
 	}
 });
 
@@ -1844,6 +1853,12 @@ submit.addEventListener('click', async (e) => {
 	for (const source_bool of source_bools) {
 		if (source_bool.checked) {
 			searchFilters.antibodySource.bool = source_bool.value;
+		}
+	}
+
+	for (const type_bool of type_bools) {
+		if (type_bool.checked) {
+			searchFilters.antibodyType.bool = type_bool.value;
 		}
 	}
 
