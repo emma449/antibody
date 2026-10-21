@@ -36,10 +36,13 @@ def build_query(filters):
 
 
 	if filters.get('antibodySource'):
-		cleaned_source = normalise_list(filters['antibodySource'])
+		sources = filters.get('antibodySource')
+		cleaned_source = normalise_list(sources['values'])
+		bool_key = '$or' if sources['bool'] == 'OR' else '$and'
+		print(bool_key)
 
 		for source in cleaned_source:
-			query.setdefault('$and', []).append(
+			query.setdefault(bool_key, []).append(
 				{'Format': {
 					'$regex': r'\b' + source + r'\b',
 					'$options': 'i'

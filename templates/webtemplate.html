@@ -21,9 +21,6 @@
 			text-align: center;
 			font-size: 50px;
 		}
-		input {
-			width: 25%;
-		}
 
 		.download_btn, .download_seq_btn {
 			margin-top: 1px;
@@ -152,16 +149,16 @@
 		.ptm-options div {
 			margin-top: 0.25rem;
 		}
-		.heavyPTMtypeMenu, .lightPTMtypeMenu, .germlinetype, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
+		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
 			display: none;
 		}
-		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .germlinetype.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
+		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
 			display: block;
 		}
 		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover, .antigenspeciesArrow:hover {
 			cursor: pointer;
 		}
-		.lightPTMtypeMenu div:hover, .heavyPTMtypeMenu div:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown div:hover, .typeMenu > div[data-value]:hover,  .specificityMenu > div[data-value]:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover, .specificityArrow:hover, .antigenspeciesArrow:hover {
+		.lightPTMtypeMenu div:hover, .heavyPTMtypeMenu div:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown div[data-value]:hover, .typeMenu > div[data-value]:hover,  .specificityMenu > div[data-value]:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover, .specificityArrow:hover, .antigenspeciesArrow:hover {
 			background-color: #ccc;
 		}
 		select {
@@ -231,10 +228,20 @@
 		    margin: 0;
 		}
 
+		.germlineoption div {
+			position: relative;
+		}
 
-		input {
-			margin-bottom: 1 rem;
+		input[type=text] {
+			margin-bottom: 1rem;
 			margin-left: 1rem;
+			width: 25%;
+		}
+
+		.bool {
+			display: flex;
+			align-items: center;
+			gap: 4px;
 		}
 
 	</style>
@@ -254,6 +261,12 @@
 		<div class="antibodysource" id="antibodysource">
 			<div class="sourceArrow" id = 'sourceArrow'>Antibody Source</div>
 			<div class = "sourcedropdown" id = "sourcedropdown">
+				<div class = 'bool' id = 'source_bool'>
+					<input type = 'radio' name = 'source_bool' id = 'source_and' value='AND' checked="checked">
+					<label for = 'source_and'>AND</label>
+					<input type = 'radio' name = 'source_bool' value='OR' id = 'source_or'>
+					<label for = 'source_or'>OR</label>
+				</div>
 				<div data-value="canine" class="canine-option" id="canine">Canine</div>
 				<div data-value ="chimeric" id="chimeric">Chimeric</div>
 				<div data-value="human">Human</div>
@@ -549,14 +562,79 @@
 			<div class = 'germlinearrow' id = 'germlinearrow'>Germline</div>
 			
 			<div class = 'germlinedropdown' id = 'germlinedropdown'>
-				<div class = 'germlinetypearrow' id = 'germlinetypearrow'>Type</div>
 				<div class = 'germlinetype' id = 'germlinetype'>
-					<div data-value = 'hc'>HC</div>
-					<div data-value = 'hj'>HJ</div>
-					<div data-value = 'hv'>HV</div>
-					<div data-value = 'lc'>LC</div>
-					<div data-value = 'lj'>LJ</div>
-					<div data-value = 'lv'>LV</div>
+					<div class = 'germlineoption' id = 'hcgermline'>
+						<div data-value = 'hc'>HC</div>
+
+						<label for = 'HC-AND'>AND
+							<input type = 'radio' name = 'hc' id = 'HC-AND'>
+						</label>
+
+						<label for = 'HC-OR'>OR
+							<input type = 'radio' name = 'hc' id='HC-OR'>
+						</label>
+					</div>
+
+					<div class = 'germlineoption' id = hjgermline>
+						<div data-value = 'hj'>HJ</div>
+
+						<label for = 'HJ-AND'>AND
+							<input type = 'radio' name = 'hj' id = 'HJ-AND'>
+						</label>
+
+						<label for = 'HJ-OR'>OR
+							<input type = 'radio' name = 'hj' id='HJ-OR'>
+						</label>
+					</div>
+
+					<div class = 'germlineoption' id = hvgermline>
+						<div data-value = 'hv'>HV</div>
+
+						<label for = 'HV-AND'>AND
+							<input type = 'radio' name = 'hv' id = 'HV-AND'>
+						</label>
+
+						<label for = 'HV-OR'>OR
+							<input type = 'radio' name = 'hv' id='HV-OR'>
+						</label>
+					</div>
+
+					<div class = 'germlineoption' id = 'lcgermline'>
+						<div data-value = 'lc'>LC</div>
+
+						<label for = 'LC-AND'>AND
+							<input type = 'radio' name = 'lc' id = 'LC-AND'>
+						</label>
+
+						<label for = 'LC-OR'>OR
+							<input type = 'radio' name = 'lc' id='LC-OR'>
+						</label>
+					</div>
+
+					<div class = 'germlineoption' id = 'ljgermline'>
+						<div data-value = 'lj'>LJ</div>
+
+						<label for = 'LJ-AND'>AND
+							<input type = 'radio' name='lj' id = 'LJ-AND'>
+						</label>
+
+						<label for = 'LJ-OR'>OR
+							<input type = 'radio' name = 'lj' id='LJ-OR'>
+						</label>
+					</div>
+
+					<div class = 'germlineoption' id = 'lvgermline'>
+						<div data-value = 'lv'>LV</div>
+
+						<label for = 'LV-AND'>AND
+							<input type = 'radio' name = 'lv' id = 'HJ-AND'>
+						</label>
+
+						<label for = 'LV-OR'>OR
+							<input type = 'radio' name = 'lv' id='HJ-OR'>
+						</label>
+					</div>
+
 				</div>
 
 				<div class = 'germlineTypeDetails' id = 'germlineTypeDetails'></div>
@@ -608,7 +686,7 @@
 
 //search json
 const searchFilters = {
-    antibodySource: [],
+    antibodySource: {'values': [], 'bool': 'AND'},
     heavyChainClass: [],
     lightChainClass: [],
     antibodyType: [],
@@ -617,8 +695,8 @@ const searchFilters = {
     lightPTMDic: [],
     mutationDic: {
     	present: null,
-    	types: [],
-    	reasons: []
+    	'types': [],
+    	'reasons': []
     },
     cdrSource: [],
     germlineDic: [], 
@@ -631,11 +709,11 @@ const searchFilters = {
 };
 
 
-
 //returns a dictionary with no search criteria
 function getDefaultFilters() {
+	document.getElementById('source_and').checked = true; //make bool selection AND
 	return {
-	    antibodySource: [],
+	    antibodySource: {'values': [], 'bool': 'AND'},
 	    heavyChainClass: [],
 	    lightChainClass: [],
 	    antibodyType: [],
@@ -656,6 +734,7 @@ function getDefaultFilters() {
 	    antibody_name: [],
 	    requests: []
 	};
+
 }
 
 
@@ -667,6 +746,8 @@ const antibodySourceEnter = document.getElementById('antibody-source-enter');
 const otherAntibodySource = document.getElementById('other-antibody-source');
 const addAntibodySource = document.getElementById('add-antibody-source');
 
+const source_bools = document.querySelectorAll('input[name="source_bool"]'); //all of the source bools (AND and OR)
+
 sourceArrow.addEventListener('click', (e) => {
 	sourcedropdown.classList.toggle('active');
 	sourceArrow.classList.toggle('active');
@@ -676,11 +757,11 @@ sourcedropdown.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;
 	if (!value) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.antibodySource.includes(value)) {
-        searchFilters.antibodySource =
-            searchFilters.antibodySource.filter(v => v !== value);
+	if (searchFilters.antibodySource.values.includes(value)) {
+        searchFilters.antibodySource.values =
+            searchFilters.antibodySource.values.filter(v => v !== value);
     } else {
-        searchFilters.antibodySource.push(value);
+        searchFilters.antibodySource.values.push(value);
     }
 });
 
@@ -700,7 +781,7 @@ addAntibodySource.addEventListener('click', () => {
 	//make remove button remove searched gene when clicked
 	removeBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
-		searchFilters.antibodySource = searchFilters.antibodySource.filter(v => v !== source);
+		searchFilters.antibodySource = searchFilters.antibodySource.values.filter(v => v !== source);
 		newSource.remove();
 	});
 
@@ -709,12 +790,12 @@ addAntibodySource.addEventListener('click', () => {
 	sourcedropdown.insertBefore(newSource, antibodySourceEnter);
 	newSource.classList.toggle("selected");
 	otherAntibodySource.value = "";
-	if (searchFilters.antibodySource.includes(source)) {
-		searchFilters.antibodySource =
-        	searchFilters.antibodySource.filter(v => v !== source);
+	if (searchFilters.antibodySource.values.includes(source)) {
+		searchFilters.antibodySource.values =
+        	searchFilters.antibodySource.values.filter(v => v !== source);
 	}
 	else {
-		searchFilters.antibodySource.push(source);
+		searchFilters.antibodySource.values.push(source);
 	}
 });
 
@@ -1521,9 +1602,9 @@ add_request.addEventListener('click', () => {
 //germline
 const germlinearrow = document.getElementById('germlinearrow');
 const germlinedropdown = document.getElementById('germlinedropdown');
-const germlinetypearrow = document.getElementById('germlinetypearrow');
 const germlinetype = document.getElementById('germlinetype');
 const germlineTypeDetails = document.getElementById('germlineTypeDetails');
+const types = ['hc', 'hj', 'hv', 'lc', 'lj', 'lv'];
 
 
 germlinearrow.addEventListener("click", function() {
@@ -1542,14 +1623,11 @@ to highlight the button that controls the panel */
 	}
 });
 
-germlinetypearrow.addEventListener("click", (e) => {
-	germlinetypearrow.classList.toggle("active");
-    germlinetype.classList.toggle("active");
-    germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
-});
+
 
 
 germlinetype.addEventListener('click', (e) => {
+	e.preventDefault();
 	const value = e.target.dataset.value;
 	if (!e.target.matches('[data-value]')) return;
 	e.target.classList.toggle("selected");
@@ -1572,9 +1650,8 @@ function createGermlineSection(type) {
 	wrapper.innerHTML = `
 		<hr>
 
-		<h4>${type.toUpperCase()}</h4>
+		<h4>${type.toUpperCase()} Species</h4>
 
-		<div class = 'germlineSpeciesArrow'>Species</div>
 		<div class = 'speciesMenu'>
 			<div data-value = 'Homo sapiens'>Human (Homo sapiens)</div>
 			<div data-value = 'Lama pacos'>Alpaca (Lama/Vicugna pacos)</div>
@@ -1599,12 +1676,21 @@ function createGermlineSection(type) {
 			<div class = 'geneList'></div>
 		</div>
 	`;
-	germlineTypeDetails.appendChild(wrapper);
-	germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+
+	if (types.includes(type)) {
+
+		const id_name = `${type}germline`;
+
+		const where_to_add = document.getElementById(`${id_name}`);
+		console.log(where_to_add);
+		where_to_add.after(wrapper);
+		germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+	}
+
 
 	searchFilters.germlineDic.push({type, 
-		species: [],
-		genes: []});
+	species: [],
+	genes: []});
 
 	const record = searchFilters.germlineDic.find(g => g.type === type);
 
@@ -1614,26 +1700,24 @@ function createGermlineSection(type) {
 
 
 	speciesMenu.addEventListener('click', (e) => {
-		const value = e.target.dataset.value;
+		const option = e.target.closest('[data-value]');
+		const value = option.dataset.value;
 		if (!value) return;
-		e.target.classList.toggle('selected');
-
-		if (!record) return;
-
-		if (record.species.includes(value)) {
-			record.species = record.species.filter(v => v !== value);
-		} else {
+		option.classList.toggle('selected');
+		if (option.style.backgroundColor==='white') {
+			option.style.backgroundColor = 'steelblue';
 			record.species.push(value);
 		}
+		else {
+			option.style.backgroundColor = 'white';
+			record.species = record.species.filter(v => v !== value);
+		}
+
+		if (!record) return;
+		console.log(value);
+		console.log(record);
 
 
-	});
-
-	const germlineSpeciesArrow = wrapper.querySelector('.germlineSpeciesArrow');
-	germlineSpeciesArrow.addEventListener("click", (e) => {
-		germlineSpeciesArrow.classList.toggle("active");
-	    speciesMenu.classList.toggle("active");
-	    germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
 	});
 
 	wrapper.querySelector('.addGene').addEventListener('click', () => {
@@ -1653,7 +1737,7 @@ function createGermlineSection(type) {
 
 		const removeBtn = document.createElement('button');
 		removeBtn.textContent = 'x';
-		removeBtn.classList.add('remove-gene');
+		removeBtn.classList.add('remove-gene', 'rid_val');
 		div.appendChild(removeBtn);
 		geneBox.insertBefore(div, addgenebutton);
 
@@ -1757,6 +1841,11 @@ submit.addEventListener('click', async (e) => {
 		searchFilters.antibody_name = []; //delete old search from the search filters
 	}
 
+	for (const source_bool of source_bools) {
+		if (source_bool.checked) {
+			searchFilters.antibodySource.bool = source_bool.value;
+		}
+	}
 
 	const response = await fetch ("/search", {
 		method: 'POST',
@@ -2041,12 +2130,13 @@ const clear = document.getElementById('clear');
 //resets filters when user clicks on the reset filters button
 clear.addEventListener('click', async (e) => {
 	e.preventDefault();
-	Object.assign(searchFilters, getDefaultFilters());
+	Object.assign(searchFilters, getDefaultFilters()); //getDefaultFilters returns an array with default search filters in the first index
+
 	document.querySelectorAll('.selected').forEach(el => {
-		el.classList.remove('selected');
+		el.classList.remove('selected'); //remove all selected items so none of the options are highlighted
 	});
 	document.querySelectorAll('input[type="text"]').forEach(input => {
-		input.value = '';
+		input.value = ''; //clear any text in text input boxes
 	});
 
 	const germlineTypeDetails = document.getElementById('germlineTypeDetails');
