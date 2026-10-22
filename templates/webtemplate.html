@@ -262,9 +262,9 @@
 			<div class="sourceArrow" id = 'sourceArrow'>Antibody Source</div>
 			<div class = "sourcedropdown" id = "sourcedropdown">
 				<div class = 'bool' id = 'source_bool'>
-					<input type = 'radio' name = 'source_bool' id = 'source_and' value='AND' checked="checked">
+					<input type = 'radio' name = 'source_bool' id = 'source_and' value='AND'>
 					<label for = 'source_and'>AND</label>
-					<input type = 'radio' name = 'source_bool' value='OR' id = 'source_or'>
+					<input type = 'radio' name = 'source_bool' value='OR' id = 'source_or' checked="checked">
 					<label for = 'source_or'>OR</label>
 				</div>
 				<div data-value="canine" class="canine-option" id="canine">Canine</div>
@@ -283,9 +283,9 @@
 			<div class = "typeArrow" id = 'typeArrow'>Antibody Type</div>
 			<div class = "typeMenu" id = "typeMenu">
 				<div class = 'bool' id = 'type_bool'>
-					<input type = 'radio' name = 'type_bool' id = 'type_and' value='AND' checked="checked">
+					<input type = 'radio' name = 'type_bool' id = 'type_and' value='AND'>
 					<label for = 'type_and'>AND</label>
-					<input type = 'radio' name = 'type_bool' value='OR' id = 'type_or'>
+					<input type = 'radio' name = 'type_bool' value='OR' id = 'type_or' checked="checked">
 					<label for = 'type_or'>OR</label>
 				</div>
 				<div data-value="conjugated">Conjugated</div>
@@ -301,6 +301,12 @@
 		<div class = 'specificity' id = 'specificity'>
 			<div class = 'specificityArrow' id = 'specificityArrow'>Antibody Specificity</div>
 			<div class = 'specificityMenu' id = 'specificityMenu'>
+				<div class = 'bool' id = 'spty_bool'>
+					<input type = 'radio' name = 'spty_bool' id = 'spty_and' value='AND'>
+					<label for = 'spty_and'>AND</label>
+					<input type = 'radio' name = 'spty_bool' value='OR' id = 'spty_or' checked="checked">
+					<label for = 'spty_or'>OR</label>
+				</div>
 				<div data-value = 'monospecific'>Monospecific</div>
 				<div data-value = 'specific'>Multispecific</div>
 				<div data-value = 'bispecific'>Bispecific</div>
@@ -692,11 +698,11 @@
 
 //search json
 const searchFilters = {
-    antibodySource: {'values': [], 'bool': 'AND'},
+    antibodySource: {'values': [], 'bool': 'OR'},
     heavyChainClass: [],
     lightChainClass: [],
-    antibodyType: {'values': [], 'bool': 'AND'},
-    antibodySpecificity: [],
+    antibodyType: {'values': [], 'bool': 'OR'},
+    antibodySpecificity: {'values': [], 'bool': 'OR'},
     heavyPTMDic: [],
     lightPTMDic: [],
     mutationDic: {
@@ -717,14 +723,15 @@ const searchFilters = {
 
 //returns a dictionary with no search criteria
 function getDefaultFilters() {
-	document.getElementById('source_and').checked = true; //make bool selection AND
-	document.getElementById('type_and').checked = true;
+	document.getElementById('source_or').checked = true; //make bool selection OR
+	document.getElementById('type_or').checked = true;
+	document.getElementById('spty_or').checked = true;
 	return {
-	    antibodySource: {'values': [], 'bool': 'AND'},
+	    antibodySource: {'values': [], 'bool': 'OR'},
 	    heavyChainClass: [],
 	    lightChainClass: [],
-	    antibodyType: {'values': [], 'bool': 'AND'},
-	    antibodySpecificity: [],
+	    antibodyType: {'values': [], 'bool': 'OR'},
+	    antibodySpecificity: {'values': [], 'bool': 'OR'},
 	    heavyPTMDic: [],
 	    lightPTMDic: [],
 	    mutationDic: {
@@ -952,6 +959,9 @@ const specificity = document.getElementById("specificity");
 const specificityArrow = document.getElementById("specificityArrow");
 const specificityMenu = document.getElementById('specificityMenu');
 
+const spty_bools = document.querySelectorAll('input[name="spty_bool"]'); //all of the specificity bools (AND and OR)
+
+
 specificityArrow.addEventListener('click', (e) => {
 	specificityMenu.classList.toggle('active');
 	specificityArrow.classList.toggle('active');
@@ -961,11 +971,11 @@ specificityMenu.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;
 	if (!value) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.antibodySpecificity.includes(value)) {
-        searchFilters.antibodySpecificity =
-            searchFilters.antibodySpecificity.filter(v => v !== value);
+	if (searchFilters.antibodySpecificity.values.includes(value)) {
+        searchFilters.antibodySpecificity.values =
+            searchFilters.antibodySpecificity.values.filter(v => v !== value);
     } else {
-        searchFilters.antibodySpecificity.push(value);
+        searchFilters.antibodySpecificity.values.push(value);
     }
 });
 
@@ -1850,6 +1860,8 @@ submit.addEventListener('click', async (e) => {
 		searchFilters.antibody_name = []; //delete old search from the search filters
 	}
 
+	//update bools in the dictionary (AND or OR)
+
 	for (const source_bool of source_bools) {
 		if (source_bool.checked) {
 			searchFilters.antibodySource.bool = source_bool.value;
@@ -1859,6 +1871,13 @@ submit.addEventListener('click', async (e) => {
 	for (const type_bool of type_bools) {
 		if (type_bool.checked) {
 			searchFilters.antibodyType.bool = type_bool.value;
+		}
+	}
+
+	for (const spty_bool of spty_bools) {
+		if (spty_bool.checked) {
+			searchFilters.antibodySpecificity.bool = spty_bool.value;
+			console.log(`spec bool: ${spty_bool}`)
 		}
 	}
 

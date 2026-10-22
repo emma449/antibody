@@ -64,10 +64,12 @@ def build_query(filters):
 			})
 
 	if filters.get('antibodySpecificity'):
-		cleaned_spec = normalise_list(filters['antibodySpecificity'])
+		specs = filters.get('antibodySpecificity')
+		cleaned_spec = normalise_list(specs['values'])
+		bool_key = '$or' if specs['bool'] == 'OR' else '$and'
 		for spec in cleaned_spec:
 			if spec == 'monospecific':
-				query.setdefault('$and', []).append(
+				query.setdefault(bool_key, []).append(
 					{'Format': {
 						'$not': {
 							'$regex': 'specific',
@@ -76,7 +78,7 @@ def build_query(filters):
 					}
 				})
 			else:
-				query.setdefault('$and', []).append(
+				query.setdefault(bool_key, []).append(
 					{'Format': {
 						'$regex': spec,
 						'$options': 'i'
