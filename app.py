@@ -273,6 +273,9 @@ def build_query(filters):
 			species = germline.get('species', [])
 			genes = germline.get('genes', [])
 			germline_type = germline_map.get(g_type)
+			germ_bool = germline['bool']
+
+			germ_search = []
 
 			if not germline_type:
 				continue
@@ -282,19 +285,31 @@ def build_query(filters):
 			if species:
 				species_query = '|'.join(species)
 
-				query[f'{germline_type}.Species'] = {
+				germ_search.append({
+					f'{germline_type}.Species' : {
 					'$regex': species_query,
 					'$options': 'i'
-				}
+					}
+				})
 
 			if genes:
 				cleaned_genes = normalise_list(genes)
 				genes_query = '|'.join(re.escape(gene) for gene in cleaned_genes)
 				print(genes_query)
-				query[f'{germline_type}.GeneID'] = {
+				germ_search.append({
+					f'{germline_type}.GeneID' : {
 					'$regex': genes_query,
 					'$options': 'i'
-				}
+					}
+				})
+
+			if germ_bool == 'OR':
+				query.setdefault('$and', []).append({
+					'$or': germ_search
+				})
+			else:
+				query.setdefault('$and', []).extend(germ_search)
+
 
 
 

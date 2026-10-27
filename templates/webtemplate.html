@@ -577,74 +577,26 @@
 				<div class = 'germlinetype' id = 'germlinetype'>
 					<div class = 'germlineoption' id = 'hcgermline'>
 						<div data-value = 'hc'>HC</div>
-
-						<label for = 'HC-AND'>AND
-							<input type = 'radio' name = 'hc' id = 'HC-AND'>
-						</label>
-
-						<label for = 'HC-OR'>OR
-							<input type = 'radio' name = 'hc' id='HC-OR'>
-						</label>
 					</div>
 
 					<div class = 'germlineoption' id = hjgermline>
 						<div data-value = 'hj'>HJ</div>
-
-						<label for = 'HJ-AND'>AND
-							<input type = 'radio' name = 'hj' id = 'HJ-AND'>
-						</label>
-
-						<label for = 'HJ-OR'>OR
-							<input type = 'radio' name = 'hj' id='HJ-OR'>
-						</label>
 					</div>
 
 					<div class = 'germlineoption' id = hvgermline>
 						<div data-value = 'hv'>HV</div>
-
-						<label for = 'HV-AND'>AND
-							<input type = 'radio' name = 'hv' id = 'HV-AND'>
-						</label>
-
-						<label for = 'HV-OR'>OR
-							<input type = 'radio' name = 'hv' id='HV-OR'>
-						</label>
 					</div>
 
 					<div class = 'germlineoption' id = 'lcgermline'>
 						<div data-value = 'lc'>LC</div>
-
-						<label for = 'LC-AND'>AND
-							<input type = 'radio' name = 'lc' id = 'LC-AND'>
-						</label>
-
-						<label for = 'LC-OR'>OR
-							<input type = 'radio' name = 'lc' id='LC-OR'>
-						</label>
 					</div>
 
 					<div class = 'germlineoption' id = 'ljgermline'>
 						<div data-value = 'lj'>LJ</div>
-
-						<label for = 'LJ-AND'>AND
-							<input type = 'radio' name='lj' id = 'LJ-AND'>
-						</label>
-
-						<label for = 'LJ-OR'>OR
-							<input type = 'radio' name = 'lj' id='LJ-OR'>
-						</label>
 					</div>
 
 					<div class = 'germlineoption' id = 'lvgermline'>
 						<div data-value = 'lv'>LV</div>
-
-						<label for = 'LV-AND'>AND
-							<input type = 'radio' name = 'lv' id = 'HJ-AND'>
-						</label>
-
-						<label for = 'LV-OR'>OR
-							<input type = 'radio' name = 'lv' id='HJ-OR'>
-						</label>
 					</div>
 
 				</div>
@@ -750,7 +702,6 @@ function getDefaultFilters() {
 	};
 
 }
-
 
 
 //antibody source
@@ -1646,7 +1597,8 @@ to highlight the button that controls the panel */
 
 
 germlinetype.addEventListener('click', (e) => {
-	e.preventDefault();
+	if (!e.target.matches('[data-value]')) return;
+	 e.preventDefault();
 	const value = e.target.dataset.value;
 	if (!e.target.matches('[data-value]')) return;
 	e.target.classList.toggle("selected");
@@ -1671,6 +1623,13 @@ function createGermlineSection(type) {
 
 		<h4>${type.toUpperCase()} Species</h4>
 
+		<div class = 'bool' id = '${type}_bool'>
+			<input type = 'radio' name = '${type}_bool' id = '${type}_and' value='AND'>
+			<label for = '${type}_and'>AND</label>
+			<input type = 'radio' name = '${type}_bool' value='OR' id = '${type}_or' checked = 'checked'>
+			<label for = '${type}_or'>OR</label>
+		</div>
+
 		<div class = 'speciesMenu'>
 			<div data-value = 'Homo sapiens'>Human (Homo sapiens)</div>
 			<div data-value = 'Lama pacos'>Alpaca (Lama/Vicugna pacos)</div>
@@ -1689,11 +1648,12 @@ function createGermlineSection(type) {
 		</div>
 
 		<div class = 'geneBox' style = 'margin-top:8px;'>
-			<label>Gene</label><br>
+			<h4>Gene</h4>
 			<input type = 'text' class = 'geneInput'>
 			<button type = 'button' class = 'addGene'>Add</button>
 			<div class = 'geneList'></div>
 		</div>
+		<hr>
 	`;
 
 	if (types.includes(type)) {
@@ -1709,13 +1669,17 @@ function createGermlineSection(type) {
 
 	searchFilters.germlineDic.push({type, 
 	species: [],
-	genes: []});
+	genes: [],
+	bool: 'OR'});
 
 	const record = searchFilters.germlineDic.find(g => g.type === type);
 
 	const speciesMenu = wrapper.querySelector('.speciesMenu');
 	const addgenebutton = wrapper.querySelector('.addGene');
 	const geneBox = wrapper.querySelector('.geneBox');
+
+	const germ_bools = wrapper.querySelectorAll("input[type='radio']");
+	const current_bool = wrapper.querySelector(".bool");
 
 
 	speciesMenu.addEventListener('click', (e) => {
@@ -1743,7 +1707,7 @@ function createGermlineSection(type) {
 		const input = wrapper.querySelector('.geneInput');
 		const value = input.value.trim();
 		if (!value) return;
-		const record = searchFilters.germlineDic.find(g => g.type === type);
+		const record = searchFilters.germlineDic.find(g => g.type === type); //makes a record to map the information to the germline type
 
 		if (!record.genes.includes(value)) {
 			record.genes.push(value);
@@ -1806,6 +1770,16 @@ function createGermlineSection(type) {
 		}
 
 		germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+	});
+
+	
+	//germline bool check
+	germ_bools.forEach(germ_bool => {
+		germ_bool.addEventListener('change', () => {
+			if (!germ_bool.checked) return;
+			record.bool = germ_bool.value;
+			console.log('Selected:', record.bool);
+		});
 	});
 
 
@@ -1880,6 +1854,7 @@ submit.addEventListener('click', async (e) => {
 			console.log(`spec bool: ${spty_bool}`)
 		}
 	}
+
 
 	const response = await fetch ("/search", {
 		method: 'POST',
@@ -2176,6 +2151,13 @@ clear.addEventListener('click', async (e) => {
 	const germlineTypeDetails = document.getElementById('germlineTypeDetails');
 	if (germlineTypeDetails) {
 		germlineTypeDetails.innerHTML = '';
+	}
+	const germline_divs = document.querySelectorAll('germline-section');
+	if (germline_divs) {
+		for (germline_div of germline_divs) {
+			germline_div.remove();
+		}
+		germline_div.remove();
 	}
 
 
