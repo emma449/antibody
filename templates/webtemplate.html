@@ -149,7 +149,7 @@
 		.ptm-options div {
 			margin-top: 0.25rem;
 		}
-		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .germline-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
+		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .mutationtypemenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu {
 			display: none;
 		}
 		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .species.active, .sourcedropdown.active, .classMenu.active, .mutationtypemenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
@@ -181,10 +181,6 @@
 
 		.mutation-name-container, .cdrsourcemenu {
 			margin-left: 1rem;
-		}
-		.antigen-species-enter.active, .germline-species-enter.active {
-			display: flex;
-			gap: 2rem;
 		}
 
 		.results {
@@ -1581,10 +1577,12 @@ germlinearrow.addEventListener("click", function() {
 /* Toggle between adding and removing the "active" class,
 to highlight the button that controls the panel */
 	this.classList.toggle("active");
-	if (germlinedropdown.style.display === "block") {
-	  germlinedropdown.style.display = "none";
-	} else {
+	console.log("Display:", getComputedStyle(germlinedropdown).display);
+	if (getComputedStyle(germlinedropdown).display === "none") {
 	  germlinedropdown.style.display = "block";
+	} 
+	else {
+	  germlinedropdown.style.display = "none";
 	}
 	if (germlinedropdown.style.maxHeight) {
 	  germlinedropdown.style.maxHeight = null;
@@ -1640,7 +1638,6 @@ function createGermlineSection(type) {
 			<div data-value = 'Camelus dromedarius'>One-humped camel (Camelus dromedarius)</div>
 			<div data-value = 'Macaca mulatta'>Rhesus macaque (Macaca mulatta)</div>
 			<div data-value = 'Sus scrofa'>Pig (Sus scrofa)</div>
-			<div class = 'other-germline-species'>Other</div>
 			<div class = 'germline-species-enter'>
 				<input type='text' class = 'other-germline-species-name'></input>
 				<button class = 'add-germline-species'>Add other species</button>
@@ -1696,6 +1693,7 @@ function createGermlineSection(type) {
 			record.species = record.species.filter(v => v !== value);
 		}
 
+
 		if (!record) return;
 		console.log(value);
 		console.log(record);
@@ -1724,7 +1722,7 @@ function createGermlineSection(type) {
 		div.appendChild(removeBtn);
 		geneBox.insertBefore(div, addgenebutton);
 
-	//make remove button remove searched gene when clicked
+		//make remove button remove searched gene when clicked
 		removeBtn.addEventListener('click', (e) => {
 			e.stopPropagation();
 			record.genes = record.genes.filter(v => v !== value);
@@ -1733,22 +1731,10 @@ function createGermlineSection(type) {
 
 	});
 
-	const otherspecies = wrapper.querySelector('.other-germline-species'); //option to select 'other'
 	const enterotherspecies = wrapper.querySelector('.germline-species-enter') //the element that appears when the user selects other
 	const addOtherSpecies = wrapper.querySelector('.add-germline-species'); //add other species button
 	const otherspeciestext = wrapper.querySelector('.other-germline-species-name'); //name of the other species entered into the other input box
 
-	otherspecies.addEventListener('click', (e) => {
-		enterotherspecies.classList.toggle('active');
-		if (enterotherspecies.style.backgroundColor === 'steelblue') {
-			enterotherspecies.style.backgroundColor = 'white';
-		}
-		else {
-			enterotherspecies.style.backgroundColor = 'steelblue';
-		}
-		germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
-
-	});
 
 	//add other species to the germline type dict
 	addOtherSpecies.addEventListener('click', () => {
@@ -1759,9 +1745,18 @@ function createGermlineSection(type) {
 		newSpecies.textContent = speciesName;
 		newSpecies.dataset.value = speciesName;
 		newSpecies.classList.toggle("selected");
+		newSpecies.classList.add('rid_val');
 
-		speciesMenu.insertBefore(newSpecies, otherspecies);
+		const removeBtn = document.createElement('button');
+		removeBtn.textContent = 'x';
+		removeBtn.classList.add('remove-gene');
+		newSpecies.appendChild(removeBtn);
+
+
+
+		speciesMenu.insertBefore(newSpecies, enterotherspecies);
 		otherspeciestext.value = "";
+
 
 		if (record.species.includes(speciesName)) {
 			record.species = record.species.filter(s => s !== speciesName);
@@ -1770,6 +1765,13 @@ function createGermlineSection(type) {
 		}
 
 		germlinedropdown.style.maxHeight = germlinedropdown.scrollHeight + "px";
+
+		//make remove button remove searched gene when clicked
+		removeBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			record.species = record.species.filter(v => v !== speciesName);
+			newSpecies.remove();
+		});
 	});
 
 	
@@ -2152,12 +2154,16 @@ clear.addEventListener('click', async (e) => {
 	if (germlineTypeDetails) {
 		germlineTypeDetails.innerHTML = '';
 	}
-	const germline_divs = document.querySelectorAll('germline-section');
+	const germline_divs = document.querySelectorAll('.germline-section');
+	germlinedropdown.style.display = "none";
+	germlinedropdown.style.maxHeight = null;
+	germlinearrow.classList.remove('active');
 	if (germline_divs) {
+		console.log('found');
 		for (germline_div of germline_divs) {
 			germline_div.remove();
+			console.log('removed');
 		}
-		germline_div.remove();
 	}
 
 
