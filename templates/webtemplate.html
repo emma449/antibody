@@ -366,6 +366,13 @@
 			<div class="antigenArrow" id = 'antigenArrow'>Antigen</div>
 
 			<div class = "antigenlist" id = "antigenlist">
+				<div class = 'bool' id = 'antigen_bool'>
+					<input type = 'radio' name = 'antigen_bool' id = 'antigen_and' value='AND'>
+					<label for = 'antigen_and'>AND</label>
+					<input type = 'radio' name = 'antigen_bool' value='OR' id = 'antigen_or' checked="checked">
+					<label for = 'antigen_or'>OR</label>
+				</div>
+
 				<div class = 'antigenName' id='antigenName'>Name
 					<input type = 'text' id = 'antigenNameText'></input>
 					<button class = 'add' id = 'add-antigen-name'>Add name</button>
@@ -660,7 +667,7 @@ const searchFilters = {
     },
     cdrSource: [],
     germlineDic: [], 
-    antigenDic: {'names': [], 'species': [], 'genes': []},
+    antigenDic: {'names': [], 'species': [], 'genes': [], 'bool': 'OR'},
     heavyglycosDic: {'potentialconfirmed': null, 'links': []},
     lightglycosDic: {'potentialconfirmed': null, 'links': []},
     specialChain: [],
@@ -674,6 +681,7 @@ function getDefaultFilters() {
 	document.getElementById('source_or').checked = true; //make bool selection OR
 	document.getElementById('type_or').checked = true;
 	document.getElementById('spty_or').checked = true;
+	document.getElementById('antigen_or').checked = true;
 	return {
 	    antibodySource: {'values': [], 'bool': 'OR'},
 	    heavyChainClass: [],
@@ -689,7 +697,7 @@ function getDefaultFilters() {
 	    },
 	    cdrSource: [],
 	    germlineDic: [], 
-	    antigenDic: {'names': [], 'species': [], 'genes': []},
+	    antigenDic: {'names': [], 'species': [], 'genes': [], 'bool': 'OR'},
 	    heavyglycosDic: {'potentialconfirmed': null, 'links': []},
 	    lightglycosDic: {'potentialconfirmed': null, 'links': []},
 	    specialChain: [],
@@ -1225,6 +1233,8 @@ const antigenGeneText = document.getElementById('antigenGeneText');
 //antigen name and gene enter buttons
 const addAntigenGene = document.getElementById('add-antigen-gene');
 const addAntigenName = document.getElementById('add-antigen-name');
+
+const antigen_bools = document.querySelectorAll('input[name="antigen_bool"]');
 
 
 
@@ -1847,6 +1857,13 @@ submit.addEventListener('click', async (e) => {
 	for (const type_bool of type_bools) {
 		if (type_bool.checked) {
 			searchFilters.antibodyType.bool = type_bool.value;
+		}
+	}
+
+	for (const antigen_bool of antigen_bools) {
+		if (antigen_bool.checked) {
+			console.log(antigen_bool.value)
+			searchFilters.antigenDic.bool = antigen_bool.value;
 		}
 	}
 

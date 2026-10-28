@@ -207,15 +207,26 @@ def build_query(filters):
 
 	if filters.get('antigenDic'):
 		antigenDic = filters.get('antigenDic')
-		if len(antigenDic['names'])>0:
-			cleaned_names = normalise_list(antigenDic['names'])
+		antigen_search = []
+
 		if len(antigenDic['genes'])>0:
 			cleaned_genes = normalise_list(antigenDic['genes'])
-			gene_query = '|'.join(cleaned_genes)
-			query['Antigen.Gene'] = {
-				'$regex': gene_query,
-				'$options': 'i'			
-			}
+			gene_query = '|'.join(cleaned_genes) if antigenDic['bool'] == 'OR' else '&'.join(cleaned_genes)
+			antigen_search.append({'Antigen.Gene': {
+					'$regex': gene_query,
+					'$options': 'i'	
+				}		
+			})
+
+		if len(antigenDic['names'])>0:
+			cleaned_names = normalise_list(antigenDic['names'])
+			pattern = "(" + "|".join(antigenDic["names"]) + ")" if antigenDic['bool'] == 'OR' else "(" + "&".join(antigenDic["names"]) + ")"
+			antigen_search.append({
+				"Antigen.Name" : {
+					"$regex": pattern,
+					"$options": "i"
+				}
+			})
 
 		if len(antigenDic['species'])>0:
 			cleaned_species = normalise_list(antigenDic['species'])
@@ -225,13 +236,14 @@ def build_query(filters):
 				'$options': 'i'
 			}
 
-		if len(antigenDic['names'])>0:
-			cleaned_names = normalise_list(antigenDic['names'])
-			pattern = "(" + "|".join(antigenDic["names"]) + ")"
-			query["Antigen.Name"] = {
-				"$regex": pattern,
-				"$options": "i"
-			}
+		if antigenDic['bool'] == 'OR':
+			query.setdefault('$and', []).append({
+				'$or': antigen_search
+			})
+		else:
+			query.setdefault('$and', []).extend(antigen_search)			
+
+
 
 	if filters.get('antibody_name'):
 		cleaned_names = normalise_list(filters.get('antibody_name'))
