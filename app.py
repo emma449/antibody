@@ -55,13 +55,14 @@ def build_query(filters):
 		print(types)
 		cleaned_type = normalise_list(types['values'])
 		bool_key = '$or' if types['bool'] == 'OR' else '$and'
-		for type in cleaned_type:
-			query.setdefault(bool_key, []).append(
-				{'Format': {
-					'$regex': r'\b' + type + r'\b',
-					'$options': 'i'
-				}
-			})
+		if len(types)>0:
+			for type in cleaned_type:
+				query.setdefault(bool_key, []).append(
+					{'Format': {
+						'$regex': r'\b' + type + r'\b',
+						'$options': 'i'
+					}
+				})
 
 	if filters.get('antibodySpecificity'):
 		specs = filters.get('antibodySpecificity')
@@ -236,12 +237,13 @@ def build_query(filters):
 				'$options': 'i'
 			}
 
-		if antigenDic['bool'] == 'OR':
-			query.setdefault('$and', []).append({
-				'$or': antigen_search
-			})
-		else:
-			query.setdefault('$and', []).extend(antigen_search)			
+		if len(antigen_search)>0:
+			if antigenDic['bool'] == 'OR':
+				query.setdefault('$and', []).append({
+					'$or': antigen_search
+				})
+			else:
+				query.setdefault('$and', []).extend(antigen_search)			
 
 
 
@@ -315,6 +317,9 @@ def build_query(filters):
 					}
 				})
 
+			if len(germ_search)==0:
+				continue
+
 			if germ_bool == 'OR':
 				query.setdefault('$and', []).append({
 					'$or': germ_search
@@ -324,37 +329,38 @@ def build_query(filters):
 
 
 
+	mutationHDic = filters.get('mutationHDic')
+	mutationLDic = filters.get('mutationLDic')
 
-	if filters.get('mutationDic'):
-		mutationDic = filters.get('mutationDic')
-		if mutationDic['present'] == False:
-			query['MutationH'] = {"$exists": False}
-			query['MutationL'] = {"$exists": False}
-			#results will exclude any value with a mutation
+	if mutationHDic['present'] == False:
+		query['MutationH'] = {"$exists": False}
 
-		elif mutationDic['present'] == True:
-			mutation_criteria = [] #empty array to add conditions to
+	if mutationHDic['present'] is True:
+		mutationDic = filters.get('mutationHDic')
+		query['MutationH'] = {"$exists": True}
+		#results will exclude any value with a mutation
 
-			#create two arrays of the types and reasons selected in the search query
-			types = mutationDic.get('types')
-			reasons = mutationDic.get('reasons')
+		#create array of the reasons selected in the search query
+		reasons = mutationDic.get('reasons', [])
 
-			#check if MutationH is selected for (no selected types assumes any mutation present is selected for)
-			if 'mutationh' in types or len(types)==0:
-				mutationHdic = {'MutationH': {"$exists": True}}
-				if len(reasons)>0:
-					mutationHdic['MutationH.Reason'] = {'$all': reasons}
-				mutation_criteria.append(mutationHdic)
+		#check if MutationH is selected for (no selected types assumes any mutation present is selected for)
+		if len(reasons)>0:
+			query['MutationH.Reason'] = {'$all': reasons}
 
-			#check if MutationL is selected for (no selected types assumes any mutation present is selected for)
-			if 'mutationl' in types or len(types)==0:
-				mutationLdic = {'MutationL': {"$exists": True}}
-				if mutationDic['reasons']:
-					mutationLdic['MutationL.Reason'] = {'$all': reasons}
-				mutation_criteria.append(mutationLdic)
+	if mutationLDic['present'] == False:
+		query['MutationL'] = {"$exists": False}
 
+	if mutationLDic['present'] is True:
+		mutationDic = filters.get('mutationLDic')
+		query['MutationL'] = {"$exists": True}
 
-			query.setdefault('$and', []).append({'$or': mutation_criteria}) #adds all of the mutation criteria to the query
+		#create array of the reasons selected in the search query
+		reasons = mutationDic.get('reasons')
+
+		#check if MutationH is selected for (no selected types assumes any mutation present is selected for)
+		if len(reasons)>0:
+			query['MutationL.Reason'] = {'$all': reasons}
+
 
 	if requests_names:
 		if len(query)>0:
