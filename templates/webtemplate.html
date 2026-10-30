@@ -1463,14 +1463,19 @@ mutationHPresent.addEventListener("change", () => {
 	if (mutationHPresent.value==='no') {
 		searchFilters.mutationHDic.present = false;
 		h_reasonsarrow.style.display = 'none';
+		h_reasonlist.classList.remove('active');
+		h_reasonsarrow.classList.remove('active');
 	}
 	if (mutationHPresent.value === 'select') {
 		searchFilters.mutationHDic.present = null;
 		h_reasonsarrow.style.display = 'none';
+		h_reasonlist.classList.remove('active');
+		h_reasonsarrow.classList.remove('active');
 	}
 	if (mutationHPresent.value === 'yes') {
 		searchFilters.mutationHDic.present = true;
 		h_reasonsarrow.style.display = 'block';
+		h_reasonsarrow.classList.remove('active');
 	}
 });
 
@@ -1478,14 +1483,20 @@ mutationLPresent.addEventListener("change", () => {
 	if (mutationLPresent.value==='no') {
 		searchFilters.mutationLDic.present = false;
 		l_reasonsarrow.style.display = 'none';
+		l_reasonlist.classList.remove('active');
+		l_reasonsarrow.classList.remove('active');
 	}
 	if (mutationLPresent.value === 'select') {
 		searchFilters.mutationLDic.present = null;
 		l_reasonsarrow.style.display = 'none';
+		l_reasonlist.classList.remove('active');
+		l_reasonsarrow.classList.remove('active');
 	}
 	if (mutationLPresent.value === 'yes') {
 		searchFilters.mutationLDic.present = true;
 		l_reasonsarrow.style.display = 'block';
+		l_reasonsarrow.style.display = 'block';
+		l_reasonsarrow.classList.remove('active');
 	}
 });
 
