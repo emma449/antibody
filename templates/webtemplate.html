@@ -158,7 +158,7 @@
 		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover, .antigenspeciesArrow:hover {
 			cursor: pointer;
 		}
-		.lightPTMtypeMenu div:hover, .heavyPTMtypeMenu div:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown div[data-value]:hover, .typeMenu > div[data-value]:hover,  .specificityMenu > div[data-value]:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover, .specificityArrow:hover, .antigenspeciesArrow:hover {
+		.lightPTMtypeMenu > div[data-value]:hover, .heavyPTMtypeMenu > div[data-value]:hover, .heavyglycos div:hover, .lightglycos div:hover, .sourcedropdown > div[data-value]:hover, .typeMenu > div[data-value]:hover,  .specificityMenu > div[data-value]:hover, .sourceArrow:hover, .classArrow:hover, .typeArrow:hover, .cdrsourcemenu div:hover, .sourceArrow:hover, .antigenArrow:hover, .ptm-dropdown:hover, .germlinearrow:hover, .cdrArrow:hover, .chain-class-arrow:hover, .light-chain-class-arrow:hover, .heavy-chain-class-arrow:hover, .special-chain-format-arrow:hover, .glycos-dropdown:hover, .specificityArrow:hover, .antigenspeciesArrow:hover {
 			background-color: #ccc;
 		}
 		select {
@@ -414,6 +414,12 @@
 
 			<div class="reasonsArrow" id = 'HreasonsArrow'>Mutation Reasons</div>
 			<div class = "reasonlist" id = "Hreasonlist">
+				<div class = 'bool' id = 'mutationH_bool'>
+					<input type = 'radio' name = 'mutationH_bool' id = 'h_and' value='AND'>
+					<label for = 'h_and'>AND</label>
+					<input type = 'radio' name = 'mutationH_bool' value='OR' id = 'h_or' checked="checked">
+					<label for = 'h_or'>OR</label>
+				</div>
 				<div data-value = 'add disulfide'>Add disulfide</div>
 				<div data-value = 'add hinge disulfide'>Add hinge disulfide</div>
 				<div data-value = "avoid free thiol">Avoid free thiol</div>
@@ -482,6 +488,13 @@
 
 			<div class="reasonsArrow" id = 'LreasonsArrow'>Mutation Reasons</div>
 			<div class = "reasonlist" id = "Lreasonlist">
+				<div class = 'bool' id = 'mutationL_bool'>
+					<input type = 'radio' name = 'mutationL_bool' id = 'l_and' value='AND'>
+					<label for = 'l_and'>AND</label>
+					<input type = 'radio' name = 'mutationL_bool' value='OR' id = 'l_or' checked="checked">
+					<label for = 'l_or'>OR</label>
+				</div>
+
 				<div data-value = 'add disulfide'>Add disulfide</div>
 				<div data-value = 'add hinge disulfide'>Add hinge disulfide</div>
 				<div data-value = "avoid free thiol">Avoid free thiol</div>
@@ -543,8 +556,20 @@
 			<div class = "ptm-options" id = "ptmOptions">
 				<div class = "heavyptm" id =  'heavyptm'>
 
+
+
 					<div class="heavytypeArrow" id = 'heavytypeArrow'><b>Heavy chain</b></div>
 					<div class = "heavyPTMtypeMenu" id = 'heavyPTMtypeMenu'>
+
+						<div class = 'bool' id = 'heavyPTM_bool'>
+							<input type = 'radio' name = 'heavyptm_bool' id = 'heavyptm_and' value='AND'>
+							<label for = 'heavyptm_and'>AND</label>
+							<input type = 'radio' name = 'heavyptm_bool' value='OR' id = 'heavyptm_or' checked="checked">
+							<label for = 'heavyptm_or'>OR</label>
+							<input type = 'radio' name = 'heavyptm_bool' id = 'heavyptm_and' value='NOT'>
+							<label for = 'heavyptm_not'>NOT</label>		
+						</div>
+
 						<div data-value = "amidation">amidation</div>
 						<div data-value = 'cterclip'>cterclip</div>
 						<div data-value = "deamidation">deamidation</div>
@@ -565,6 +590,16 @@
 
 					<div class="lighttypeArrow" id = "lighttypeArrow"><b>Light chain</b></div>
 					<div class = "lightPTMtypeMenu" id = 'lightPTMtypeMenu'>
+
+						<div class = 'bool' id = 'lightPTM_bool'>
+							<input type = 'radio' name = 'lightptm_bool' id = 'lightptm_and' value='AND'>
+							<label for = 'lightptm_and'>AND</label>
+							<input type = 'radio' name = 'lightptm_bool' value='OR' id = 'lightptm_or' checked="checked">
+							<label for = 'lightptm_or'>OR</label>
+							<input type = 'radio' name = 'lightptm_bool' id = 'lightptm_and' value='NOT'>
+							<label for = 'lightptm_not'>NOT</label>		
+						</div>
+
 						<div data-value = "amidation">amidation</div>
 						<div data-value = 'cterclip'>cterclip</div>
 						<div data-value = "deamidation">deamidation</div>
@@ -719,8 +754,8 @@ const searchFilters = {
     lightChainClass: [],
     antibodyType: {'values': [], 'bool': 'OR'},
     antibodySpecificity: {'values': [], 'bool': 'OR'},
-    heavyPTMDic: [],
-    lightPTMDic: [],
+    heavyPTMDic: {'values': [], 'bool': 'OR'},
+    lightPTMDic: {'values': [], 'bool': 'OR'},
 	mutationHDic: {
 		'present': null,
 		'reasons': []
@@ -746,21 +781,26 @@ function getDefaultFilters() {
 	document.getElementById('type_or').checked = true;
 	document.getElementById('spty_or').checked = true;
 	document.getElementById('antigen_or').checked = true;
+	document.getElementById('heavyptm_or').checked = true;
+	document.getElementById('lightptm_or').checked = true;
+
 	return {
 	    antibodySource: {'values': [], 'bool': 'OR'},
 	    heavyChainClass: [],
 	    lightChainClass: [],
 	    antibodyType: {'values': [], 'bool': 'OR'},
 	    antibodySpecificity: {'values': [], 'bool': 'OR'},
-	    heavyPTMDic: [],
-	    lightPTMDic: [],
+	    heavyPTMDic: {'values': [], 'bool': 'OR'},
+	    lightPTMDic: {'values': [], 'bool': 'OR'},
 	    mutationHDic: {
 	    	'present': null,
-	    	'reasons': []
+	    	'reasons': [],
+	    	'bool': 'OR'
 	    },
 	    mutationLDic: {
 	    	'present': null,
-	    	'reasons': []
+	    	'reasons': [],
+	    	'bool': 'OR'
 	    },
 	    cdrSource: [],
 	    germlineDic: [], 
@@ -1082,6 +1122,9 @@ const heavytypeArrow = document.getElementById("heavytypeArrow");
 const lightptmTypemenu = document.getElementById("lightPTMtypeMenu");
 const heavyptmTypemenu = document.getElementById("heavyPTMtypeMenu");
 
+const heavyptm_bools = document.querySelectorAll('input[name="heavyptm_bool"]');
+const lightptm_bools = document.querySelectorAll('input[name="lightptm_bool"]');
+
 
 
 
@@ -1121,11 +1164,11 @@ heavyptmTypemenu.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;
 	if (!e.target.matches('[data-value]')) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.heavyPTMDic.includes(value)) {
-        searchFilters.heavyPTMDic =
-            searchFilters.heavyPTMDic.filter(v => v !== value);
+	if (searchFilters.heavyPTMDic.values.includes(value)) {
+        searchFilters.heavyPTMDic.values =
+            searchFilters.heavyPTMDic.values.filter(v => v !== value);
     } else {
-        searchFilters.heavyPTMDic.push(value);
+        searchFilters.heavyPTMDic.values.push(value);
     }
 
 });
@@ -1134,11 +1177,11 @@ lightptmTypemenu.addEventListener('click', (e) => {
 	const value = e.target.dataset.value;
 	if (!e.target.matches('[data-value]')) return;
 	e.target.classList.toggle("selected");
-	if (searchFilters.lightPTMDic.includes(value)) {
-        searchFilters.lightPTMDic =
-            searchFilters.lightPTMDic.filter(v => v !== value);
+	if (searchFilters.lightPTMDic.values.includes(value)) {
+        searchFilters.lightPTMDic.values =
+            searchFilters.lightPTMDic.values.filter(v => v !== value);
     } else {
-        searchFilters.lightPTMDic.push(value);
+        searchFilters.lightPTMDic.values.push(value);
     }
 
 });
@@ -1457,6 +1500,10 @@ const otherHReasonText = document.getElementById('otherHReasonText');
 const otherLReasonText = document.getElementById('otherLReasonText');
 const enterOtherHReason = document.getElementById('add-other-hreason');
 const enterOtherLReason = document.getElementById('add-other-lreason');
+
+const mutationH_bools = document.querySelectorAll('input[name="mutationH_bool"]');
+const mutationL_bools = document.querySelectorAll('input[name="mutationL_bool"]');
+
 
 
 mutationHPresent.addEventListener("change", () => {
@@ -2009,10 +2056,31 @@ submit.addEventListener('click', async (e) => {
 	for (const spty_bool of spty_bools) {
 		if (spty_bool.checked) {
 			searchFilters.antibodySpecificity.bool = spty_bool.value;
-			console.log(`spec bool: ${spty_bool}`)
 		}
 	}
 
+	for (const mutationH_bool of mutationH_bools) {
+		if (mutationH_bool.checked) {
+			searchFilters.mutationHDic.bool = mutationH_bool.value;
+		}
+	}
+
+	for (const mutationL_bool of mutationL_bools) {
+		if (mutationL_bool.checked) {
+			searchFilters.mutationLDic.bool = mutationL_bool.value;
+		}
+	}
+
+	for (const heavyptm_bool of heavyptm_bools) {
+		if (heavyptm_bool.checked) {
+			searchFilters.heavyPTMDic.bool = heavyptm_bool.value;
+		}
+	}
+	for (const lightptm_bool of lightptm_bools) {
+		if (lightptm_bool.checked) {
+			searchFilters.lightPTMDic.bool = lightptm_bool.value;
+		}
+	}
 
 	const response = await fetch ("/search", {
 		method: 'POST',

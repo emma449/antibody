@@ -85,8 +85,6 @@ def build_query(filters):
 						'$options': 'i'
 					}
 				})
-		print(f'filters: {filters}')
-		print(query)
 
 
 
@@ -103,15 +101,44 @@ def build_query(filters):
 
 
 
-	if filters.get('heavyPTMDic'):
-		ptmdic = filters.get('heavyPTMDic')
-		print(f'ptmdic:{ptmdic}')
-		query['HeavyConfirmedPTM.Type'] = {'$all': ptmdic}
+	heavyptmdic = filters.get('heavyPTMDic')
+	lightptmdic = filters.get('lightPTMDic')
+
+	if len(heavyptmdic['values'])>0: #checks if user has actually selected anything in the ptm category, which would appear in the values field of the dictionary
+		ptm_bool = heavyptmdic['bool']
+		if ptm_bool == 'AND':
+			query.setdefault('$and', []).extend(
+				[{'HeavyConfirmedPTM.Type': value}
+				 for value in heavyptmdic['values']]
+			)
+		elif ptm_bool == 'OR':
+			query.setdefault('$or', []).append(
+				{'HeavyConfirmedPTM.Type': {'$in': heavyptmdic['values']}}
+			)		
+		else:
+			query.setdefault('$nor', []).append(
+				{'HeavyConfirmedPTM.Type': {'$in': heavyptmdic['values']}}
+			)			
 
 
-	if filters.get('lightPTMDic'):
-		ptmdic = filters.get('lightPTMDic')
-		query['LightConfirmedPTM.Type'] = {'$all': ptmdic}
+	if len(lightptmdic['values'])>0:
+		ptm_bool = lightptmdic['bool']
+		if ptm_bool == 'AND':
+			query.setdefault('$and', []).extend(
+				[{'LightConfirmedPTM.Type': value}
+				 for value in lightptmdic['values']]
+			)
+		elif ptm_bool == 'OR':
+			query.setdefault('$or', []).append(
+				{'LightConfirmedPTM.Type': {'$in': lightptmdic['values']}}
+			)
+
+		else:
+			query.setdefault('$nor', []).append(
+				{'LightConfirmedPTM.Type': {'$in': lightptmdic['values']}}
+			)
+
+
 
 
 	if filters.get('heavyglycosDic'):
@@ -346,6 +373,12 @@ def build_query(filters):
 		#check if MutationH is selected for (no selected types assumes any mutation present is selected for)
 		if len(reasons)>0:
 			query['MutationH.Reason'] = {'$all': reasons}
+			bool_key = '$or' if mutationDic['bool'] == 'OR' else '$and'
+			query.setdefault(bool_key, []).append(
+				{'MutationH.Reason': {
+					'$all': reasons
+				}
+			})
 
 	if mutationLDic['present'] == False:
 		query['MutationL'] = {"$exists": False}
