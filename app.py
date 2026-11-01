@@ -139,98 +139,266 @@ def build_query(filters):
 			)
 
 
-
-
-	if filters.get('heavyglycosDic'):
+	glycosdic = filters.get('heavyglycosDic')
+	if glycosdic['potentialconfirmed']:
 		glycosdic = filters.get('heavyglycosDic')
 		print(f'glycos query: {glycosdic}')
 		if glycosdic['potentialconfirmed'] == 'potential':
-			if len(glycosdic['links'])>0:
-				if 'n' in glycosdic['links']:
+			if len(glycosdic['links'])==2:
+				if glycosdic['bool']=='OR':
+					query['$or'] = [
+						{'HeavyPotentialNGlycos': {'$exists': True}},
+						{'HeavyPotentialOGlycos': {'$exists': True}}
+					]
+				elif glycosdic['bool']=='AND':
 					query['HeavyPotentialNGlycos'] = {"$exists": True}
-				if 'o' in glycosdic['links']:
 					query['HeavyPotentialOGlycos'] = {"$exists": True}
-			else:
-				query['$or'] = [
-					{'HeavyPotentialNGlycos': {'$exists': True}},
-					{'HeavyPotentialOGlycos': {'$exists': True}}
-				]
+
+				else: #means selected bool is NOT
+					query['$and'] = [
+						{'HeavyPotentialNGlycos': {'$exists': False}},
+						{'HeavyPotentialOGlycos': {'$exists': False}}
+					]
+
+
+			elif len(glycosdic['links'])==1:
+				if glycosdic['bool'] == 'NOT':
+
+					if 'o' in glycosdic['links']:
+						query['HeavyPotentialOGlycos'] = {'$exists': False}
+					else:
+						query['HeavyPotentialNGlycos'] = {'$exists': False}
+
+				else:
+					if 'o' in glycosdic['links']:
+						query['HeavyPotentialOGlycos'] = {'$exists': True}
+					else:
+						query['HeavyPotentialNGlycos'] = {'$exists': True}
+
+
+
 		elif glycosdic['potentialconfirmed'] == 'confirmed':
-			if len(glycosdic['links'])>0:
-				if 'n' in glycosdic['links']:
-					query['HeavyConfirmedNGlycos'] = {"$exists": True}
-				if 'o' in glycosdic['links']:
-					query['HeavyConfirmedOGlycos'] = {"$exists": True}
-			else:
-				query['$or'] = [
-					{'HeavyConfirmedNGlycos': {'$exists': True}},
-					{'HeavyConfirmedOGlycos': {'$exists': True}}
-				]
-		elif glycosdic['potentialconfirmed'] == 'both':
-			if len(glycosdic['links'])>0:
-				if 'n' in glycosdic['links']:
+			if len(glycosdic['links'])==2:
+				if glycosdic['bool']=='OR':
 					query['$or'] = [
 						{'HeavyConfirmedNGlycos': {'$exists': True}},
-						{'HeavyPotentialNGlycos': {'$exists': True}}
-					]	
-				if 'o' in glycosdic['links']:
+						{'HeavyConfirmedOGlycos': {'$exists': True}}
+					]
+				elif glycosdic['bool']=='AND':
+					query['HeavyConfirmedNGlycos'] = {"$exists": True}
+					query['HeavyConfirmedOGlycos'] = {"$exists": True}
+
+				else:
+					query['$and'] = [
+						{'HeavyConfirmedNGlycos': {'$exists': False}},
+						{'HeavyConfirmedOGlycos': {'$exists': False}}
+					]
+
+
+			elif len(glycosdic['links'])==1:
+				if glycosdic['bool'] == 'NOT':
+
+					if 'o' in glycosdic['links']:
+						query['HeavyConfirmedOGlycos'] = {'$exists': False}
+					else:
+						query['HeavyConfirmedNGlycos'] = {'$exists': False}
+
+				else:
+					if 'o' in glycosdic['links']:
+						query['HeavyConfirmedOGlycos'] = {'$exists': True}
+					else:
+						query['HeavyConfirmedNGlycos'] = {'$exists': True}
+
+
+		elif glycosdic['potentialconfirmed'] == 'both':
+			if len(glycosdic['links'])==2:
+				if glycosdic['bool']=='OR':
 					query['$or'] = [
+						{'HeavyConfirmedNGlycos': {'$exists': True}},
 						{'HeavyConfirmedOGlycos': {'$exists': True}},
+						{'HeavyPotentialNGlycos': {'$exists': True}},
 						{'HeavyPotentialOGlycos': {'$exists': True}}
-					]			
-			else:
-				query['$or'] = [
-					{'HeavyConfirmedNGlycos': {'$exists': True}},
-					{'HeavyConfirmedOGlycos': {'$exists': True}},
-					{'HeavyPotentialOGlycos': {'$exists': True}},
-					{'HeavyPotentialNGlycos': {'$exists': True}}
+					]
+				elif glycosdic['bool']=='AND':
+					query['HeavyConfirmedNGlycos'] = {"$exists": True}
+					query['HeavyConfirmedOGlycos'] = {"$exists": True}
+					query['HeavyPotentialNGlycos'] = {"$exists": True}
+					query['HeavyPotentialOGlycos'] = {"$exists": True}
+
+				else:
+					query['$and'] = [
+						{'HeavyConfirmedNGlycos': {'$exists': False}},
+						{'HeavyConfirmedOGlycos': {'$exists': False}},
+						{'HeavyPotentialNGlycos': {'$exists': False}},
+						{'HeavyPotentialOGlycos': {'$exists': False}}
+					]
+
+
+			elif len(glycosdic['links'])==1: #either just n-linked or just o-linked selected
+				if glycosdic['bool'] == 'NOT':
+
+					if 'o' in glycosdic['links']:
+						query['$and'] = [
+							{'HeavyConfirmedOGlycos': {'$exists': False}},
+							{'HeavyPotentialOGlycos': {'$exists': False}}
+						]
+
+					else:
+						query['$and'] = [
+							{'HeavyConfirmedNGlycos': {'$exists': False}},
+							{'HeavyPotentialNGlycos': {'$exists': False}}
+						]
+			else: #no links suggested
+				if glycosdic['bool'] == 'NOT':
+					query['$and'] = [
+						{'HeavyConfirmedNGlycos': {'$exists': True}},
+						{'HeavyConfirmedOGlycos': {'$exists': False}},
+						{'HeavyPotentialNGlycos': {'$exists': False}},
+						{'HeavyPotentialOGlycos': {'$exists': False}}
 				]
+				elif glycosdic['bool']=='OR':
+					query['$or'] = [
+						{'HeavyConfirmedNGlycos': {'$exists': True}},
+						{'HeavyConfirmedOGlycos': {'$exists': True}},
+						{'HeavyPotentialNGlycos': {'$exists': True}},
+						{'HeavyPotentialOGlycos': {'$exists': True}}
+					]
+				else: #bool = AND
+					query['HeavyConfirmedNGlycos'] = {"$exists": True}
+					query['HeavyConfirmedOGlycos'] = {"$exists": True}
+					query['HeavyPotentialNGlycos'] = {"$exists": True}
+					query['HeavyPotentialOGlycos'] = {"$exists": True}
 
 
-	if filters.get('lightglycosDic'):
-		glycosdic = filters.get('lightglycosDic')
+
+	glycosdic = filters.get('lightglycosDic')
+	if glycosdic['potentialconfirmed']:
 		print(f'glycos query: {glycosdic}')
 		if glycosdic['potentialconfirmed'] == 'potential':
-			if len(glycosdic['links'])>0:
-				if 'n' in glycosdic['links']:
+			if len(glycosdic['links'])==2:
+				if glycosdic['bool']=='OR':
+					query['$or'] = [
+						{'LightPotentialNGlycos': {'$exists': True}},
+						{'LightPotentialOGlycos': {'$exists': True}}
+					]
+				elif glycosdic['bool']=='AND':
 					query['LightPotentialNGlycos'] = {"$exists": True}
-				if 'o' in glycosdic['links']:
 					query['LightPotentialOGlycos'] = {"$exists": True}
-			else:
-				query['$or'] = [
-					{'LightPotentialNGlycos': {'$exists': True}},
-					{'LightPotentialOGlycos': {'$exists': True}}
-				]
+
+				else: #means selected bool is NOT
+					query['$and'] = [
+						{'LightPotentialNGlycos': {'$exists': False}},
+						{'LightPotentialOGlycos': {'$exists': False}}
+					]
+
+
+			elif len(glycosdic['links'])==1:
+				if glycosdic['bool'] == 'NOT':
+
+					if 'o' in glycosdic['links']:
+						query['LightPotentialOGlycos'] = {'$exists': False}
+					else:
+						query['LightPotentialNGlycos'] = {'$exists': False}
+
+				else:
+					if 'o' in glycosdic['links']:
+						query['LightPotentialOGlycos'] = {'$exists': True}
+					else:
+						query['LightPotentialNGlycos'] = {'$exists': True}
+
+
+
 		elif glycosdic['potentialconfirmed'] == 'confirmed':
-			if len(glycosdic['links'])>0:
-				if 'n' in glycosdic['links']:
-					query['LightConfirmedNGlycos'] = {"$exists": True}
-				if 'o' in glycosdic['links']:
-					query['LightConfirmedOGlycos'] = {"$exists": True}
-			else:
-				query['$or'] = [
-					{'LightConfirmedNGlycos': {'$exists': True}},
-					{'LightConfirmedOGlycos': {'$exists': True}}
-				]
-		elif glycosdic['potentialconfirmed'] == 'both':
-			if len(glycosdic['links'])>0:
-				if 'n' in glycosdic['links']:
+			if len(glycosdic['links'])==2:
+				if glycosdic['bool']=='OR':
 					query['$or'] = [
 						{'LightConfirmedNGlycos': {'$exists': True}},
-						{'LightPotentialNGlycos': {'$exists': True}}
-					]	
-				if 'o' in glycosdic['links']:
+						{'LightConfirmedOGlycos': {'$exists': True}}
+					]
+				elif glycosdic['bool']=='AND':
+					query['LightConfirmedNGlycos'] = {"$exists": True}
+					query['LightConfirmedOGlycos'] = {"$exists": True}
+
+				else:
+					query['$and'] = [
+						{'LightConfirmedNGlycos': {'$exists': False}},
+						{'LightConfirmedOGlycos': {'$exists': False}}
+					]
+
+
+			elif len(glycosdic['links'])==1:
+				if glycosdic['bool'] == 'NOT':
+
+					if 'o' in glycosdic['links']:
+						query['LightConfirmedOGlycos']= {'$exists': False}
+					else:
+						query['LightConfirmedNGlycos']= {'$exists': False}
+
+				else:
+					if 'o' in glycosdic['links']:
+						query['LightConfirmedOGlycos']= {'$exists': True}
+					else:
+						query['LightConfirmedNGlycos']= {'$exists': True}
+
+
+		elif glycosdic['potentialconfirmed'] == 'both':
+			if len(glycosdic['links'])==2:
+				if glycosdic['bool']=='OR':
 					query['$or'] = [
+						{'LightConfirmedNGlycos': {'$exists': True}},
 						{'LightConfirmedOGlycos': {'$exists': True}},
+						{'LightPotentialNGlycos': {'$exists': True}},
 						{'LightPotentialOGlycos': {'$exists': True}}
-					]			
-			else:
-				query['$or'] = [
-					{'LightConfirmedNGlycos': {'$exists': True}},
-					{'LightConfirmedOGlycos': {'$exists': True}},
-					{'LightPotentialOGlycos': {'$exists': True}},
-					{'LightPotentialNGlycos': {'$exists': True}}
-				]			
+					]
+				elif glycosdic['bool']=='AND':
+					query['LightConfirmedNGlycos'] = {"$exists": True}
+					query['LightConfirmedOGlycos'] = {"$exists": True}
+					query['LightPotentialNGlycos'] = {"$exists": True}
+					query['LightPotentialOGlycos'] = {"$exists": True}
+
+				else: #bool = NOT
+					query['$and'] = [
+						{'LightConfirmedNGlycos': {'$exists': False}},
+						{'LightConfirmedOGlycos': {'$exists': False}},
+						{'LightPotentialNGlycos': {'$exists': False}},
+						{'LightPotentialOGlycos': {'$exists': False}}
+					]
+
+
+			elif len(glycosdic['links'])==1:
+				if glycosdic['bool'] == 'NOT':
+
+					if 'o' in glycosdic['links']:
+						query['$or'] = [
+							{'LightConfirmedOGlycos': {'$exists': False}},
+							{'LightPotentialOGlycos': {'$exists': False}}
+						]
+
+					else:
+						query['$or'] = [
+							{'LightConfirmedNGlycos': {'$exists': False}},
+							{'LightPotentialNGlycos': {'$exists': False}}
+						]
+			else: #no links suggested
+				if glycosdic['bool'] == 'NOT':
+					query['$and'] = [
+						{'LightConfirmedNGlycos': {'$exists': True}},
+						{'LightConfirmedOGlycos': {'$exists': False}},
+						{'LightPotentialNGlycos': {'$exists': False}},
+						{'LightPotentialOGlycos': {'$exists': False}}
+				]
+				elif glycosdic['bool']=='OR':
+					query['$or'] = [
+						{'LightConfirmedNGlycos': {'$exists': True}},
+						{'LightConfirmedOGlycos': {'$exists': True}},
+						{'LightPotentialNGlycos': {'$exists': True}},
+						{'LightPotentialOGlycos': {'$exists': True}}
+					]
+				else: #bool = AND
+					query['LightConfirmedNGlycos'] = {"$exists": True}
+					query['LightConfirmedOGlycos'] = {"$exists": True}
+					query['LightPotentialNGlycos'] = {"$exists": True}
+					query['LightPotentialOGlycos'] = {"$exists": True}			
 
 
 	if filters.get('antigenDic'):

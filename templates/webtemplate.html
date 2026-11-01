@@ -239,6 +239,9 @@
 			align-items: center;
 			gap: 4px;
 		}
+		.potential-select {
+			margin-left: 5px;
+		}
 
 	</style>
 
@@ -566,7 +569,7 @@
 							<label for = 'heavyptm_and'>AND</label>
 							<input type = 'radio' name = 'heavyptm_bool' value='OR' id = 'heavyptm_or' checked="checked">
 							<label for = 'heavyptm_or'>OR</label>
-							<input type = 'radio' name = 'heavyptm_bool' id = 'heavyptm_and' value='NOT'>
+							<input type = 'radio' name = 'heavyptm_bool' id = 'heavyptm_not' value='NOT'>
 							<label for = 'heavyptm_not'>NOT</label>		
 						</div>
 
@@ -596,7 +599,7 @@
 							<label for = 'lightptm_and'>AND</label>
 							<input type = 'radio' name = 'lightptm_bool' value='OR' id = 'lightptm_or' checked="checked">
 							<label for = 'lightptm_or'>OR</label>
-							<input type = 'radio' name = 'lightptm_bool' id = 'lightptm_and' value='NOT'>
+							<input type = 'radio' name = 'lightptm_bool' id = 'lightptm_not' value='NOT'>
 							<label for = 'lightptm_not'>NOT</label>		
 						</div>
 
@@ -629,7 +632,7 @@
 					<div class="potential-select" id="potential-select">
 						<select class = 'heavyglycospotentialconfirmed' id = 'heavyglycospotentialconfirmed'>
 							<option value = 'default'>Select potential or confirmed</option>
-							<option value = "both">Potential or confirmed</option>
+							<option value = "both">Potential OR confirmed</option>
 							<option value = "potential">Potential</option>
 							<option value = "confirmed">Confirmed</option>
 						</select>
@@ -637,6 +640,14 @@
 
 					<div class = 'heavyglycoslinksArrow' id = 'heavyglycoslinksArrow'>Glycosylation links</div>
 					<div class = "heavyglycoslinks" id = "heavyglycoslinks">
+						<div class = 'bool' id = 'heavygylocs_bool'>
+							<input type = 'radio' name = 'heavyglycos_bool' id = 'heavyglycos_and' value='AND'>
+							<label for = 'heavyglycos_and'>AND</label>
+							<input type = 'radio' name = 'heavyglycos_bool' value='OR' id = 'heavyglycos_or' checked="checked">
+							<label for = 'heavyglycos_or'>OR</label>
+							<input type = 'radio' name = 'heavyglycos_bool' id = 'heavyglycos_not' value='NOT'>
+							<label for = 'heavyglycos_not'>NOT</label>		
+						</div>
 						<div data-value = 'n'>N-linked</div>
 						<div data-value = 'o'>O-linked</div>
 					</div>
@@ -648,7 +659,7 @@
 					<div class="potential-select" id="potential-select">
 						<select class = 'lightglycospotentialconfirmed' id = 'lightglycospotentialconfirmed'>
 							<option value = 'default'>Select potential or confirmed</option>
-							<option value = "both">Potential or confirmed</option>
+							<option value = "both">Potential OR confirmed</option>
 							<option value = "potential">Potential</option>
 							<option value = "confirmed">Confirmed</option>
 						</select>
@@ -656,6 +667,15 @@
 
 					<div class = 'lightglycoslinksArrow' id = 'lightglycoslinksArrow'>Glycosylation links</div>
 					<div class = "lightglycoslinks" id = "lightglycoslinks">
+						<div class = 'bool' id = 'lightgylocs_bool'>
+							<input type = 'radio' name = 'lightglycos_bool' id = 'lightglycos_and' value='AND'>
+							<label for = 'lightglycos_and'>AND</label>
+							<input type = 'radio' name = 'lightglycos_bool' value='OR' id = 'lightglycos_or' checked="checked">
+							<label for = 'lightglycos_or'>OR</label>
+							<input type = 'radio' name = 'lightglycos_bool' id = 'lightglycos_not' value='NOT'>
+							<label for = 'lightglycos_not'>NOT</label>		
+						</div>
+
 						<div data-value = 'n'>N-linked</div>
 						<div data-value = 'o'>O-linked</div>
 					</div>
@@ -756,19 +776,13 @@ const searchFilters = {
     antibodySpecificity: {'values': [], 'bool': 'OR'},
     heavyPTMDic: {'values': [], 'bool': 'OR'},
     lightPTMDic: {'values': [], 'bool': 'OR'},
-	mutationHDic: {
-		'present': null,
-		'reasons': []
-	},
-	mutationLDic: {
-		'present': null,
-		'reasons': []
-	},
+	mutationHDic: {'present': null, 'reasons': [], 'bool': 'OR'},
+	mutationLDic: {'present': null, 'reasons': [], 'bool': 'OR'},
     cdrSource: [],
     germlineDic: [], 
     antigenDic: {'names': [], 'species': [], 'genes': [], 'bool': 'OR'},
-    heavyglycosDic: {'potentialconfirmed': null, 'links': []},
-    lightglycosDic: {'potentialconfirmed': null, 'links': []},
+    heavyglycosDic: {'potentialconfirmed': null, 'links': [], 'bool': 'OR'},
+    lightglycosDic: {'potentialconfirmed': null, 'links': [], 'bool': 'OR'},
     specialChain: [],
     antibody_name: [],
     requests: []
@@ -792,21 +806,13 @@ function getDefaultFilters() {
 	    antibodySpecificity: {'values': [], 'bool': 'OR'},
 	    heavyPTMDic: {'values': [], 'bool': 'OR'},
 	    lightPTMDic: {'values': [], 'bool': 'OR'},
-	    mutationHDic: {
-	    	'present': null,
-	    	'reasons': [],
-	    	'bool': 'OR'
-	    },
-	    mutationLDic: {
-	    	'present': null,
-	    	'reasons': [],
-	    	'bool': 'OR'
-	    },
+	    mutationHDic: {'present': null, 'reasons': [], 'bool': 'OR'},
+	    mutationLDic: {'present': null, 'reasons': [], 'bool': 'OR'},
 	    cdrSource: [],
 	    germlineDic: [], 
 	    antigenDic: {'names': [], 'species': [], 'genes': [], 'bool': 'OR'},
-	    heavyglycosDic: {'potentialconfirmed': null, 'links': []},
-	    lightglycosDic: {'potentialconfirmed': null, 'links': []},
+	    heavyglycosDic: {'potentialconfirmed': null, 'links': [], 'bool': 'OR'},
+	    lightglycosDic: {'potentialconfirmed': null, 'links': [], 'bool': 'OR'},
 	    specialChain: [],
 	    antibody_name: [],
 	    requests: []
@@ -1205,6 +1211,8 @@ const lightglycoslinks = document.getElementById('lightglycoslinks');
 const lightglycospotentialconfirmed = document.getElementById('lightglycospotentialconfirmed');
 const heavyglycospotentialconfirmed = document.getElementById('heavyglycospotentialconfirmed');
 
+const heavyglycos_bools = document.querySelectorAll('input[name="heavyglycos_bool"]');
+const lightglycos_bools = document.querySelectorAll('input[name="lightglycos_bool"]');
 
 glycosdropdown.addEventListener("click", function() {
 /* Toggle between adding and removing the "active" class,
@@ -2081,6 +2089,16 @@ submit.addEventListener('click', async (e) => {
 			searchFilters.lightPTMDic.bool = lightptm_bool.value;
 		}
 	}
+	for (const lightglycos_bool of lightglycos_bools) {
+		if (lightglycos_bool.checked) {
+			searchFilters.lightglycosDic.bool = lightglycos_bool.value;
+		}
+	}
+	for (const heavyglycos_bool of heavyglycos_bools) {
+		if (heavyglycos_bool.checked) {
+			searchFilters.heavyglycosDic.bool = heavyglycos_bool.value;
+		}
+	}
 
 	const response = await fetch ("/search", {
 		method: 'POST',
@@ -2395,6 +2413,9 @@ clear.addEventListener('click', async (e) => {
 	mutationLPresent.value = 'select';
 	h_reasonsarrow.style.display = 'none';
 	l_reasonsarrow.style.display = 'none';
+	ptmDropdown.classList.remove('active');
+	heavyglycospotentialconfirmed.value = 'default';
+	lightglycospotentialconfirmed.value = 'default';
 
 
 	document.querySelectorAll('.active').forEach(el => {
