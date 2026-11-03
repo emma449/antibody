@@ -591,12 +591,7 @@ def build_query(filters):
 
 	if requests_names:
 		if len(query)>0:
-			other_query = query.copy()
-
-
-			query = {
-				'$or': [*requests_names, other_query]
-			}
+			query.setdefault('$and', []).extend(requests_names)
 		else:
 			query = {'$or': requests_names}
 
@@ -617,22 +612,7 @@ def search():
 	filters = request.json
 	query = build_query(filters)
 	print(f'query: {query}')
-	print("MUTATION H ONLY:",
-		collection.count_documents({
-			'MutationH': {'$exists': True}
-		}))
 
-	print("MUTATION OR:",
-		collection.count_documents({
-			'$or': [
-				{'Mutation': {'$exists': True}},
-				{'MutationH': {'$exists': True}},
-				{'MutationL': {'$exists': True}}
-		  ]
-		}))
-
-	print("FULL QUERY:",
-	collection.count_documents(query))
 
 	results = list(collection.find(query, {"_id": 0}))
 

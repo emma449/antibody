@@ -2369,17 +2369,9 @@ submit.addEventListener('click', async (e) => {
 			}
 
 			else if (key.includes(' Chain')||key==='Chain') {
-				if (isNaN(result[key].Sequence.slice(result[key].Sequence.length-3, result[key].Sequence.length))===false) { 
 
-				//remove the last three characters because this is the chain length, which is already there
-
-					chain_val = `\n${result[key].Sequence.slice(0, result[key].Sequence.length-4)}`; //-4 because fourth to last character is a new line
-					displayValue(chain_val, key, even_more_info);
-				}
-				else {
-					chain_val = `\n${val}`;
-					displayValue(val, key, even_more_info);
-				}
+				chain_val = `\n${val}`;
+				displayValue(val, key, even_more_info);
 			}
 
 
