@@ -27,7 +27,7 @@
 			margin-right: 1px;
 		}
 
-		.antibodysource, .type, .class, .special-chain-format, .antigen, .mutation, .ptm, .glycos, .germline, .antibody_name_box, .request_box, .cdr {
+		.antibodysource, .type, .class, .special-chain-format, .antigen, .mutation-select, .ptm, .glycos, .germline, .antibody_name_box, .request_box, .cdr {
 			margin-top: 1rem;
 			margin-bottom: 1rem;
 		}
@@ -149,10 +149,10 @@
 		.ptm-options div {
 			margin-top: 0.25rem;
 		}
-		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu, .reasonsArrow {
+		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu, .reasonsArrow, .mutation {
 			display: none;
 		}
-		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .species.active, .sourcedropdown.active, .classMenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active {
+		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .species.active, .sourcedropdown.active, .classMenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active, .mutation.active {
 			display: block;
 		}
 		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover, .antigenspeciesArrow:hover {
@@ -165,15 +165,15 @@
 			border: none;
 			margin-bottom: 1rem;
 		}
+		.mutationPresent {
+			margin-left: 10rem;
+		}
 
 		.mutation-select {
 			display: flex;
 		}
-		.mutationPresent {
-			margin-left: 9rem;
-		}
 
-		.heavyPTMtypeMenu div, .lightPTMtypeMenu div, .sourcedropdown, .typeMenu, .specificityMenu, .classMenu, .reasonlist, .germlinetype, .species, .chain-class div, .lightglycoslinks, .heavyglycoslinks, .special-chain-menu {
+		.heavyPTMtypeMenu div, .lightPTMtypeMenu div, .sourcedropdown, .typeMenu, .specificityMenu, .classMenu, .reasonlist, .germlinetype, .species, .chain-class div, .lightglycoslinks, .heavyglycoslinks, .special-chain-menu, .mutation.active {
 			margin-left: 0.5rem;
 			font-size: 0.9em;
 			font-family: "Times New Roman", Times, serif;
@@ -404,7 +404,15 @@
 		</div>
 
 
-		<div class = "mutation" id = "mutationH">
+		<div class = mutation-select>Mutation Present
+			<select id = 'mutationPresent' class = 'mutationPresent'>
+				<option value = 'select'></option>
+				<option value = 'yes'>Yes</option>
+				<option value = 'no'>No</option>
+			</select>
+		</div>
+
+		<div class = "mutation" id = 'mutationMenu'>
 
 			<div class="mutation-select">
 				<div class = 'mutationArrow' id = 'mutationHArrow'>Mutation Present in H</div>
@@ -475,10 +483,6 @@
 				</div>
 
 			</div>
-
-		</div>
-
-		<div class = "mutation" id = "mutationL">
 
 			<div class="mutation-select">
 				<div class = 'mutationArrow' id = 'mutationLArrow'>Mutation Present in L</div>
@@ -778,6 +782,7 @@ const searchFilters = {
     lightPTMDic: {'values': [], 'bool': 'OR'},
 	mutationHDic: {'present': null, 'reasons': [], 'bool': 'OR'},
 	mutationLDic: {'present': null, 'reasons': [], 'bool': 'OR'},
+	bothMutations: null, //only changes if user clicks just mutationPresent with nothing else
     cdrSource: [],
     germlineDic: [], 
     antigenDic: {'names': [], 'species': [], 'genes': [], 'bool': 'OR'},
@@ -808,6 +813,7 @@ function getDefaultFilters() {
 	    lightPTMDic: {'values': [], 'bool': 'OR'},
 	    mutationHDic: {'present': null, 'reasons': [], 'bool': 'OR'},
 	    mutationLDic: {'present': null, 'reasons': [], 'bool': 'OR'},
+	    bothMutations: null,
 	    cdrSource: [],
 	    germlineDic: [], 
 	    antigenDic: {'names': [], 'species': [], 'genes': [], 'bool': 'OR'},
@@ -1493,8 +1499,13 @@ addAntigenName.addEventListener('click', () => {
 });
 
 
-const mutationHPresent = document.getElementById('mutationHPresent'); //dropdown to select whether or not a mutation is present
+
+const mutationPresent  = document.getElementById('mutationPresent'); //dropdown to select whether or not a mutation is present
+
+const mutationHPresent = document.getElementById('mutationHPresent'); //dropdowns specifically for H and L that appear if the user clicks Yes
 const mutationLPresent = document.getElementById('mutationLPresent');
+
+const mutationMenu = document.getElementById('mutationMenu'); //box for mutation options that appears if the user selects for a mutation present
 
 const h_reasonsarrow = document.getElementById("HreasonsArrow");
 const l_reasonsarrow = document.getElementById("LreasonsArrow");
@@ -1514,41 +1525,83 @@ const mutationL_bools = document.querySelectorAll('input[name="mutationL_bool"]'
 
 
 
+mutationPresent.addEventListener("change", () => {
+	if (mutationPresent.value==='no') {
+		searchFilters.mutationHDic.present = false;
+		searchFilters.mutationLDic.present = false;
+		mutationMenu.classList.remove('active'); //hide the mutation menu
+		searchFilters.bothMutations = false; //neither mutation present
+	}
+	if (mutationPresent.value === 'select') {
+		searchFilters.mutationHDic.present = null;
+		searchFilters.mutationHDic.present = null;
+		mutationMenu.classList.remove('active'); //hide the mutation menu
+		searchFilters.bothMutations = null; //default
+	}
+	if (mutationPresent.value === 'yes') {
+		mutationMenu.classList.add('active');
+		searchFilters.bothMutations = true; //both mutations present
+
+	}
+});
+
+
 mutationHPresent.addEventListener("change", () => {
 	if (mutationHPresent.value==='no') {
 		searchFilters.mutationHDic.present = false;
 		h_reasonsarrow.style.display = 'none';
 		h_reasonlist.classList.remove('active');
 		h_reasonsarrow.classList.remove('active');
+		searchFilters.bothMutations = null; //user has selected specifically for mutationH, so they are no longer ORed
 	}
+
 	if (mutationHPresent.value === 'select') {
 		searchFilters.mutationHDic.present = null;
 		h_reasonsarrow.style.display = 'none';
 		h_reasonlist.classList.remove('active');
 		h_reasonsarrow.classList.remove('active');
+
+		if (searchFilters.mutationH.present === null) { //checks if mutationL is also at default value
+
+			if (mutationPresent.value === 'yes'){
+				searchFilters.bothMutations = true; //both mutations present, but none selected
+			}
+		}
 	}
+
 	if (mutationHPresent.value === 'yes') {
 		searchFilters.mutationHDic.present = true;
 		h_reasonsarrow.style.display = 'block';
 		h_reasonsarrow.classList.remove('active');
+		searchFilters.bothMutations = null;
 	}
 });
 
 mutationLPresent.addEventListener("change", () => {
 	if (mutationLPresent.value==='no') {
 		searchFilters.mutationLDic.present = false;
+		searchFilters.bothMutations = false;
 		l_reasonsarrow.style.display = 'none';
 		l_reasonlist.classList.remove('active');
 		l_reasonsarrow.classList.remove('active');
+		searchFilters.bothMutations = null;
 	}
 	if (mutationLPresent.value === 'select') {
 		searchFilters.mutationLDic.present = null;
 		l_reasonsarrow.style.display = 'none';
 		l_reasonlist.classList.remove('active');
 		l_reasonsarrow.classList.remove('active');
+
+		if (searchFilters.mutationH.present === null) {
+			if (mutationPresent.value === 'yes') {
+				searchFilters.bothMutations = true;
+			}
+		}
+
 	}
 	if (mutationLPresent.value === 'yes') {
 		searchFilters.mutationLDic.present = true;
+		searchFilters.bothMutations = null;
 		l_reasonsarrow.style.display = 'block';
 		l_reasonsarrow.style.display = 'block';
 		l_reasonsarrow.classList.remove('active');
@@ -2411,6 +2464,7 @@ clear.addEventListener('click', async (e) => {
 
 	mutationHPresent.value = 'select'; //change value of the mutationpresent dropdown so it is at the default value ('select')
 	mutationLPresent.value = 'select';
+	mutationPresent.value = 'select';
 	h_reasonsarrow.style.display = 'none';
 	l_reasonsarrow.style.display = 'none';
 	ptmDropdown.classList.remove('active');
