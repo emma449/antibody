@@ -320,7 +320,7 @@
 		<div class="class" id="class">
 			<div class="classArrow" id = 'classArrow'>Antibody Class</div>
 			<div class = "classMenu" id = "classMenu">
-
+				<p>Multiple selections within each class are ORed together</p>
 				<div class = 'heavy-chain-class-arrow' id = "heavy-chain-class-arrow"><b>Heavy chain class</b></div>
 				<div class = 'heavy-chain-class-menu' id = "heavy-chain-class-menu">
 					<div data-value="Alpha">IgA</div>
@@ -351,6 +351,7 @@
 		<div class = 'special-chain-format'>
 		<div class = 'special-chain-format-arrow' id = "special-chain-format-arrow">Special chain format</div>
 			<div class = 'special-chain-menu' id = 'special-chain-menu'>
+				<p><b>Multiple selections are ORed together</b></p>
 				<div data-value = "crossmab">Crossmab</div>
 				<div data-value = "dimer">Dimer</div>
 				<div data-value = "fab">Fab</div>
@@ -392,6 +393,7 @@
 
 		<div class = 'antigenspeciesArrow' id = 'antigenSpeciesArrow'>Antigen Species</div>
 		<div class = 'species' id = 'antigenSpecies'>
+			<p><b>Multiple selections are ORed together</b></p>
 			<div data-value = 'human'>Human</div>
 			<div data-value = 'cat'>Cat</div>
 			<div data-value = 'dog'>Dog</div>
@@ -406,7 +408,7 @@
 
 		<div class = mutation-select>Mutation Present
 			<select id = 'mutationPresent' class = 'mutationPresent'>
-				<option value = 'select'></option>
+				<option value = 'select'>Yes/No</option>
 				<option value = 'yes'>Yes</option>
 				<option value = 'no'>No</option>
 			</select>
@@ -417,7 +419,7 @@
 			<div class="mutation-select">
 				<div class = 'mutationArrow' id = 'mutationHArrow'>Mutation Present in H</div>
 					<select id = 'mutationHPresent' class = 'mutationPresent'>
-						<option value = 'select'>Select</option>
+						<option value = 'select'>Yes/No</option>
 						<option value = "yes">Yes</option>
 						<option value = "no">No</option>
 					</select>
@@ -487,7 +489,7 @@
 			<div class="mutation-select">
 				<div class = 'mutationArrow' id = 'mutationLArrow'>Mutation Present in L</div>
 					<select id = 'mutationLPresent' class = 'mutationPresent'>
-						<option value = 'select'>Select</option>
+						<option value = 'select'>Yes/No</option>
 						<option value = "yes">Yes</option>
 						<option value = "no">No</option>
 					</select>
@@ -574,7 +576,7 @@
 							<input type = 'radio' name = 'heavyptm_bool' value='OR' id = 'heavyptm_or' checked="checked">
 							<label for = 'heavyptm_or'>OR</label>
 							<input type = 'radio' name = 'heavyptm_bool' id = 'heavyptm_not' value='NOT'>
-							<label for = 'heavyptm_not'>NOT</label>		
+							<label for = 'heavyptm_not'>None of</label>		
 						</div>
 
 						<div data-value = "amidation">amidation</div>
@@ -604,7 +606,7 @@
 							<input type = 'radio' name = 'lightptm_bool' value='OR' id = 'lightptm_or' checked="checked">
 							<label for = 'lightptm_or'>OR</label>
 							<input type = 'radio' name = 'lightptm_bool' id = 'lightptm_not' value='NOT'>
-							<label for = 'lightptm_not'>NOT</label>		
+							<label for = 'lightptm_not'>None of</label>		
 						</div>
 
 						<div data-value = "amidation">amidation</div>
@@ -650,7 +652,7 @@
 							<input type = 'radio' name = 'heavyglycos_bool' value='OR' id = 'heavyglycos_or' checked="checked">
 							<label for = 'heavyglycos_or'>OR</label>
 							<input type = 'radio' name = 'heavyglycos_bool' id = 'heavyglycos_not' value='NOT'>
-							<label for = 'heavyglycos_not'>NOT</label>		
+							<label for = 'heavyglycos_not'>None of</label>		
 						</div>
 						<div data-value = 'n'>N-linked</div>
 						<div data-value = 'o'>O-linked</div>
@@ -677,7 +679,7 @@
 							<input type = 'radio' name = 'lightglycos_bool' value='OR' id = 'lightglycos_or' checked="checked">
 							<label for = 'lightglycos_or'>OR</label>
 							<input type = 'radio' name = 'lightglycos_bool' id = 'lightglycos_not' value='NOT'>
-							<label for = 'lightglycos_not'>NOT</label>		
+							<label for = 'lightglycos_not'>None of</label>		
 						</div>
 
 						<div data-value = 'n'>N-linked</div>
@@ -749,6 +751,7 @@
 		<div class = 'cdr' id = 'cdr'>
 			<div class="cdrArrow" id = "cdrArrow">CDR Source</div>
 			<div class = 'cdrsourcemenu' id = 'cdrsourcemenu'>
+				<p><b>Multiple selections are ORed together</b></p>
 				<div data-value = 'Lama pacos'>Alpaca (Lama pacos)</div>
 				<div data-value = 'Rattus norvegicus'>Brown rat (Rattus norvegicus)</div>
 				<div data-value= 'Camelus bactrianus'>Camelus bactrianus</div>
@@ -2369,7 +2372,6 @@ submit.addEventListener('click', async (e) => {
 			}
 
 			else if (key.includes(' Chain')||key==='Chain') {
-
 				chain_val = `\n${val}`;
 				displayValue(val, key, even_more_info);
 			}

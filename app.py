@@ -91,7 +91,7 @@ def build_query(filters):
 	if filters.get('specialChain'):
 		cleaned_chain = normalise_list(filters['specialChain'])
 		for chain in cleaned_chain:
-			query.setdefault('$and', []).append(
+			query.setdefault('$or', []).append(
 				{'Format': {
 					'$regex': r'\b' + chain + r'\b',
 					'$options': 'i'
