@@ -266,10 +266,12 @@
 					<input type = 'radio' name = 'source_bool' value='OR' id = 'source_or' checked="checked">
 					<label for = 'source_or'>OR</label>
 				</div>
-				<div data-value="canine" class="canine-option" id="canine">Canine</div>
-				<div data-value ="chimeric" id="chimeric">Chimeric</div>
+				<div data-value="canine">Canine</div>
+				<div data-value = 'cat'>Cat</div>
+				<div data-value ="chimeric">Chimeric</div>
 				<div data-value="human">Human</div>
 				<div data-value="humanized">Humanized</div>
+				<div data-value = 'pig'>Pig</div>
 				<div class = 'antibody-source-enter' id = 'antibody-source-enter'>
 					<input type='text' id = 'other-antibody-source'></input>
 					<button class = 'add' id = 'add-antibody-source'>Add other</button>
@@ -324,12 +326,13 @@
 				<div class = 'heavy-chain-class-arrow' id = "heavy-chain-class-arrow"><b>Heavy chain class</b></div>
 				<div class = 'heavy-chain-class-menu' id = "heavy-chain-class-menu">
 					<div data-value="Alpha">IgA</div>
+					<div data-value = 'Delta'>IgD</div>
 					<div data-value="Gamma1">IgG1</div>
 					<div data-value ="Gamma2">IgG2</div>
 					<div data-value="Gamma3">IgG3</div>
 					<div data-value="Gamma4">IgG4</div>
-					<div data-value = 'IgE'>IgE</div>
-					<div data-value = 'IgM'>IgM</div>
+					<div data-value = 'Epsilon'>IgE</div>
+					<div data-value = 'Mu'>IgM</div>
 					<div class = 'heavy-chain-class-enter' id = 'heavy-chain-class-enter'>
 						<input type='text' id = 'heavy-chain-class'></input>
 						<button class = 'add' id = 'add-heavy-chain-class'>Add other</button>
@@ -349,7 +352,7 @@
 
 
 		<div class = 'special-chain-format'>
-		<div class = 'special-chain-format-arrow' id = "special-chain-format-arrow">Special chain format</div>
+		<div class = 'special-chain-format-arrow' id = "special-chain-format-arrow">Format</div>
 			<div class = 'special-chain-menu' id = 'special-chain-menu'>
 				<p><b>Multiple selections are ORed together</b></p>
 				<div data-value = "crossmab">Crossmab</div>
@@ -2077,7 +2080,7 @@ submit.addEventListener('click', async (e) => {
 	resultsdiv.style.display = 'block'; //resultsdiv style changed to 'none' when user clicks reset filters. this line reverses that.
 	e.preventDefault();
 	console.log(searchFilters);
-	const query = {...searchFilters};
+	const query = structuredClone(searchFilters);
 	console.log(`query: ${query}`);
 
 	//make it so that request is added to search filters without having to click add request
@@ -2091,9 +2094,26 @@ submit.addEventListener('click', async (e) => {
 
 
 	if (searchFilters.antibody_name.length === 0 && antibody_name_text.value.trim() !== '') {
-		const name_val = antibody_name_text.value.trim();
-		query.antibody_name.push(name_val);
+		const name_val = antibody_name_text.value.trim(); //value that user has typed into the search box
+		query.antibody_name.push(name_val); //push that value into the query so it is searched against the database
 		searchFilters.antibody_name = []; //delete old search from the search filters
+	}
+
+	//make it so that antigen name and gene are entered to the dic without the user having to click the add button
+	console.log(antigenNameText.value);
+	if (searchFilters.antigenDic.names.length === 0 && antigenNameText.value.trim() !== '') {
+		console.log('running the antigen names bit');
+		const antigen_name_val = antigenNameText.value.trim();
+		console.log(antigen_name_val);
+		query.antigenDic.names.push(antigen_name_val);
+		console.log(query);
+		searchFilters.antigenDic.names = []; //delete old search from the search filters
+	}
+
+	if (searchFilters.antigenDic.genes.length === 0 && antigenGeneText.value.trim() !== '') {
+		const gene_val = antigenGeneText.value.trim();
+		query.antigenDic.genes.push(gene_val);
+		searchFilters.antigenDic.genes = []; //delete old search from the search filters
 	}
 
 	//update bools in the dictionary (AND or OR)
@@ -2442,7 +2462,8 @@ clear.addEventListener('click', async (e) => {
 	const germlineTypeDetails = document.getElementById('germlineTypeDetails');
 	if (germlineTypeDetails) {
 		germlineTypeDetails.innerHTML = '';
-	}
+	} //clears germline type details
+
 	const germline_divs = document.querySelectorAll('.germline-section');
 	germlinedropdown.style.display = "none";
 	germlinedropdown.style.maxHeight = null;
@@ -2453,7 +2474,7 @@ clear.addEventListener('click', async (e) => {
 			germline_div.remove();
 			console.log('removed');
 		}
-	}
+	} //remove germline dropdowns so it's back to the default display
 
 
 	mutationHPresent.value = 'select'; //change value of the mutationpresent dropdown so it is at the default value ('select')
