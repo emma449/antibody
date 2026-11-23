@@ -204,6 +204,50 @@ def confirmed_ptm(key, value):
 
 	return ptm_key, ptm_val
 
+def chain(key, value): #inputs key and value. returns the key without any instance number (eg 'Heavy Chain') and the string with the instance number and sequence
+	if '[' in key: #check if instance number is present in the key
+		name_key, instance = key.split("[")
+		if '-' in instance: #some values have '1-2-3' in the instance
+			instances = instance[:-1].strip().split("-")
+			instances = [int(i) for i in instances]
+		else:
+			instances = instance[:-1].strip().split(",")
+			instances = [int(i) for i in instances]
+	else:
+		name_key = key
+		instances = [0]
+	sequence = value
+	sequence  = re.sub(r'\s+(\d{2,3})(?=\s*[A-Z])', r' \1\n', value)
+	sequence_val = [{f'{instances}': sequence}]
+	if new_json.get(name_key): #check if this key is already in the dictionary, as would be the case if there are multiple chains. 
+		existing_dic = new_json[name_key]
+		sequence_val.extend(existing_dic)
+		return name_key, sequence_val
+	return name_key, sequence_val
+
+
+	new_json[name_key] = {'Sequence': sequence, 'Instances': [int(i) for i in instances]}
+
+	if '[' in key:
+		mutations_key, instances = key.split("[")
+		instances = instances[:-1].strip().split(",")
+		instances = [int(i) for i in instances]
+	else:
+		mutations_key = key
+		instances = [0]
+	if '(' in value:
+		mutations = value.split("(", 1)[0].strip().split(" ")
+		reason = value.split("(", 1)[1][:-1]
+		mutations_val = [{f'Mutation{instances}': mutations, 'Reason': reason}]
+	else:
+		mutations = value.strip().split(" ")
+		mutations_val = [{f'Mutation{instances}': mutations}]
+	if new_json.get(mutations_key):
+		existing_dic = new_json[mutations_key]
+		mutations_val.extend(existing_dic)
+		return mutations_key, mutations_val
+	return mutations_key, mutations_val
+
 
 def disulfides(key, value):
 	if '[' in key:
@@ -452,19 +496,9 @@ for entry in os.scandir(folder_path):
 						dis_key, dis_val = disulfides(key, value)
 						new_json[dis_key] = dis_val
 					elif ' Chain' in key or 'Chain[' in key:
-						if '[' in key:
-							name_key, instance = key.split("[")
-							if '-' in instance: #some values have '1-2-3' in the instance
-								instances = instance[:-1].strip().split("-")
-							else:
-								instances = instance[:-1].strip().split(",")
-						else:
-							name_key = key
-							instances = [0]
-						sequence = value
-						sequence  = re.sub(r'\s+(\d{2,3})(?=\s*[A-Z])', r' \1\n', value)
+						chain_key, chain_val = chain(key, value)
+						new_json[chain_key] = chain_val
 
-						new_json[name_key] = {'Sequence': sequence, 'Instances': [int(i) for i in instances]}
 					elif 'ChainClass' in key:
 						if '[' in key:
 							class_key, instance = key.split("[")

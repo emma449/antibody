@@ -2283,21 +2283,23 @@ submit.addEventListener('click', async (e) => {
 			let chain_info = []; //empty set to make fasta file out of
 
 			for (const [key, val] of Object.entries(result)) {
-				if (key==='Chain'||key.includes(' Chain')) {
-					let chain = [];
-					for (const line of val.Sequence.split('\n')) {
-						if (isNaN(line.slice(line.length-2, line.length))===false) {//check if there is a two or three digit number at the end of the line
-							chain.push(line.slice(0, line.length-3));
-						}
-						else if (isNaN(line.slice(line.length-3, line.length))===false) {
-							chain.push(line.slice(0, line.length-4));
-						}
-						else {
-							chain.push(line);
-						}
-					}
-					chain_info.push(`>${result.Antibody_name || result.Request}${key}\n`);
-					chain_info.push(`${chain.join('')}\n`);
+			    if (key === 'Chain' || key.includes(' Chain')) {
+			        let chain = [];
+
+			        for (const instance of val) {
+			            for (const [chain_inst, seq] of Object.entries(instance)) {
+
+			                console.log(chain_inst, seq);
+
+			                for (const line of seq.split('\n')) {
+			                    chain.push(line.replace(/\s*\d+\s*$/, '').replace(/\s/g, ''));
+			                }
+							chain_info.push(`>${key}${chain_inst}\n`);
+							chain_info.push(`${chain.join('').match(/.{1,50}/g).join('\n')}\n`); //add line break every 50 amino acids
+			            }
+
+			        }
+
 				}
 			}
 
