@@ -2372,12 +2372,21 @@ submit.addEventListener('click', async (e) => {
 		//even_more_info shows the entire json
 		const even_more_info = document.createElement('pre');
 		even_more_info.classList.add('even_more_info');
+		const heavy_kabat = {};
+		const light_kabat = {};
 
 		for (const [key, val] of Object.entries(result)) {
+
+
 			if (key.includes('CDRKabat')) {
-				const kabat_key = key.slice(0, -3); //just cdrkabat no instances (eg removing [1] from CDRKabatL1[1])
+				const kabat_key = key.slice(8); //just instances (CDRKabatL1[1] will become L1[1])
 				const kabat_value = `${result[key].Sequence}(${result[key].Start}-${result[key].End})`;
-				displayValue(kabat_value, kabat_key, even_more_info);
+				if (key.startsWith('CDRKabatL')) {
+					light_kabat[kabat_key] = kabat_value;
+				}
+				if (key.startsWith('CDRKabatH')) {
+					heavy_kabat[kabat_key] = kabat_value;
+				}
 			}
 
 
@@ -2413,6 +2422,12 @@ submit.addEventListener('click', async (e) => {
 				displayValue(val, key, even_more_info);
 			}
 
+		}
+		if (Object.keys(heavy_kabat).length>0) {
+			displayValue(heavy_kabat, 'CDRKabat Heavy', even_more_info);
+		}
+		if (Object.keys(heavy_kabat).length>0) {
+			displayValue(light_kabat, 'CDRKabat Light', even_more_info);
 		}
 
 		even_more_info.style.display = 'none';
