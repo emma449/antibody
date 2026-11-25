@@ -149,10 +149,10 @@
 		.ptm-options div {
 			margin-top: 0.25rem;
 		}
-		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu, .reasonsArrow, .mutation {
+		.heavyPTMtypeMenu, .lightPTMtypeMenu, .species, .sourcedropdown, .classMenu, .reasonlist, .cdrsourcemenu, .typeMenu, .antigen-species-enter, .chain-class, .light-chain-class-menu, .heavy-chain-class-menu, .special-chain-menu, .lightglycoslinks, .heavyglycoslinks, .heavy-glycos-options, .light-glycos-options, .specificityMenu, .reasonsArrow, .mutation, .multi-options {
 			display: none;
 		}
-		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .species.active, .sourcedropdown.active, .classMenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active, .mutation.active {
+		.heavyPTMtypeMenu.active, .lightPTMtypeMenu.active, .heavyglycos.active, .lightglycos.active, .species.active, .sourcedropdown.active, .classMenu.active, .cdrsourcemenu.active, .reasonlist.active, .typeMenu.active, .chain-class.active, .light-chain-class-menu.active, .heavy-chain-class-menu.active, .special-chain-menu.active, .lightglycoslinks.active, .heavyglycoslinks.active, .heavy-glycos-options.active, .light-glycos-options.active, .specificityMenu.active, .mutation.active, .multi-options.active {
 			display: block;
 		}
 		.ptm div:hover, .germline div:hover, .antigen div:hover, .antibodysource div:hover, .class div:hover, .cdr:hover, .mutation:hover, .glycos:hover, .special-chain-format div:hover, .info:hover, .more_info:hover, .even_more_info:hover, .specificity:hover, .type:hover, .antigenspeciesArrow:hover {
@@ -302,17 +302,14 @@
 		<div class = 'specificity' id = 'specificity'>
 			<div class = 'specificityArrow' id = 'specificityArrow'>Antibody Specificity</div>
 			<div class = 'specificityMenu' id = 'specificityMenu'>
-				<div class = 'bool' id = 'spty_bool'>
-					<input type = 'radio' name = 'spty_bool' id = 'spty_and' value='AND'>
-					<label for = 'spty_and'>AND</label>
-					<input type = 'radio' name = 'spty_bool' value='OR' id = 'spty_or' checked="checked">
-					<label for = 'spty_or'>OR</label>
-				</div>
+				<p><b>Multiple selections within each class are ORed together</b></p>
 				<div data-value = 'monospecific'>Monospecific</div>
-				<div data-value = 'specific'>Multispecific</div>
-				<div data-value = 'bispecific'>Bispecific</div>
-				<div data-value = 'trispecific'>Trispecific</div>
-				<div data-value = 'tetraspecific'>Tetraspecific</div>
+				<div class = 'specific' id = 'specific'>Multispecific</div>
+				<div class = 'multi-options' id = 'multi-options'>
+					<div data-value = 'bispecific'>Bispecific</div>
+					<div data-value = 'trispecific'>Trispecific</div>
+					<div data-value = 'tetraspecific'>Tetraspecific</div>
+				</div>
 			</div>
 		</div>
 
@@ -1039,7 +1036,9 @@ const specificity = document.getElementById("specificity");
 const specificityArrow = document.getElementById("specificityArrow");
 const specificityMenu = document.getElementById('specificityMenu');
 
-const spty_bools = document.querySelectorAll('input[name="spty_bool"]'); //all of the specificity bools (AND and OR)
+const multispecific = document.getElementById('specific');
+const multi_options = document.getElementById('multi-options');
+
 
 
 specificityArrow.addEventListener('click', (e) => {
@@ -1052,12 +1051,46 @@ specificityMenu.addEventListener('click', (e) => {
 	if (!value) return;
 	e.target.classList.toggle("selected");
 	if (searchFilters.antibodySpecificity.values.includes(value)) {
-        searchFilters.antibodySpecificity.values =
-            searchFilters.antibodySpecificity.values.filter(v => v !== value);
+        searchFilters.antibodySpecificity.values = searchFilters.antibodySpecificity.values.filter(v => v !== value);
     } else {
         searchFilters.antibodySpecificity.values.push(value);
     }
 });
+
+multispecific.addEventListener('click', (e) => {
+	if (multispecific.classList.contains('selected')) {
+		multispecific.classList.remove('selected');
+		multi_options.querySelectorAll('.selected').forEach(el => {el.classList.remove('selected');});
+		multi_options.classList.remove('active');
+		searchFilters.antibodySpecificity.values = searchFilters.antibodySpecificity.values.filter(v => v === 'monospecific'); //only keep monospecific option if the multispecific option is unselected
+	} else {
+		multispecific.classList.add('selected');
+		multi_options.classList.add('active');
+		searchFilters.antibodySpecificity.values.push('specific');
+
+	}
+
+});
+
+multi_options.addEventListener('click', (e) => {
+	e.stopPropagation();
+	const value = e.target.dataset.value;
+	if (!value) return;
+	console.log('value');
+	e.target.classList.toggle("selected");
+	if (searchFilters.antibodySpecificity.values.includes(value)) {
+		searchFilters.antibodySpecificity.values = searchFilters.antibodySpecificity.values.filter(v => v !== value);
+
+        if (searchFilters.antibodySpecificity.values.length===0|| (searchFilters.antibodySpecificity.values.length===1 && searchFilters.antibodySpecificity.values.includes('monospecific'))) {
+        	searchFilters.antibodySpecificity.values.push('specific');
+        }
+
+    } else {
+        searchFilters.antibodySpecificity.values.push(value);
+        searchFilters.antibodySpecificity.values = searchFilters.antibodySpecificity.values.filter(v => v !== 'specific');
+    }
+})
+
 
 
 //type
@@ -2137,11 +2170,6 @@ submit.addEventListener('click', async (e) => {
 		}
 	}
 
-	for (const spty_bool of spty_bools) {
-		if (spty_bool.checked) {
-			searchFilters.antibodySpecificity.bool = spty_bool.value;
-		}
-	}
 
 	for (const mutationH_bool of mutationH_bools) {
 		if (mutationH_bool.checked) {
