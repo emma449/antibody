@@ -224,6 +224,8 @@ def build_query(filters):
 
 		if len(antigenDic['species'])>0:
 			cleaned_species = normalise_list(antigenDic['species'])
+			if 'dog' in cleaned_species:
+				cleaned_species.append('canine') #antigen species sometimes has dog and sometimes canine. this line ensures both results are returned.
 			species_query = '^(' + '|'.join(cleaned_species) + ')\\b' #species_query means the first word in Antigen.Name from the database can be queried, because this describes the species
 			query['Antigen.Name'] = {
 				'$regex': species_query,
