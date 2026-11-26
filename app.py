@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from pymongo import MongoClient
 import re
 import config
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -403,6 +404,27 @@ def build_query(filters):
 def home():
 	return render_template('webtemplate.html')
 	print('render')
+
+
+@app.route('/download_txt/<request_number>', methods=['GET'])
+def download_txt(request_number):
+
+	filename = f"{request_number}.txt"
+	directory = os.path.abspath(config.inn_data_dir)
+	filepath = os.path.join(directory, filename)
+
+	print("Request number:", request_number, flush=True)
+	print("Directory:", directory, flush=True)
+	print("File path:", filepath, flush=True)
+	print("File exists:", os.path.isfile(filepath), flush=True)
+
+	return send_from_directory(
+		os.path.abspath(config.inn_data_dir),
+		filename,
+		as_attachment=True
+	)
+
+
 
 @app.route("/search", methods = ['POST'])
 def search():

@@ -179,7 +179,7 @@
 			font-family: "Times New Roman", Times, serif;
 		}
 
-		.cdrsourcemenu, .reasonsArrow {
+		.cdrsourcemenu, .reasonsArrow, .multi-options {
 			margin-left: 1rem;
 		}
 
@@ -801,7 +801,6 @@ const searchFilters = {
 function getDefaultFilters() {
 	document.getElementById('source_or').checked = true; //make bool selection OR
 	document.getElementById('type_or').checked = true;
-	document.getElementById('spty_or').checked = true;
 	document.getElementById('antigen_or').checked = true;
 	document.getElementById('heavyptm_or').checked = true;
 	document.getElementById('lightptm_or').checked = true;
@@ -2213,6 +2212,10 @@ submit.addEventListener('click', async (e) => {
 	});
 	const results = await response.json();
 
+	results.sort((a, b) =>
+		(a.Antibody_name || '').localeCompare(b.Antibody_name || '') //sort results alphabetically by antibody name
+	);
+
 
 	resultsdiv.innerHTML = ""; //clear previous search
 
@@ -2286,6 +2289,11 @@ submit.addEventListener('click', async (e) => {
 		download_seq_btn.textContent = 'Download chain sequence FASTA';
 		record.appendChild(download_seq_btn); //option to download the chain sequence of that file
 
+		const download_txt_btn = document.createElement('button');
+		download_txt_btn.classList.add('download_btn');
+		download_txt_btn.textContent = 'Download txt file';
+		record.appendChild(download_txt_btn);
+
 		download_btn.addEventListener('click', (e) => {
 		    e.stopPropagation();
 
@@ -2304,6 +2312,16 @@ submit.addEventListener('click', async (e) => {
 
 		    URL.revokeObjectURL(url);
 		});
+
+		download_txt_btn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			const a = document.createElement('a');
+			a.href = `/download_txt/${encodeURIComponent(result.Request)}`;
+			console.log(a.href);
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		})
 
 		download_seq_btn.addEventListener('click', (e) => {
 			e.stopPropagation();
@@ -2378,6 +2396,12 @@ submit.addEventListener('click', async (e) => {
 			more_info.append(
 			`CDR Source: ${result.CDRSource.Value}\n`);
 		}
+
+		if (result.Conjugate) {
+			more_info.append(
+			`Conjugate: ${result.Conjugate}\n`);
+		}
+
 
 		for (const key in result) {
 			if (key.includes('Germline')) {
