@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, send_file
 from flask_cors import CORS
 from pymongo import MongoClient
 import re
 import config
 import os
+import io
+import zipfile
 
 app = Flask(__name__)
 CORS(app)
@@ -426,6 +428,37 @@ def download_txt(request_number):
 		as_attachment=True
 	)
 
+@app.route('/download_all_txt', methods=['POST'])
+def download_all_txt():
+
+	request_numbers = request.json.get('requests', [])
+	directory = os.path.abspath(config.inn_data_dir)
+
+	zip_buffer = io.BytesIO()
+
+	with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+
+		for request_number in request_numbers:
+
+			request_number = str(request_number)
+
+			filename = f"{request_number}.txt"
+			filepath = os.path.join(directory, filename)
+
+			if os.path.isfile(filepath):
+				zip_file.write(filepath, arcname=filename)
+			else:
+				print(f"File not found: {filename}")
+
+	zip_buffer.seek(0)
+
+	return send_file(
+        zip_buffer,
+			mimetype='application/zip',
+			as_attachment=True,
+			download_name='antibody_txt_files.zip'
+	)
+
 
 
 @app.route("/search", methods = ['POST'])
@@ -442,6 +475,7 @@ def search():
 
 
 if __name__== '__main__':
+	print(app.url_map)
 	app.run(debug=True)
 	print('ran')
 

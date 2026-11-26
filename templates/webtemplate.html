@@ -60,7 +60,11 @@
 		}
 
 		.container {
-			width: 370px;
+			width: 75%;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 15px 30px;
+			align-items: start;
 			background-color: white;
 			padding: 20px;
 			border-radius: 10px;
@@ -97,6 +101,7 @@
 			border-radius: 10px;
 			padding: 10px;
 			margin: 10px 0;
+			width: 25%;
 			float: right;
 
 
@@ -112,7 +117,7 @@
 		}
 
 
-	    .ptm-dropdown, .germlinearrow, .antigenArrow, .sourceArrow, .classArrow, .typeArrow, .cdrArrow, .glycos-dropdown {
+	    .ptm-dropdown, .germlinearrow, .antigenArrow, .sourceArrow, .classArrow, .typeArrow, .cdrArrow, .glycos-dropdown, .specificityArrow {
 			cursor: pointer;
 			padding: 5px 0;
 			width: 100%;
@@ -166,11 +171,18 @@
 			margin-bottom: 1rem;
 		}
 		.mutationPresent {
-			margin-left: 10rem;
+			margin-left: auto;
 		}
 
 		.mutation-select {
 			display: flex;
+			align-items: center;
+
+		}
+
+		.mutation-group .mutation-select {
+			margin: 0;
+			padding: 5px 0;
 		}
 
 		.heavyPTMtypeMenu div, .lightPTMtypeMenu div, .sourcedropdown, .typeMenu, .specificityMenu, .classMenu, .reasonlist, .germlinetype, .species, .chain-class div, .lightglycoslinks, .heavyglycoslinks, .special-chain-menu, .mutation.active {
@@ -242,6 +254,17 @@
 		.potential-select {
 			margin-left: 5px;
 		}
+		.search_buttons {
+		    grid-column: 1 / -1;
+		    display: flex;
+		    justify-content: space-between;
+		    align-items: center;
+		}
+		.container > div {
+			margin: 0;
+			min-width: 0;
+			align-self: start;
+		}
 
 	</style>
 
@@ -256,6 +279,7 @@
 </div>
 
 	<div class="container">
+
 
 		<div class="antibodysource" id="antibodysource">
 			<div class="sourceArrow" id = 'sourceArrow'>Antibody Source</div>
@@ -406,157 +430,160 @@
 		</div>
 
 
-		<div class = mutation-select>Mutation Present
-			<select id = 'mutationPresent' class = 'mutationPresent'>
-				<option value = 'select'>Yes/No</option>
-				<option value = 'yes'>Yes</option>
-				<option value = 'no'>No</option>
-			</select>
-		</div>
+		<div class = 'mutation-group'>
 
-		<div class = "mutation" id = 'mutationMenu'>
-
-			<div class="mutation-select">
-				<div class = 'mutationArrow' id = 'mutationHArrow'>Mutation Present in H</div>
-					<select id = 'mutationHPresent' class = 'mutationPresent'>
-						<option value = 'select'>Yes/No</option>
-						<option value = "yes">Yes</option>
-						<option value = "no">No</option>
-					</select>
+			<div class = mutation-select>Mutation Present
+				<select id = 'mutationPresent' class = 'mutationPresent'>
+					<option value = 'select'>Yes/No</option>
+					<option value = 'yes'>Yes</option>
+					<option value = 'no'>No</option>
+				</select>
 			</div>
 
-			<div class="reasonsArrow" id = 'HreasonsArrow'>Mutation Reasons</div>
-			<div class = "reasonlist" id = "Hreasonlist">
-				<div class = 'bool' id = 'mutationH_bool'>
-					<input type = 'radio' name = 'mutationH_bool' id = 'h_and' value='AND'>
-					<label for = 'h_and'>AND</label>
-					<input type = 'radio' name = 'mutationH_bool' value='OR' id = 'h_or' checked="checked">
-					<label for = 'h_or'>OR</label>
+			<div class = "mutation" id = 'mutationMenu'>
+
+				<div class="mutation-select">
+					<div class = 'mutationArrow' id = 'mutationHArrow'>Mutation Present in H</div>
+						<select id = 'mutationHPresent' class = 'mutationPresent'>
+							<option value = 'select'>Yes/No</option>
+							<option value = "yes">Yes</option>
+							<option value = "no">No</option>
+						</select>
 				</div>
-				<div data-value = 'add disulfide'>Add disulfide</div>
-				<div data-value = 'add hinge disulfide'>Add hinge disulfide</div>
-				<div data-value = "avoid free thiol">Avoid free thiol</div>
-				<div data-value = "artificial disulfide">Artificial Disulfide</div>
-				<div data-value = "bispecific formation">Bispecific formation</div>
-				<div data-value = 'change isoelectric point'>Change isoelectric point</div>
-				<div data-value = 'conjugation site'>Conjugation site</div>
-				<div data-value = 'disulfide'>Disulfide</div>
-				<div data-value = 'enhance ADCC'>Enhance ADCC</div>
-				<div data-value = 'enhance CD16 binding'>Enhance CD16 binding</div>
-				<div data-value = 'enhance Fc-effector functions and eliminate complement binding'>Enhance Fc-effector functions and eliminate complement binding</div>
-				<div data-value = 'enhance FcGammaR'>Enhance FcGammaR binding</div>
-				<div data-value = 'enhance FcRn binding'>Enhance FcRn binding</div>
-				<div data-value = 'enforce pairing'>Enforce pairing</div>
-				<div data-value = 'extend half life'>Extend half life</div>
-				<div data-value = 'heterodimer formation hole'>Heterodimer formation hole</div>
-				<div data-value = 'heterodimer formation knob'>Heterodimer formation knob</div>
-				<div data-value = 'heterodimer formation negative charge'>Heterodimer formation negative charge</div>
-				<div data-value = 'heterodimer formation positive charge'>Heterodimer formation positive charge</div>
-				<div data-value = 'hexamer formation'>Hexamer formation</div>
-				<div data-value = 'hinge stabilization'>Hinge stabilization</div>
-				<div data-value = 'increase flexibility'>Increase flexibility</div>
-				<div data-value = 'increase stability'>Increase stability</div>
-				<div data-value = 'modify pI for purification'>Modify pI for purification</div>
-				<div data-value = 'non-functional'>Non-functional mutation</div>
-				<div data-value = 'prevent oxidation'>Prevent oxidation</div>
-				<div data-value = 'prevent Protein A binding'>Prevent Protein A binding</div>
-				<div data-value = 'reduce ADCC'>Reduce ADCC</div>
-				<div data-value = 'reduce ADCC and ADCP'>Reduce ADCC and ADCP</div>
-				<div data-value = 'reduce ADCC and CDC'>Reduce ADCC and CDC</div>
-				<div data-value = 'reduce C1q binding'>Reduce C1q binding</div>
-				<div data-value = 'reduce C1q binding and CDC'>Reduce C1q binding and CDC</div>
-				<div data-value = 'reduce CDC'>Reduce CDC</div>
-				<div data-value = 'reduce effector functions'>Reduce effector functions</div>
-				<div data-value = 'reduce FcGammaR and C1q binding'>Reduce FcGammaR and C1q binding</div>
-				<div data-value = 'reduce FcGammaR binding'>Reduce FcGammaR binding</div>
-				<div data-value = 'reduce FcRn binding'>Reduce FcRn binding</div>
-				<div data-value = 'reduce immunogenicity'>Reduce immunogenicity</div>
-				<div data-value = 'reduce pI'>Reduce pI</div>
-				<div data-value = 'reduce proteolysis'>Reduce proteolysis</div>
-				<div data-value = 'remove disulfide'>Remove disulfide</div>
-				<div data-value = 'remove free cysteine'>Remove free cysteine</div>
-				<div data-value = 'remove glycosylation site'>Remove glycosylation site</div>
-				<div data-value = 'remove standard disulfide'>Remove standard disulfide</div>
-				<div data-value = 'remove unpaired cysteine'>Remove unpaired cysteine</div>
-				<div data-value = 'stabilization'>Stabilization</div>
-				<div class = 'addOtherReason' id='addOtherHReason'>
-					<input type = 'text' id = 'otherHReasonText'></input>
-					<button class = 'add' id = 'add-other-hreason'>Add reason</button>
+
+				<div class="reasonsArrow" id = 'HreasonsArrow'>Mutation Reasons</div>
+				<div class = "reasonlist" id = "Hreasonlist">
+					<div class = 'bool' id = 'mutationH_bool'>
+						<input type = 'radio' name = 'mutationH_bool' id = 'h_and' value='AND'>
+						<label for = 'h_and'>AND</label>
+						<input type = 'radio' name = 'mutationH_bool' value='OR' id = 'h_or' checked="checked">
+						<label for = 'h_or'>OR</label>
+					</div>
+					<div data-value = 'add disulfide'>Add disulfide</div>
+					<div data-value = 'add hinge disulfide'>Add hinge disulfide</div>
+					<div data-value = "avoid free thiol">Avoid free thiol</div>
+					<div data-value = "artificial disulfide">Artificial Disulfide</div>
+					<div data-value = "bispecific formation">Bispecific formation</div>
+					<div data-value = 'change isoelectric point'>Change isoelectric point</div>
+					<div data-value = 'conjugation site'>Conjugation site</div>
+					<div data-value = 'disulfide'>Disulfide</div>
+					<div data-value = 'enhance ADCC'>Enhance ADCC</div>
+					<div data-value = 'enhance CD16 binding'>Enhance CD16 binding</div>
+					<div data-value = 'enhance Fc-effector functions and eliminate complement binding'>Enhance Fc-effector functions and eliminate complement binding</div>
+					<div data-value = 'enhance FcGammaR'>Enhance FcGammaR binding</div>
+					<div data-value = 'enhance FcRn binding'>Enhance FcRn binding</div>
+					<div data-value = 'enforce pairing'>Enforce pairing</div>
+					<div data-value = 'extend half life'>Extend half life</div>
+					<div data-value = 'heterodimer formation hole'>Heterodimer formation hole</div>
+					<div data-value = 'heterodimer formation knob'>Heterodimer formation knob</div>
+					<div data-value = 'heterodimer formation negative charge'>Heterodimer formation negative charge</div>
+					<div data-value = 'heterodimer formation positive charge'>Heterodimer formation positive charge</div>
+					<div data-value = 'hexamer formation'>Hexamer formation</div>
+					<div data-value = 'hinge stabilization'>Hinge stabilization</div>
+					<div data-value = 'increase flexibility'>Increase flexibility</div>
+					<div data-value = 'increase stability'>Increase stability</div>
+					<div data-value = 'modify pI for purification'>Modify pI for purification</div>
+					<div data-value = 'non-functional'>Non-functional mutation</div>
+					<div data-value = 'prevent oxidation'>Prevent oxidation</div>
+					<div data-value = 'prevent Protein A binding'>Prevent Protein A binding</div>
+					<div data-value = 'reduce ADCC'>Reduce ADCC</div>
+					<div data-value = 'reduce ADCC and ADCP'>Reduce ADCC and ADCP</div>
+					<div data-value = 'reduce ADCC and CDC'>Reduce ADCC and CDC</div>
+					<div data-value = 'reduce C1q binding'>Reduce C1q binding</div>
+					<div data-value = 'reduce C1q binding and CDC'>Reduce C1q binding and CDC</div>
+					<div data-value = 'reduce CDC'>Reduce CDC</div>
+					<div data-value = 'reduce effector functions'>Reduce effector functions</div>
+					<div data-value = 'reduce FcGammaR and C1q binding'>Reduce FcGammaR and C1q binding</div>
+					<div data-value = 'reduce FcGammaR binding'>Reduce FcGammaR binding</div>
+					<div data-value = 'reduce FcRn binding'>Reduce FcRn binding</div>
+					<div data-value = 'reduce immunogenicity'>Reduce immunogenicity</div>
+					<div data-value = 'reduce pI'>Reduce pI</div>
+					<div data-value = 'reduce proteolysis'>Reduce proteolysis</div>
+					<div data-value = 'remove disulfide'>Remove disulfide</div>
+					<div data-value = 'remove free cysteine'>Remove free cysteine</div>
+					<div data-value = 'remove glycosylation site'>Remove glycosylation site</div>
+					<div data-value = 'remove standard disulfide'>Remove standard disulfide</div>
+					<div data-value = 'remove unpaired cysteine'>Remove unpaired cysteine</div>
+					<div data-value = 'stabilization'>Stabilization</div>
+					<div class = 'addOtherReason' id='addOtherHReason'>
+						<input type = 'text' id = 'otherHReasonText'></input>
+						<button class = 'add' id = 'add-other-hreason'>Add reason</button>
+					</div>
+
+				</div>
+
+				<div class="mutation-select">
+					<div class = 'mutationArrow' id = 'mutationLArrow'>Mutation Present in L</div>
+						<select id = 'mutationLPresent' class = 'mutationPresent'>
+							<option value = 'select'>Yes/No</option>
+							<option value = "yes">Yes</option>
+							<option value = "no">No</option>
+						</select>
+				</div>
+
+				<div class="reasonsArrow" id = 'LreasonsArrow'>Mutation Reasons</div>
+				<div class = "reasonlist" id = "Lreasonlist">
+					<div class = 'bool' id = 'mutationL_bool'>
+						<input type = 'radio' name = 'mutationL_bool' id = 'l_and' value='AND'>
+						<label for = 'l_and'>AND</label>
+						<input type = 'radio' name = 'mutationL_bool' value='OR' id = 'l_or' checked="checked">
+						<label for = 'l_or'>OR</label>
+					</div>
+
+					<div data-value = 'add disulfide'>Add disulfide</div>
+					<div data-value = 'add hinge disulfide'>Add hinge disulfide</div>
+					<div data-value = "avoid free thiol">Avoid free thiol</div>
+					<div data-value = "artificial disulfide">Artificial Disulfide</div>
+					<div data-value = "bispecific formation">Bispecific formation</div>
+					<div data-value = 'change isoelectric point'>Change isoelectric point</div>
+					<div data-value = 'conjugation site'>Conjugation site</div>
+					<div data-value = 'disulfide'>Disulfide</div>
+					<div data-value = 'enhance ADCC'>Enhance ADCC</div>
+					<div data-value = 'enhance CD16 binding'>Enhance CD16 binding</div>
+					<div data-value = 'enhance Fc-effector functions and eliminate complement binding'>Enhance Fc-effector functions and eliminate complement binding</div>
+					<div data-value = 'enhance FcGammaR'>Enhance FcGammaR binding</div>
+					<div data-value = 'enhance FcRn binding'>Enhance FcRn binding</div>
+					<div data-value = 'enforce pairing'>Enforce pairing</div>
+					<div data-value = 'extend half life'>Extend half life</div>
+					<div data-value = 'heterodimer formation hole'>Heterodimer formation hole</div>
+					<div data-value = 'heterodimer formation knob'>Heterodimer formation knob</div>
+					<div data-value = 'heterodimer formation negative charge'>Heterodimer formation negative charge</div>
+					<div data-value = 'heterodimer formation positive charge'>Heterodimer formation positive charge</div>
+					<div data-value = 'hexamer formation'>Hexamer formation</div>
+					<div data-value = 'hinge stabilization'>Hinge stabilization</div>
+					<div data-value = 'increase flexibility'>Increase flexibility</div>
+					<div data-value = 'increase stability'>Increase stability</div>
+					<div data-value = 'modify pI for purification'>Modify pI for purification</div>
+					<div data-value = 'non-functional'>Non-functional mutation</div>
+					<div data-value = 'prevent oxidation'>Prevent oxidation</div>
+					<div data-value = 'prevent Protein A binding'>Prevent Protein A binding</div>
+					<div data-value = 'reduce ADCC'>Reduce ADCC</div>
+					<div data-value = 'reduce ADCC and ADCP'>Reduce ADCC and ADCP</div>
+					<div data-value = 'reduce ADCC and CDC'>Reduce ADCC and CDC</div>
+					<div data-value = 'reduce C1q binding'>Reduce C1q binding</div>
+					<div data-value = 'reduce C1q binding and CDC'>Reduce C1q binding and CDC</div>
+					<div data-value = 'reduce CDC'>Reduce CDC</div>
+					<div data-value = 'reduce effector functions'>Reduce effector functions</div>
+					<div data-value = 'reduce FcGammaR and C1q binding'>Reduce FcGammaR and C1q binding</div>
+					<div data-value = 'reduce FcGammaR binding'>Reduce FcGammaR binding</div>
+					<div data-value = 'reduce FcRn binding'>Reduce FcRn binding</div>
+					<div data-value = 'reduce immunogenicity'>Reduce immunogenicity</div>
+					<div data-value = 'reduce pI'>Reduce pI</div>
+					<div data-value = 'reduce proteolysis'>Reduce proteolysis</div>
+					<div data-value = 'remove disulfide'>Remove disulfide</div>
+					<div data-value = 'remove free cysteine'>Remove free cysteine</div>
+					<div data-value = 'remove glycosylation site'>Remove glycosylation site</div>
+					<div data-value = 'remove standard disulfide'>Remove standard disulfide</div>
+					<div data-value = 'remove unpaired cysteine'>Remove unpaired cysteine</div>
+					<div data-value = 'stabilization'>Stabilization</div>
+					<div class = 'addOtherReason' id='addOtherLReason'>
+						<input type = 'text' id = 'otherLReasonText'></input>
+						<button class = 'add' id = 'add-other-lreason'>Add reason</button>
+					</div>
+
 				</div>
 
 			</div>
-
-			<div class="mutation-select">
-				<div class = 'mutationArrow' id = 'mutationLArrow'>Mutation Present in L</div>
-					<select id = 'mutationLPresent' class = 'mutationPresent'>
-						<option value = 'select'>Yes/No</option>
-						<option value = "yes">Yes</option>
-						<option value = "no">No</option>
-					</select>
-			</div>
-
-			<div class="reasonsArrow" id = 'LreasonsArrow'>Mutation Reasons</div>
-			<div class = "reasonlist" id = "Lreasonlist">
-				<div class = 'bool' id = 'mutationL_bool'>
-					<input type = 'radio' name = 'mutationL_bool' id = 'l_and' value='AND'>
-					<label for = 'l_and'>AND</label>
-					<input type = 'radio' name = 'mutationL_bool' value='OR' id = 'l_or' checked="checked">
-					<label for = 'l_or'>OR</label>
-				</div>
-
-				<div data-value = 'add disulfide'>Add disulfide</div>
-				<div data-value = 'add hinge disulfide'>Add hinge disulfide</div>
-				<div data-value = "avoid free thiol">Avoid free thiol</div>
-				<div data-value = "artificial disulfide">Artificial Disulfide</div>
-				<div data-value = "bispecific formation">Bispecific formation</div>
-				<div data-value = 'change isoelectric point'>Change isoelectric point</div>
-				<div data-value = 'conjugation site'>Conjugation site</div>
-				<div data-value = 'disulfide'>Disulfide</div>
-				<div data-value = 'enhance ADCC'>Enhance ADCC</div>
-				<div data-value = 'enhance CD16 binding'>Enhance CD16 binding</div>
-				<div data-value = 'enhance Fc-effector functions and eliminate complement binding'>Enhance Fc-effector functions and eliminate complement binding</div>
-				<div data-value = 'enhance FcGammaR'>Enhance FcGammaR binding</div>
-				<div data-value = 'enhance FcRn binding'>Enhance FcRn binding</div>
-				<div data-value = 'enforce pairing'>Enforce pairing</div>
-				<div data-value = 'extend half life'>Extend half life</div>
-				<div data-value = 'heterodimer formation hole'>Heterodimer formation hole</div>
-				<div data-value = 'heterodimer formation knob'>Heterodimer formation knob</div>
-				<div data-value = 'heterodimer formation negative charge'>Heterodimer formation negative charge</div>
-				<div data-value = 'heterodimer formation positive charge'>Heterodimer formation positive charge</div>
-				<div data-value = 'hexamer formation'>Hexamer formation</div>
-				<div data-value = 'hinge stabilization'>Hinge stabilization</div>
-				<div data-value = 'increase flexibility'>Increase flexibility</div>
-				<div data-value = 'increase stability'>Increase stability</div>
-				<div data-value = 'modify pI for purification'>Modify pI for purification</div>
-				<div data-value = 'non-functional'>Non-functional mutation</div>
-				<div data-value = 'prevent oxidation'>Prevent oxidation</div>
-				<div data-value = 'prevent Protein A binding'>Prevent Protein A binding</div>
-				<div data-value = 'reduce ADCC'>Reduce ADCC</div>
-				<div data-value = 'reduce ADCC and ADCP'>Reduce ADCC and ADCP</div>
-				<div data-value = 'reduce ADCC and CDC'>Reduce ADCC and CDC</div>
-				<div data-value = 'reduce C1q binding'>Reduce C1q binding</div>
-				<div data-value = 'reduce C1q binding and CDC'>Reduce C1q binding and CDC</div>
-				<div data-value = 'reduce CDC'>Reduce CDC</div>
-				<div data-value = 'reduce effector functions'>Reduce effector functions</div>
-				<div data-value = 'reduce FcGammaR and C1q binding'>Reduce FcGammaR and C1q binding</div>
-				<div data-value = 'reduce FcGammaR binding'>Reduce FcGammaR binding</div>
-				<div data-value = 'reduce FcRn binding'>Reduce FcRn binding</div>
-				<div data-value = 'reduce immunogenicity'>Reduce immunogenicity</div>
-				<div data-value = 'reduce pI'>Reduce pI</div>
-				<div data-value = 'reduce proteolysis'>Reduce proteolysis</div>
-				<div data-value = 'remove disulfide'>Remove disulfide</div>
-				<div data-value = 'remove free cysteine'>Remove free cysteine</div>
-				<div data-value = 'remove glycosylation site'>Remove glycosylation site</div>
-				<div data-value = 'remove standard disulfide'>Remove standard disulfide</div>
-				<div data-value = 'remove unpaired cysteine'>Remove unpaired cysteine</div>
-				<div data-value = 'stabilization'>Stabilization</div>
-				<div class = 'addOtherReason' id='addOtherLReason'>
-					<input type = 'text' id = 'otherLReasonText'></input>
-					<button class = 'add' id = 'add-other-lreason'>Add reason</button>
-				</div>
-
-			</div>
-
 		</div>
 
 
@@ -765,8 +792,10 @@
 
 		</div>
 
-		<button class = 'submit' id = 'submit'>Submit</button>
-		<buttun class = 'clear' id = 'clear'>Reset filters</buttun>
+		<div class = 'search_buttons'>
+			<button class = 'submit' id = 'submit'>Submit</button>
+			<button class = 'clear' id = 'clear'>Reset filters</button>
+		</div>
 
 
 	</div>
@@ -2234,8 +2263,13 @@ submit.addEventListener('click', async (e) => {
 
 	const download_all = document.createElement('button'); //button to download every JSON result
 	download_all.classList.add('download_all');
-	download_all.textContent = 'Download all results';
+	download_all.textContent = 'Download all JSON results';
 	resultsdiv.append(download_all);
+
+	const download_all_txt = document.createElement('button');
+	download_all_txt.classList.add('download_all');
+	download_all_txt.textContent = 'Download all txt results';
+	resultsdiv.append(download_all_txt);
 
 	//downloads all results and puts them into a zip file
 	download_all.addEventListener('click', async (e) => {
@@ -2262,6 +2296,42 @@ submit.addEventListener('click', async (e) => {
 	    document.body.removeChild(a);
 
 	    URL.revokeObjectURL(url);
+	});
+
+	download_all_txt.addEventListener('click', async (e) => {
+		e.stopPropagation();
+		e.preventDefault();
+		const zip = new JSZip();
+
+		const request_numbers = results.map(result => result.Request);
+		const response = await fetch('/download_all_txt', {
+			method: 'POST',
+			headers: {
+		    	'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+		   		requests: request_numbers
+			})
+		});
+
+		if (!response.ok) {
+			alert('Unable to download TXT files');
+			return;
+		}
+
+		const blob = await response.blob();
+		const url = URL.createObjectURL(blob);
+
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'antibody_txt_files.zip';
+
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+
+		URL.revokeObjectURL(url);
+
 	});
 
 	//creates the basic information that the user first sees for each result (antibody name and request number)
@@ -2321,7 +2391,7 @@ submit.addEventListener('click', async (e) => {
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
-		})
+		});
 
 		download_seq_btn.addEventListener('click', (e) => {
 			e.stopPropagation();

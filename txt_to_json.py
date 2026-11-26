@@ -226,7 +226,6 @@ def chain(key, value): #inputs key and value. returns the key without any instan
 	return name_key, sequence_val
 
 
-	new_json[name_key] = {'Sequence': sequence, 'Instances': [int(i) for i in instances]}
 
 	if '[' in key:
 		mutations_key, instances = key.split("[")
@@ -602,9 +601,17 @@ white_space_deletes = Collection.delete_many({
 	}
 })
 
+
+
 dp_deletes =  Collection.delete_many({
 	'Request': {
 	'$regex': r'\.'
+	}
+})
+
+oldfiles_deletes =  Collection.delete_many({
+	'Request': {
+		'$nin': requests
 	}
 })
 
@@ -628,12 +635,13 @@ defer_files = Collection.delete_many({
 	}
 })
 
+print(len(requests))
+
 
 
 print(f'deleted {result.deleted_count} documents')
-print(f'deleted {white_space_deletes.deleted_count} documents')
-print(f'deleted {wrong_files.deleted_count} documents')
-print(f'requests without names: {requests_without_names}')
+print(f'deleted {oldfiles_deletes.deleted_count} documents')
+
 
 
 
