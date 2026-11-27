@@ -23,8 +23,10 @@
 		}
 
 		.download_btn, .download_seq_btn {
-			margin-top: 1px;
-			margin-right: 1px;
+			margin-top: 5px;
+			margin-right: 5px;
+			border: 1px solid;
+			padding: 3px;
 		}
 
 		.antibodysource, .type, .class, .special-chain-format, .antigen, .mutation-select, .ptm, .glycos, .germline, .antibody_name_box, .request_box, .cdr {
@@ -63,8 +65,8 @@
 			width: 75%;
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-			gap: 15px 30px;
-			align-items: start;
+			gap: 10px 30px;
+			align-items: stretch;
 			background-color: white;
 			padding: 20px;
 			border-radius: 10px;
@@ -72,7 +74,23 @@
 			margin: 2rem 0;
 			border-color: steelblue;
 
+
 		}
+
+		.container > .search_buttons {
+			background-color: white;
+			border-top: 2px solid;
+
+		}
+
+		.container > div:not(.search_buttons) {
+			align-self: stretch;
+			margin: 0;
+			row-gap: 0;
+		}
+
+
+
 		.submit {
 			background-color: cornsilk;
 			width: 25%;
@@ -117,7 +135,7 @@
 		}
 
 
-	    .ptm-dropdown, .germlinearrow, .antigenArrow, .sourceArrow, .classArrow, .typeArrow, .cdrArrow, .glycos-dropdown, .specificityArrow {
+	    .ptm-dropdown, .germlinearrow, .antigenArrow, .sourceArrow, .classArrow, .typeArrow, .cdrArrow, .glycos-dropdown, .specificityArrow, .special-chain-format-arrow {
 			cursor: pointer;
 			padding: 5px 0;
 			width: 100%;
@@ -263,7 +281,6 @@
 		.container > div {
 			margin: 0;
 			min-width: 0;
-			align-self: start;
 		}
 
 	</style>
@@ -2271,6 +2288,12 @@ submit.addEventListener('click', async (e) => {
 	download_all_txt.textContent = 'Download all txt results';
 	resultsdiv.append(download_all_txt);
 
+	const download_all_fasta = document.createElement('button');
+	download_all_fasta.classList.add('download_all');
+	download_all_fasta.textContent = 'Download all FASTA results';
+	resultsdiv.append(download_all_fasta);
+
+
 	//downloads all results and puts them into a zip file
 	download_all.addEventListener('click', async (e) => {
 		e.stopPropagation();
@@ -2332,6 +2355,33 @@ submit.addEventListener('click', async (e) => {
 
 		URL.revokeObjectURL(url);
 
+	});
+
+	download_all_fasta.addEventListener('click', async (e) => {
+		e.stopPropagation();
+		e.preventDefault();
+		const zip = new JSZip();
+
+		results.forEach((result) => {
+			const fasta = generateFasta(result); //contains the fasta information
+			if (!fasta) return;
+			const filename = result.Antibody_name || result.Request;
+			zip.file(`${filename}_${result.Request}.fasta`, fasta);
+
+		});
+
+		const blob = await zip.generateAsync({ type: 'blob' });
+		const url = URL.createObjectURL(blob);
+
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'fasta_files.zip';
+
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+
+		URL.revokeObjectURL(url);
 	});
 
 	//creates the basic information that the user first sees for each result (antibody name and request number)
@@ -2396,30 +2446,8 @@ submit.addEventListener('click', async (e) => {
 		download_seq_btn.addEventListener('click', (e) => {
 			e.stopPropagation();
 
-			let chain_info = []; //empty set to make fasta file out of
+			const chain_fasta = generateFasta(result);
 
-			for (const [key, val] of Object.entries(result)) {
-			    if (key === 'Chain' || key.includes(' Chain')) {
-			        let chain = [];
-
-			        for (const instance of val) {
-			            for (const [chain_inst, seq] of Object.entries(instance)) {
-
-			                console.log(chain_inst, seq);
-
-			                for (const line of seq.split('\n')) {
-			                    chain.push(line.replace(/\s*\d+\s*$/, '').replace(/\s/g, ''));
-			                }
-							chain_info.push(`>${key}${chain_inst}\n`);
-							chain_info.push(`${chain.join('').match(/.{1,50}/g).join('\n')}\n`); //add line break every 50 amino acids
-			            }
-
-			        }
-
-				}
-			}
-
-			const chain_fasta = chain_info.join('');
 
 			const seq_blob = new Blob([chain_fasta], { type: "text/plain" });
 			const seq_url = URL.createObjectURL(seq_blob);
@@ -2639,6 +2667,46 @@ clear.addEventListener('click', async (e) => {
 	}
 
 });
+
+
+
+//input = the result from the user's search query. Output = the fasta file
+function generateFasta(result) {
+	const chain_info = [];
+
+	for (const [key, val] of Object.entries(result)) {
+
+		if (key === 'Chain' || key.includes(' Chain')) {
+
+			for (const instance of val) {
+				for (const [chain_inst, seq] of Object.entries(instance)) {
+					
+					let chain = [];
+
+					for (const line of seq.split('\n')) {
+						chain.push(
+							line.replace(/\s*\d+\s*$/, '').replace(/\s/g, '')
+						);
+					}
+
+					const sequence = chain.join('');
+
+                    // Add fasta header
+					chain_info.push(`>${key}${chain_inst}\n`);
+
+					// Add line break every 50 amino acids
+					chain_info.push(
+						`${(sequence.match(/.{1,50}/g) || []).join('\n')}\n`
+					);
+				}
+			}
+		}
+	}
+
+    return chain_info.join('');
+}
+
+
 
 //even_more_info. key, value represent specific fields, eg Antigen is the key and all the following information about the antigen is the value. Element displays the result.
 function displayValue(value, key, element, indent = 0) {

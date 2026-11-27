@@ -476,6 +476,6 @@ def search():
 
 if __name__== '__main__':
 	print(app.url_map)
-	app.run(debug=True)
+	app.run(debug=True, host=config.flask_ip, port=config.flask_port)
 	print('ran')
 
